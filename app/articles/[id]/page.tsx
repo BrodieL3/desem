@@ -110,7 +110,7 @@ export default async function ArticlePage({params}: ArticlePageProps) {
           </article>
 
           <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-            <Card className="border-slate-300/75 bg-white/95">
+            <Card className="border-slate-300/75 bg-background">
               <CardHeader className="space-y-2">
                 <CardTitle className="font-display text-3xl leading-tight">Topics</CardTitle>
               </CardHeader>
@@ -119,7 +119,7 @@ export default async function ArticlePage({params}: ArticlePageProps) {
                   <p className="text-muted-foreground text-sm">No topics extracted for this article.</p>
                 ) : (
                   detail.article.topics.map((topic) => (
-                    <div key={topic.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-white px-3 py-2">
+                    <div key={topic.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-background px-3 py-2">
                       <Link href={`/topics/${topic.slug}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">
                         {topic.label}
                       </Link>
@@ -135,7 +135,7 @@ export default async function ArticlePage({params}: ArticlePageProps) {
               </CardContent>
             </Card>
 
-            <Card className="border-slate-300/75 bg-white/95">
+            <Card className="border-slate-300/75 bg-background">
               <CardHeader className="space-y-2">
                 <CardTitle className="font-display text-3xl leading-tight">Article actions</CardTitle>
               </CardHeader>
@@ -145,8 +145,8 @@ export default async function ArticlePage({params}: ArticlePageProps) {
                     Open original source
                   </a>
                 </Button>
-                <ShareLinkButton className="w-full rounded-full border-slate-300 bg-white" />
-                <div className="rounded-xl border border-slate-300/80 bg-white p-3 text-sm">
+                <ShareLinkButton className="w-full rounded-full border-slate-300 bg-background" />
+                <div className="rounded-xl border border-slate-300/80 bg-background p-3 text-sm">
                   <p className="text-muted-foreground">
                     {detail.article.wordCount > 0
                       ? `${detail.article.wordCount.toLocaleString()} words | ${Math.max(1, detail.article.readingMinutes)} min read`

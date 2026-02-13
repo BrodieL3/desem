@@ -119,14 +119,14 @@ export function CommentThread({articleId, isAuthenticated, initialComments}: Com
   }
 
   return (
-    <Card className="border-slate-300/75 bg-white/95">
+    <Card className="border-slate-300/75 bg-background">
       <CardHeader className="space-y-1">
         <CardTitle className="font-display text-3xl leading-tight text-slate-900">Discussion</CardTitle>
         <p className="text-muted-foreground text-sm">{activeCommentCount} published comments</p>
       </CardHeader>
       <CardContent className="space-y-5">
         {isAuthenticated ? (
-          <form onSubmit={submitComment} className="space-y-3 rounded-2xl border border-slate-300/80 bg-white p-4">
+          <form onSubmit={submitComment} className="space-y-3 rounded-2xl border border-slate-300/80 bg-background p-4">
             <label className="text-sm font-medium" htmlFor="comment-body">
               Add your take
             </label>
@@ -135,7 +135,7 @@ export function CommentThread({articleId, isAuthenticated, initialComments}: Com
               value={body}
               onChange={(event) => setBody(event.target.value)}
               rows={4}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)]"
+              className="w-full rounded-xl border border-slate-300 bg-background px-3 py-2 text-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)]"
               placeholder="What stood out to you in this article?"
               maxLength={2000}
             />
@@ -147,7 +147,7 @@ export function CommentThread({articleId, isAuthenticated, initialComments}: Com
             </div>
           </form>
         ) : (
-          <div className="rounded-2xl border border-slate-300/80 bg-white p-4 text-sm">
+          <div className="rounded-2xl border border-slate-300/80 bg-background p-4 text-sm">
             <p className="text-muted-foreground">Sign in to comment and follow discussion threads.</p>
             <Button asChild size="sm" className="mt-3 rounded-full">
               <Link href={`/auth/sign-in?next=${encodeURIComponent(`/articles/${articleId}`)}`}>Sign in</Link>
@@ -162,7 +162,7 @@ export function CommentThread({articleId, isAuthenticated, initialComments}: Com
             <p className="text-muted-foreground text-sm">No comments yet. Start the discussion.</p>
           ) : (
             comments.map((comment) => (
-              <article key={comment.id} className="rounded-xl border border-slate-300/80 bg-white p-4">
+              <article key={comment.id} className="rounded-xl border border-slate-300/80 bg-background p-4">
                 <header className="mb-2 flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-medium text-slate-800">{commentAuthor(comment.userId, comment.isOwn)}</span>
                   <span className="text-muted-foreground">{dateFormatter.format(new Date(comment.createdAt))}</span>
