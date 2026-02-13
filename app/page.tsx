@@ -21,9 +21,6 @@ const timeFormatter = new Intl.DateTimeFormat('en-US', {
   minute: '2-digit',
 })
 
-const headlineRiverCardVariants = ['river-card--signal', 'river-card--column', 'river-card--flash', 'river-card--analysis'] as const
-const newsDeskCardVariants = ['desk-card--wire', 'desk-card--briefing', 'desk-card--focus'] as const
-
 function formatTimestamp(value: string | null | undefined, fallback: string) {
   const candidate = value ?? fallback
   const parsed = new Date(candidate)
@@ -139,26 +136,23 @@ export default async function HomePage() {
                 <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Latest coverage</p>
               </div>
               <div className="grid gap-3 md:grid-cols-2">
-                {headlineRiver.map((article, index) => (
-                  <article
-                    key={article.id}
-                    className={`river-card ${headlineRiverCardVariants[index % headlineRiverCardVariants.length]}`}
-                  >
-                    <div className="river-card-meta mb-2 flex flex-wrap items-center gap-2 text-xs">
+                {headlineRiver.map((article) => (
+                  <article key={article.id} className="rounded-xl border border-slate-300/70 bg-white p-4">
+                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
                       <span className="font-medium text-slate-700">{article.sourceName}</span>
                       <span className="text-muted-foreground">{formatTimestamp(article.publishedAt, article.fetchedAt)}</span>
                       {article.personalizationScore > 0 ? (
-                        <Badge variant="secondary" className="river-card-chip rounded-full bg-[var(--brand)] text-[11px] text-white">
+                        <Badge variant="secondary" className="rounded-full bg-[var(--brand)] text-[11px] text-white">
                           Followed topic match
                         </Badge>
                       ) : null}
                     </div>
-                    <h4 className="river-card-title font-display text-[1.45rem] leading-tight text-slate-900">
+                    <h4 className="font-display text-[1.45rem] leading-tight text-slate-900">
                       <Link href={`/articles/${article.id}`} className="hover:text-[var(--brand)]">
                         {article.title}
                       </Link>
                     </h4>
-                    <p className="river-card-excerpt text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
+                    <p className="text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
                       {article.summary ?? article.fullTextExcerpt ?? 'Read full text on article page.'}
                     </p>
                   </article>
@@ -173,9 +167,9 @@ export default async function HomePage() {
               </div>
 
               <div className="space-y-2">
-                {deskArticles.map((article, index) => (
-                  <article key={article.id} className={`desk-card ${newsDeskCardVariants[index % newsDeskCardVariants.length]}`}>
-                    <div className="desk-card-meta mb-2 flex flex-wrap items-center gap-2 text-xs">
+                {deskArticles.map((article) => (
+                  <article key={article.id} className="rounded-xl border border-slate-300/75 bg-white p-4">
+                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
                       <span className="font-medium text-slate-700">{article.sourceName}</span>
                       <span className="text-muted-foreground">{formatTimestamp(article.publishedAt, article.fetchedAt)}</span>
                       {article.commentCount > 0 ? (
@@ -183,13 +177,13 @@ export default async function HomePage() {
                       ) : null}
                     </div>
 
-                    <h4 className="desk-card-title font-display text-2xl leading-tight text-slate-900">
+                    <h4 className="font-display text-2xl leading-tight text-slate-900">
                       <Link href={`/articles/${article.id}`} className="hover:text-[var(--brand)]">
                         {article.title}
                       </Link>
                     </h4>
 
-                    <p className="desk-card-excerpt text-muted-foreground mt-2 text-sm leading-relaxed">
+                    <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
                       {article.summary ?? article.fullTextExcerpt ?? 'Read full text on article page.'}
                     </p>
                   </article>
@@ -200,7 +194,7 @@ export default async function HomePage() {
 
           <aside className="space-y-4 lg:sticky lg:top-4">
             {lead ? (
-              <Card className="border-slate-300/75 bg-background">
+              <Card className="border-slate-300/75 bg-white/95">
                 <CardHeader>
                   <CardTitle className="font-display text-3xl leading-tight">Lead topics</CardTitle>
                 </CardHeader>
@@ -209,10 +203,7 @@ export default async function HomePage() {
                     <p className="text-muted-foreground text-sm">No topics extracted for this lead article.</p>
                   ) : (
                     lead.topics.slice(0, 10).map((topic) => (
-                      <div
-                        key={`lead-topic-${topic.id}`}
-                        className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-background px-3 py-2"
-                      >
+                      <div key={`lead-topic-${topic.id}`} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-white px-3 py-2">
                         <Link href={`/topics/${topic.slug}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">
                           {topic.label}
                         </Link>
@@ -229,7 +220,7 @@ export default async function HomePage() {
               </Card>
             ) : null}
 
-            <Card className="border-slate-300/75 bg-background">
+            <Card className="border-slate-300/75 bg-white/95">
               <CardHeader>
                 <CardTitle className="font-display text-3xl leading-tight">Trending topics</CardTitle>
               </CardHeader>
@@ -238,7 +229,7 @@ export default async function HomePage() {
                   <p className="text-muted-foreground text-sm">Topics appear after ingestion + extraction runs.</p>
                 ) : (
                   feed.trendingTopics.map((topic) => (
-                    <div key={topic.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-background px-3 py-2">
+                    <div key={topic.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-white px-3 py-2">
                       <Link href={`/topics/${topic.slug}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">
                         {topic.label}
                       </Link>
@@ -257,7 +248,7 @@ export default async function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="border-slate-300/75 bg-background">
+            <Card className="border-slate-300/75 bg-white/95">
               <CardHeader>
                 <CardTitle className="font-display text-3xl leading-tight">Your followed topics</CardTitle>
               </CardHeader>
@@ -267,7 +258,7 @@ export default async function HomePage() {
                     <p className="text-muted-foreground text-sm">Follow topics from story chips to tune your ranking.</p>
                   ) : (
                     feed.followedTopics.map((topic) => (
-                      <div key={topic.id} className="flex items-center justify-between rounded-xl border border-slate-300/75 bg-background px-3 py-2">
+                      <div key={topic.id} className="flex items-center justify-between rounded-xl border border-slate-300/75 bg-white px-3 py-2">
                         <Link href={`/topics/${topic.slug}`} className="text-sm font-medium hover:text-[var(--brand)]">
                           {topic.label}
                         </Link>
@@ -286,7 +277,7 @@ export default async function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="border-slate-300/75 bg-background">
+            <Card className="border-slate-300/75 bg-white/95">
               <CardHeader>
                 <CardTitle className="font-display text-3xl leading-tight">Most discussed</CardTitle>
               </CardHeader>
@@ -298,7 +289,7 @@ export default async function HomePage() {
                     <Link
                       key={article.id}
                       href={`/articles/${article.id}`}
-                      className="block rounded-xl border border-slate-300/75 bg-background px-3 py-2 hover:border-[var(--brand)]"
+                      className="block rounded-xl border border-slate-300/75 bg-white px-3 py-2 hover:border-[var(--brand)]"
                     >
                       <p className="font-medium text-slate-800">{article.title}</p>
                       <p className="text-muted-foreground mt-1 text-xs">{article.commentCount} comments</p>
