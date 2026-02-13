@@ -1,5 +1,10 @@
 import {NextResponse} from 'next/server'
 
+import {
+  enrichArticleContentBatch,
+  enrichArticleTopicsBatch,
+  getArticlesByFetchedAt,
+} from '@/lib/ingest/enrich-articles'
 import {pullDefenseArticles} from '@/lib/ingest/pull-defense-articles'
 import {createSupabaseAdminClientFromEnv, upsertPullResultToSupabase} from '@/lib/ingest/persist'
 
@@ -31,6 +36,19 @@ async function runIngestion(request: Request) {
     const supabase = createSupabaseAdminClientFromEnv()
     const persisted = await upsertPullResultToSupabase(supabase, pullResult)
 
+    const recentlyIngested = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+
+    const contentResult = await enrichArticleContentBatch(supabase, recentlyIngested, {
+      concurrency: 5,
+      timeoutMs: 15000,
+    })
+
+    const refreshedRows = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+
+    const topicResult = await enrichArticleTopicsBatch(supabase, refreshedRows, {
+      concurrency: 5,
+    })
+
     const body = {
       ok: true,
       fetchedAt: pullResult.fetchedAt,
@@ -38,7 +56,13 @@ async function runIngestion(request: Request) {
       articleCount: pullResult.articleCount,
       upsertedSourceCount: persisted.upsertedSourceCount,
       upsertedArticleCount: persisted.upsertedArticleCount,
-      usedLegacySchema: persisted.usedLegacySchema,
+      enrichment: {
+        contentProcessed: contentResult.processed,
+        contentFetched: contentResult.fetched,
+        contentFailed: contentResult.failed,
+        topicProcessed: topicResult.processed,
+        topicWithMatches: topicResult.withTopics,
+      },
       sourceErrors: pullResult.errors,
     }
 

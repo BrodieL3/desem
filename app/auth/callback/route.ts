@@ -65,22 +65,6 @@ export async function GET(request: NextRequest) {
 
   await supabase.from('profiles').upsert({id: user.id}, {onConflict: 'id'})
 
-  const {data: profile} = await supabase
-    .from('profiles')
-    .select('onboarding_completed_at')
-    .eq('id', user.id)
-    .maybeSingle<{onboarding_completed_at: string | null}>()
-
-  if (!profile?.onboarding_completed_at && nextPath !== '/onboarding') {
-    const onboardingUrl = new URL('/onboarding', request.url)
-
-    if (nextPath !== '/') {
-      onboardingUrl.searchParams.set('next', nextPath)
-    }
-
-    return NextResponse.redirect(onboardingUrl)
-  }
-
   const redirectUrl = new URL(nextPath, request.url)
   return NextResponse.redirect(redirectUrl)
 }

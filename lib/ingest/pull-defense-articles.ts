@@ -31,6 +31,13 @@ const namedHtmlEntities: Record<string, string> = {
   quot: '"',
   apos: "'",
   nbsp: ' ',
+  lsquo: "'",
+  rsquo: "'",
+  ldquo: '"',
+  rdquo: '"',
+  ndash: '-',
+  mdash: '-',
+  hellip: '...',
 }
 
 const sourceWeightLookup = new Map(defenseFeedSources.map((source) => [source.id, source.weight]))
@@ -153,6 +160,8 @@ function stripHtml(input: string): string {
     .replace(/<style[\s\S]*?>[\s\S]*?<\/style>/gi, ' ')
     .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
+    .replace(/&(?:[a-z]{2,12}|#x?[0-9a-f]{2,8});/gi, ' ')
+    .replace(/&(?:[a-z]{2,12}|#x?[0-9a-f]{2,8})$/i, '')
     .replace(/\s+/g, ' ')
     .trim()
 }

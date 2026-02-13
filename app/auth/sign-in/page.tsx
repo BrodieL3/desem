@@ -27,7 +27,7 @@ export default async function SignInPage({searchParams}: SignInPageProps) {
           <CardHeader className="space-y-2">
             <CardTitle className="font-display text-4xl leading-tight">Sign in</CardTitle>
             <CardDescription>
-              Use a magic link to unlock personalized mission, domain, and technology feeds.
+              Use a magic link to follow topics, comment on articles, and personalize your news feed.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

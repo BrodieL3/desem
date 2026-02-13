@@ -1,6 +1,7 @@
-import {createClient, type SupabaseClient} from '@supabase/supabase-js'
+import type {SupabaseClient} from '@supabase/supabase-js'
 
-import {classifyPulledArticle} from './tagging'
+import {createSupabaseAdminClientFromEnv as createAdminClient} from '@/lib/supabase/admin'
+
 import {resolveDefenseSources, type PullDefenseArticlesResult} from './pull-defense-articles'
 
 export interface PersistDefenseArticlesResult {
@@ -21,27 +22,6 @@ type NewsSourceRow = {
 }
 
 type IngestedArticleRow = {
-  source_id: string
-  source_name: string
-  source_category: string
-  source_badge: string
-  article_url: string
-  canonical_url: string
-  title: string
-  summary: string | null
-  author: string | null
-  guid: string | null
-  mission_tags: string[]
-  domain_tags: string[]
-  technology_tags: string[]
-  track: string
-  content_type: string
-  high_impact: boolean
-  published_at: string | null
-  fetched_at: string
-}
-
-type LegacyIngestedArticleRow = {
   source_id: string
   source_name: string
   source_category: string
@@ -82,33 +62,6 @@ function buildSourceRows(result: PullDefenseArticlesResult): NewsSourceRow[] {
 }
 
 function buildArticleRows(result: PullDefenseArticlesResult): IngestedArticleRow[] {
-  return result.articles.map((article) => {
-    const tags = classifyPulledArticle(article)
-
-    return {
-      source_id: article.sourceId,
-      source_name: article.sourceName,
-      source_category: article.sourceCategory,
-      source_badge: article.sourceBadge,
-      article_url: article.url,
-      canonical_url: article.url,
-      title: article.title,
-      summary: article.summary || null,
-      author: article.author || null,
-      guid: article.guid || null,
-      mission_tags: tags.missionTags,
-      domain_tags: tags.domainTags,
-      technology_tags: tags.technologyTags,
-      track: tags.track,
-      content_type: tags.contentType,
-      high_impact: tags.highImpact,
-      published_at: article.publishedAt || null,
-      fetched_at: result.fetchedAt,
-    }
-  })
-}
-
-function buildLegacyArticleRows(result: PullDefenseArticlesResult): LegacyIngestedArticleRow[] {
   return result.articles.map((article) => ({
     source_id: article.sourceId,
     source_name: article.sourceName,
@@ -125,33 +78,12 @@ function buildLegacyArticleRows(result: PullDefenseArticlesResult): LegacyIngest
   }))
 }
 
-function missingTagColumnError(message: string) {
-  const lowered = message.toLowerCase()
-  return lowered.includes('could not find') && (lowered.includes('mission_tags') || lowered.includes('domain_tags') || lowered.includes('technology_tags') || lowered.includes('content_type') || lowered.includes('high_impact') || lowered.includes('track'))
-}
-
 function getUpsertErrorMessage(scope: string, message: string) {
-  if (message.toLowerCase().includes('column') && message.toLowerCase().includes('does not exist')) {
-    return `${scope} failed because ingestion schema is missing columns. Apply db/migrations/202602120003_article_tagging.sql first.`
-  }
-
   return `${scope} failed: ${message}`
 }
 
 export function createSupabaseAdminClientFromEnv() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for ingestion persistence.')
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  })
+  return createAdminClient()
 }
 
 export async function upsertPullResultToSupabase(
@@ -162,13 +94,13 @@ export async function upsertPullResultToSupabase(
 
   if (sourceRows.length > 0) {
     const {error: sourceError} = await supabase.from('news_sources').upsert(sourceRows, {onConflict: 'id'})
+
     if (sourceError) {
       throw new Error(getUpsertErrorMessage('Upserting news_sources', sourceError.message))
     }
   }
 
   const articleRows = buildArticleRows(result)
-  let usedLegacySchema = false
 
   for (const batch of chunk(articleRows, 300)) {
     const {error: articleError} = await supabase.from('ingested_articles').upsert(batch, {
@@ -176,32 +108,13 @@ export async function upsertPullResultToSupabase(
     })
 
     if (articleError) {
-      if (missingTagColumnError(articleError.message)) {
-        usedLegacySchema = true
-        break
-      }
-
       throw new Error(getUpsertErrorMessage('Upserting ingested_articles', articleError.message))
-    }
-  }
-
-  if (usedLegacySchema) {
-    const legacyRows = buildLegacyArticleRows(result)
-
-    for (const batch of chunk(legacyRows, 300)) {
-      const {error: articleError} = await supabase.from('ingested_articles').upsert(batch, {
-        onConflict: 'canonical_url',
-      })
-
-      if (articleError) {
-        throw new Error(getUpsertErrorMessage('Upserting ingested_articles (legacy schema)', articleError.message))
-      }
     }
   }
 
   return {
     upsertedSourceCount: sourceRows.length,
     upsertedArticleCount: articleRows.length,
-    usedLegacySchema,
+    usedLegacySchema: false,
   }
 }

@@ -189,12 +189,7 @@ async function run() {
   if (options.toSupabase) {
     const persisted = await upsertToSupabase(result)
     console.log(`\nUpserted ${persisted.upsertedArticleCount} articles into Supabase.`)
-
-    if (persisted.usedLegacySchema) {
-      console.log(
-        'Schema note: ingested_articles is missing tagging columns. Apply db/migrations/202602120003_article_tagging.sql to persist mission/domain/technology tags.'
-      )
-    }
+    console.log('Run `bun run scripts/backfill-article-content.ts` to enrich full text and topic metadata.')
   }
 }
 

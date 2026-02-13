@@ -18,9 +18,9 @@ const newsreader = Newsreader({
 })
 
 export const metadata: Metadata = {
-  title: 'Field Brief | Defense Signals by Interest',
+  title: 'Field Brief | Defense News Aggregator',
   description:
-    'A blended defense briefing surface with optional personalization by mission, domain, and technology interests.',
+    'A defense-focused news aggregator with full-text article reading, topic follows, and article discussions.',
 }
 
 export default function RootLayout({
