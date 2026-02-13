@@ -8,6 +8,7 @@ Core behavior:
 - Extracts and links topics/entities for exploration and personalization.
 - Supports signed-in comments and comment reporting.
 - Ranks feed by followed topics when authenticated.
+- Runs an editorial pipeline where Supabase is raw ingest and Sanity is canonical curated output.
 
 ## Stack
 
@@ -34,7 +35,9 @@ Core behavior:
 - `/api/comments/[id]/report` - report comment abuse
 - `/api/comments/[id]/moderate` - moderator-only hide/restore action
 - `/api/me/topics` - read/update followed topics
-- `/api/cron/pull-articles` - pull + persist + content enrichment + topic extraction
+- `/api/cron/pull-articles` - pull + persist + content enrichment + topic extraction + clustering + editorial sync
+- `/api/editorial/feed` - curated Sanity-backed editorial feed
+- `/api/editorial/clusters` - curated story-cluster digests from Sanity
 
 ## Database migrations
 
@@ -45,6 +48,7 @@ Apply these in Supabase SQL editor:
 3. `db/migrations/202602120004_article_content.sql`
 4. `db/migrations/202602120005_topics.sql`
 5. `db/migrations/202602120006_comments.sql`
+6. `db/migrations/202602130007_editorial_pipeline.sql`
 
 Notes:
 - Migration `202602120003_article_tagging.sql` is legacy and no longer required for V2 behavior.
@@ -60,6 +64,23 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="..."
 SUPABASE_SERVICE_ROLE_KEY="..." # required for cron/backfill enrichment
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 CRON_SECRET="..." # optional, used to authorize cron route
+
+# Sanity editorial pipeline (canonical output)
+SANITY_PROJECT_ID="..."
+SANITY_DATASET="..."
+SANITY_AGENT_TOKEN="..." # read/write token for agent actions
+SANITY_SCHEMA_ID="..."
+SANITY_API_VERSION="vX" # required for Transform API calls
+
+# Optional controls
+EDITORIAL_PIPELINE_ENABLED="true"
+EDITORIAL_SANITY_READS_ENABLED="true"
+EDITORIAL_TRANSFORM_ENABLED="true"
+EDITORIAL_EMBEDDINGS_ENABLED="true"
+EDITORIAL_CLUSTER_THRESHOLD="0.72"
+EDITORIAL_MAX_EMBEDDING_ARTICLES="120"
+EDITORIAL_EMBEDDING_MODEL="text-embedding-3-small"
+OPENAI_API_KEY="..." # optional for embedding similarity in clustering
 ```
 
 ## Run locally
@@ -103,6 +124,11 @@ bun run ingest:backfill
 - upsert sources/articles
 - full-text enrichment (concurrency 5, 15s timeout each)
 - topic extraction/persistence
+- hybrid story clustering (lexical + optional embeddings)
+- congestion scoring (Transform fallback only when cluster has >=10 stories and >=6 sources in 24h)
+- deterministic digest fallback if Transform fails/unavailable
+- draft-first Sanity sync for `newsItem` and `storyDigest`
+- Supabase ops persistence in `editorial_generation_runs`, `story_clusters`, and `cluster_members`
 
 Example local invocation:
 
