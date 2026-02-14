@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {notFound} from 'next/navigation'
 
 import {ContinuousStoryFeed} from '@/components/aggregator/continuous-story-feed'
+import {EvidenceBlockList} from '@/components/editorial/evidence-block-list'
 import {SourceLinkList} from '@/components/editorial/source-link-list'
 import {StoryBriefingHeader} from '@/components/editorial/story-briefing-header'
 import {StoryNewsFeed} from '@/components/editorial/story-news-feed'
@@ -34,6 +35,7 @@ export default async function StoryPage({params}: StoryPageProps) {
   )
     .filter((story) => !sourceArticleIds.includes(story.id))
     .slice(0, 8)
+  const showEvidenceTimeline = detail.totalEvidence >= 10
 
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
@@ -59,6 +61,10 @@ export default async function StoryPage({params}: StoryPageProps) {
           <StoryNewsFeed blocks={detail.feedBlocks} />
 
           <SourceLinkList clusterKey={detail.clusterKey} links={detail.sourceLinks} />
+
+          {showEvidenceTimeline ? (
+            <EvidenceBlockList clusterKey={detail.clusterKey} initialBlocks={detail.evidence} totalEvidence={detail.totalEvidence} />
+          ) : null}
 
           <ContinuousStoryFeed
             initialStories={initialFeedStories}

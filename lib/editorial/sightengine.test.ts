@@ -1,11 +1,12 @@
 import {afterEach, beforeEach, describe, expect, it} from 'bun:test'
 
-import {__resetSightengineCacheForTests, shouldDisplayNonAiImageUrl} from './sightengine'
+import {__resetSightengineCacheForTests, getImageDisplayAssessment, shouldDisplayNonAiImageUrl} from './sightengine'
 
 const originalFetch = global.fetch
 const originalApiKey = process.env.NEXT_PUBLIC_SIGHTENGINE_API_KEY
 const originalApiSecret = process.env.NEXT_PUBLIC_SIGHTENGINE_API_SECRET
 const originalThreshold = process.env.SIGHTENGINE_AI_GENERATED_THRESHOLD
+const originalQualityThreshold = process.env.SIGHTENGINE_IMAGE_QUALITY_THRESHOLD
 
 describe('shouldDisplayNonAiImageUrl', () => {
   beforeEach(() => {
@@ -13,6 +14,7 @@ describe('shouldDisplayNonAiImageUrl', () => {
     process.env.NEXT_PUBLIC_SIGHTENGINE_API_KEY = 'test-api-user'
     process.env.NEXT_PUBLIC_SIGHTENGINE_API_SECRET = 'test-api-secret'
     delete process.env.SIGHTENGINE_AI_GENERATED_THRESHOLD
+    delete process.env.SIGHTENGINE_IMAGE_QUALITY_THRESHOLD
   })
 
   afterEach(() => {
@@ -20,6 +22,7 @@ describe('shouldDisplayNonAiImageUrl', () => {
     process.env.NEXT_PUBLIC_SIGHTENGINE_API_KEY = originalApiKey
     process.env.NEXT_PUBLIC_SIGHTENGINE_API_SECRET = originalApiSecret
     process.env.SIGHTENGINE_AI_GENERATED_THRESHOLD = originalThreshold
+    process.env.SIGHTENGINE_IMAGE_QUALITY_THRESHOLD = originalQualityThreshold
     __resetSightengineCacheForTests()
   })
 
@@ -30,6 +33,9 @@ describe('shouldDisplayNonAiImageUrl', () => {
           status: 'success',
           type: {
             ai_generated: 0.08,
+          },
+          quality: {
+            score: 0.91,
           },
         }),
         {status: 200}
@@ -48,6 +54,9 @@ describe('shouldDisplayNonAiImageUrl', () => {
           status: 'success',
           type: {
             ai_generated: 0.91,
+          },
+          quality: {
+            score: 0.88,
           },
         }),
         {status: 200}
@@ -68,6 +77,9 @@ describe('shouldDisplayNonAiImageUrl', () => {
           status: 'success',
           type: {
             ai_generated: 0.25,
+          },
+          quality: {
+            score: 0.92,
           },
         }),
         {status: 200}
@@ -91,6 +103,9 @@ describe('shouldDisplayNonAiImageUrl', () => {
           type: {
             ai_generated: 0.04,
           },
+          quality: {
+            score: 0.84,
+          },
         }),
         {status: 200}
       )
@@ -113,5 +128,50 @@ describe('shouldDisplayNonAiImageUrl', () => {
     const result = await shouldDisplayNonAiImageUrl('https://example.com/no-credentials.jpg')
 
     expect(result).toBe(false)
+  })
+
+  it('returns false when quality score is below threshold', async () => {
+    global.fetch = (async () => {
+      return new Response(
+        JSON.stringify({
+          status: 'success',
+          type: {
+            ai_generated: 0.05,
+          },
+          quality: {
+            score: 0.2,
+          },
+        }),
+        {status: 200}
+      )
+    }) as typeof fetch
+
+    const result = await shouldDisplayNonAiImageUrl('https://example.com/low-quality.jpg')
+    expect(result).toBe(false)
+  })
+
+  it('adds low_relevance reason when relevance score is weak', async () => {
+    global.fetch = (async () => {
+      return new Response(
+        JSON.stringify({
+          status: 'success',
+          type: {
+            ai_generated: 0.05,
+          },
+          quality: {
+            score: 0.95,
+          },
+        }),
+        {status: 200}
+      )
+    }) as typeof fetch
+
+    const result = await getImageDisplayAssessment({
+      imageUrl: 'https://example.com/relevance.jpg',
+      relevanceScore: 0.1,
+    })
+
+    expect(result.shouldDisplay).toBe(false)
+    expect(result.reasons.includes('low_relevance')).toBe(true)
   })
 })

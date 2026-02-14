@@ -23,6 +23,7 @@ Core behavior:
 - `/` - newspaper-style front page with lead story, headline river, trending topics, followed topics, and most discussed
 - `/articles/[id]` - full article reading view + topic chips + comments
 - `/topics/[slug]` - topic explorer with related coverage and co-occurring topics
+- `/data` - prime backlog + book-to-bill dashboard with alerts, charts, and source-linked table
 - `/auth/sign-in` - magic-link sign-in
 - `/auth/callback` - auth callback handler
 - `/auth/sign-out` - sign-out redirect route
@@ -38,6 +39,7 @@ Core behavior:
 - `/api/cron/pull-articles` - pull + persist + content enrichment + topic extraction + clustering + editorial sync
 - `/api/editorial/feed` - curated Sanity-backed editorial feed
 - `/api/editorial/clusters` - curated story-cluster digests from Sanity
+- `/api/data/primes` - prime backlog/book-to-bill dashboard payload
 
 ## Database migrations
 
@@ -50,6 +52,7 @@ Apply these in Supabase SQL editor:
 5. `db/migrations/202602120006_comments.sql`
 6. `db/migrations/202602130007_editorial_pipeline.sql`
 7. `db/migrations/202602130008_source_curation_metadata.sql`
+8. `db/migrations/202602130009_prime_metrics.sql`
 
 Notes:
 - Migration `202602120003_article_tagging.sql` is legacy and no longer required for V2 behavior.
@@ -87,6 +90,8 @@ EDITORIAL_SEMAPHOR_LIMIT="200"
 EDITORIAL_SEMAPHOR_CONCURRENCY="4"
 EDITORIAL_SEMAPHOR_TIMEOUT_MS="20000"
 OPENAI_API_KEY="..." # optional for embedding similarity in clustering
+DATA_PRIMES_ENABLED="false" # enable /data and /api/data/primes
+SEC_USER_AGENT="FieldBrief/1.0 (email@example.com)" # recommended for SEC data endpoints
 ```
 
 ## Run locally
@@ -133,6 +138,18 @@ Backfill/sync Semafor Security stories into Sanity `newsItem` docs (with full te
 
 ```bash
 bun run editorial:sync-semafor --limit=200 --concurrency=4
+```
+
+Backfill prime metrics from curated official seed data:
+
+```bash
+bun run data:backfill-primes
+```
+
+Sync latest prime metrics from SEC filings:
+
+```bash
+bun run data:sync-primes --filings-per-company=1
 ```
 
 ## Cron ingestion

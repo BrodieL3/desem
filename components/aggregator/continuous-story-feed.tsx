@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import {useCallback, useEffect, useRef, useState} from 'react'
 
-import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import type {ArticleCard} from '@/lib/articles/types'
 
@@ -46,10 +45,9 @@ function storySummary(summary: string | null, excerpt: string | null) {
 function FeedStoryCard({story}: {story: ArticleCard}) {
   return (
     <article className="news-divider-item px-1">
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs tracking-[0.08em] uppercase">
         <span className="font-medium">{story.sourceName}</span>
         <span className="text-muted-foreground">{formatStoryTimestamp(story.publishedAt, story.fetchedAt)}</span>
-        {story.commentCount > 0 ? <span className="text-muted-foreground">{story.commentCount} comments</span> : null}
       </div>
 
       <h3 className="font-display text-[1.7rem] leading-tight text-foreground">
@@ -59,16 +57,6 @@ function FeedStoryCard({story}: {story: ArticleCard}) {
       </h3>
 
       <p className="text-muted-foreground mt-2 text-base leading-relaxed">{storySummary(story.summary, story.fullTextExcerpt)}</p>
-
-      {story.topics.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {story.topics.slice(0, 4).map((topic) => (
-            <Badge key={`${story.id}-${topic.id}`} variant="secondary" className="text-xs">
-              <Link href={`/topics/${topic.slug}`}>{topic.label}</Link>
-            </Badge>
-          ))}
-        </div>
-      ) : null}
     </article>
   )
 }
@@ -191,7 +179,7 @@ export function ContinuousStoryFeed({
       </header>
 
       {stories.length === 0 ? (
-        <p className="text-muted-foreground mx-auto max-w-[74ch] text-base text-center">No additional stories are available right now.</p>
+        <p className="text-muted-foreground mx-auto max-w-[74ch] text-base text-center">No additional stories available.</p>
       ) : (
         <div className="news-divider-list">
           {stories.map((story) => (

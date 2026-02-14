@@ -25,7 +25,7 @@ export function SiteDrawer({isAuthenticated, email}: SiteDrawerProps) {
 
   return (
     <div className="pointer-events-none fixed top-3 right-3 z-50 md:top-5 md:right-5">
-      <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-background/75 px-2 py-1.5 shadow-sm backdrop-blur transition-opacity supports-[backdrop-filter]:bg-background/70 hover:opacity-100 focus-within:opacity-100 opacity-65">
+      <div className="pointer-events-auto flex items-center gap-1 rounded-full px-1 py-1 opacity-55 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <ThemeToggle showLabel={false} className="rounded-full" />
         <Separator orientation="vertical" className="h-6" />
         <DropdownMenu>
@@ -42,6 +42,9 @@ export function SiteDrawer({isAuthenticated, email}: SiteDrawerProps) {
                 {isAuthenticated ? <LogOut className="size-4" /> : <LogIn className="size-4" />}
                 {isAuthenticated ? 'Sign out' : 'Sign in'}
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/topics">Edit topics</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/">Front page</Link>

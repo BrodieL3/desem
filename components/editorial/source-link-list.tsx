@@ -8,60 +8,49 @@ type SourceLinkListProps = {
   links: CuratedSourceLink[]
 }
 
-const roleOrder: CuratedSourceLink['sourceRole'][] = ['reporting', 'official', 'analysis', 'opinion']
+function sourceRoleLabel(role: CuratedSourceLink['sourceRole']) {
+  if (role === 'official') {
+    return 'Official'
+  }
 
-const roleLabel: Record<CuratedSourceLink['sourceRole'], string> = {
-  reporting: 'Reporting',
-  official: 'Official',
-  analysis: 'Analysis',
-  opinion: 'Opinion',
+  if (role === 'analysis') {
+    return 'Analysis'
+  }
+
+  if (role === 'opinion') {
+    return 'Opinion'
+  }
+
+  return 'Reporting'
 }
 
 export function SourceLinkList({clusterKey, links}: SourceLinkListProps) {
-  const grouped = new Map<CuratedSourceLink['sourceRole'], CuratedSourceLink[]>()
-
-  for (const link of links) {
-    const items = grouped.get(link.sourceRole) ?? []
-    items.push(link)
-    grouped.set(link.sourceRole, items)
-  }
-
   return (
-    <section className="space-y-4 border-t border-border pt-6">
-      <h2 className="font-display text-[2rem] leading-tight">Sources</h2>
+    <section className="space-y-4 border-t border-border pt-6" aria-labelledby="story-sources-heading">
+      <h2 id="story-sources-heading" className="font-display text-[1.9rem] leading-tight">
+        Sources
+      </h2>
+
       {links.length === 0 ? (
         <p className="text-muted-foreground text-base">No source links available for this story.</p>
       ) : (
-        roleOrder.map((role) => {
-          const roleLinks = grouped.get(role) ?? []
-
-          if (roleLinks.length === 0) {
-            return null
-          }
-
-          return (
-            <section key={role} className="space-y-2 border-t border-border pt-3 first:border-t-0 first:pt-0">
-              <p className="text-muted-foreground text-[11px] tracking-[0.12em] uppercase">
-                {roleLabel[role]} ({roleLinks.length})
+        <div className="news-divider-list">
+          {links.map((link) => (
+            <Link
+              key={`${link.articleId}-${link.url}`}
+              href={resolveInternalStoryHref({
+                articleId: link.articleId,
+                clusterKey,
+              })}
+              className="news-divider-item block px-1 transition-colors hover:text-primary"
+            >
+              <p className="font-medium">{link.headline}</p>
+              <p className="text-muted-foreground mt-1 text-xs tracking-[0.08em] uppercase">
+                {link.sourceName} · {sourceRoleLabel(link.sourceRole)}
               </p>
-              <div className="news-divider-list">
-                {roleLinks.map((link) => (
-                  <Link
-                    key={`${link.articleId}-${link.url}`}
-                    href={resolveInternalStoryHref({
-                      articleId: link.articleId,
-                      clusterKey,
-                    })}
-                    className="news-divider-item block px-1 transition-colors hover:text-primary"
-                  >
-                    <p className="font-medium">{link.headline}</p>
-                    <p className="text-muted-foreground mt-1 text-sm">{link.sourceName}</p>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )
-        })
+            </Link>
+          ))}
+        </div>
       )}
     </section>
   )

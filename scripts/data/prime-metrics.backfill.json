@@ -1,0 +1,3846 @@
+{
+  "version": "v1-curated-official-seed",
+  "generatedAt": "2026-02-14T00:24:49.618Z",
+  "companies": [
+    {
+      "ticker": "LMT",
+      "name": "Lockheed Martin",
+      "cik": "0000936468",
+      "colorToken": "chart-1",
+      "periods": [
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 1,
+          "periodEnd": "2021-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2021-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 2,
+          "periodEnd": "2021-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 3,
+          "periodEnd": "2021-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 4,
+          "periodEnd": "2021-12-31",
+          "filingType": "10-K",
+          "filingDate": "2022-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 1,
+          "periodEnd": "2022-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2022-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 2,
+          "periodEnd": "2022-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 3,
+          "periodEnd": "2022-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 4,
+          "periodEnd": "2022-12-31",
+          "filingType": "10-K",
+          "filingDate": "2023-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 1,
+          "periodEnd": "2023-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2023-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 2,
+          "periodEnd": "2023-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 3,
+          "periodEnd": "2023-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 4,
+          "periodEnd": "2023-12-31",
+          "filingType": "10-K",
+          "filingDate": "2024-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 1,
+          "periodEnd": "2024-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2024-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 2,
+          "periodEnd": "2024-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 3,
+          "periodEnd": "2024-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 4,
+          "periodEnd": "2024-12-31",
+          "filingType": "10-K",
+          "filingDate": "2025-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 1,
+          "periodEnd": "2025-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2025-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 2,
+          "periodEnd": "2025-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 3,
+          "periodEnd": "2025-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000936468&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 4,
+          "periodEnd": "2025-12-31",
+          "filingType": "8-K",
+          "filingDate": "2026-01-29",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/936468/000162828026003970/ex991q42025.htm",
+          "metrics": {
+            "backlog_total_b": {
+              "value": 193.6,
+              "status": "disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/936468/000162828026003970/ex991q42025.htm",
+              "sourceNote": "Backlog disclosed in official earnings release exhibit."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/936468/000162828026003970/ex991q42025.htm",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/936468/000162828026003970/ex991q42025.htm",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/936468/000162828026003970/ex991q42025.htm",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ticker": "RTX",
+      "name": "RTX",
+      "cik": "0000101829",
+      "colorToken": "chart-2",
+      "periods": [
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 1,
+          "periodEnd": "2021-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2021-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 2,
+          "periodEnd": "2021-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 3,
+          "periodEnd": "2021-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 4,
+          "periodEnd": "2021-12-31",
+          "filingType": "10-K",
+          "filingDate": "2022-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 1,
+          "periodEnd": "2022-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2022-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 2,
+          "periodEnd": "2022-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 3,
+          "periodEnd": "2022-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 4,
+          "periodEnd": "2022-12-31",
+          "filingType": "10-K",
+          "filingDate": "2023-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 1,
+          "periodEnd": "2023-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2023-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 2,
+          "periodEnd": "2023-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 3,
+          "periodEnd": "2023-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 4,
+          "periodEnd": "2023-12-31",
+          "filingType": "10-K",
+          "filingDate": "2024-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 1,
+          "periodEnd": "2024-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2024-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 2,
+          "periodEnd": "2024-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 3,
+          "periodEnd": "2024-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 4,
+          "periodEnd": "2024-12-31",
+          "filingType": "10-K",
+          "filingDate": "2025-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 1,
+          "periodEnd": "2025-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2025-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 2,
+          "periodEnd": "2025-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 3,
+          "periodEnd": "2025-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000101829&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 4,
+          "periodEnd": "2025-12-31",
+          "filingType": "8-K",
+          "filingDate": "2026-01-29",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000003/a2026-01x278xkerexhibit99.htm",
+          "metrics": {
+            "backlog_total_b": {
+              "value": 268,
+              "status": "disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000003/a2026-01x278xkerexhibit99.htm",
+              "sourceNote": "Backlog disclosed in official earnings release exhibit."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000003/a2026-01x278xkerexhibit99.htm",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000003/a2026-01x278xkerexhibit99.htm",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/101829/000010182926000003/a2026-01x278xkerexhibit99.htm",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ticker": "BA",
+      "name": "Boeing",
+      "cik": "0000012927",
+      "colorToken": "chart-3",
+      "periods": [
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 1,
+          "periodEnd": "2021-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2021-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 2,
+          "periodEnd": "2021-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 3,
+          "periodEnd": "2021-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 4,
+          "periodEnd": "2021-12-31",
+          "filingType": "10-K",
+          "filingDate": "2022-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 1,
+          "periodEnd": "2022-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2022-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 2,
+          "periodEnd": "2022-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 3,
+          "periodEnd": "2022-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 4,
+          "periodEnd": "2022-12-31",
+          "filingType": "10-K",
+          "filingDate": "2023-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 1,
+          "periodEnd": "2023-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2023-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 2,
+          "periodEnd": "2023-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 3,
+          "periodEnd": "2023-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 4,
+          "periodEnd": "2023-12-31",
+          "filingType": "10-K",
+          "filingDate": "2024-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 1,
+          "periodEnd": "2024-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2024-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 2,
+          "periodEnd": "2024-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 3,
+          "periodEnd": "2024-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 4,
+          "periodEnd": "2024-12-31",
+          "filingType": "10-K",
+          "filingDate": "2025-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 1,
+          "periodEnd": "2025-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2025-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 2,
+          "periodEnd": "2025-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 3,
+          "periodEnd": "2025-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000012927&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 4,
+          "periodEnd": "2025-12-31",
+          "filingType": "8-K",
+          "filingDate": "2026-01-29",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+          "metrics": {
+            "backlog_total_b": {
+              "value": 682.2,
+              "status": "disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+              "sourceNote": "Backlog disclosed in official earnings release exhibit."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/a202512dec318kprex991.htm",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ticker": "GD",
+      "name": "General Dynamics",
+      "cik": "0000040533",
+      "colorToken": "chart-4",
+      "periods": [
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 1,
+          "periodEnd": "2021-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2021-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 2,
+          "periodEnd": "2021-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 3,
+          "periodEnd": "2021-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 4,
+          "periodEnd": "2021-12-31",
+          "filingType": "10-K",
+          "filingDate": "2022-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 1,
+          "periodEnd": "2022-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2022-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 2,
+          "periodEnd": "2022-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 3,
+          "periodEnd": "2022-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 4,
+          "periodEnd": "2022-12-31",
+          "filingType": "10-K",
+          "filingDate": "2023-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 1,
+          "periodEnd": "2023-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2023-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 2,
+          "periodEnd": "2023-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 3,
+          "periodEnd": "2023-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 4,
+          "periodEnd": "2023-12-31",
+          "filingType": "10-K",
+          "filingDate": "2024-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 1,
+          "periodEnd": "2024-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2024-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 2,
+          "periodEnd": "2024-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 3,
+          "periodEnd": "2024-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 4,
+          "periodEnd": "2024-12-31",
+          "filingType": "10-K",
+          "filingDate": "2025-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 1,
+          "periodEnd": "2025-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2025-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 2,
+          "periodEnd": "2025-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 3,
+          "periodEnd": "2025-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000040533&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 4,
+          "periodEnd": "2025-12-31",
+          "filingType": "8-K",
+          "filingDate": "2026-01-29",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000003/gd-20251231exhibit991.htm",
+          "metrics": {
+            "backlog_total_b": {
+              "value": 118,
+              "status": "disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000003/gd-20251231exhibit991.htm",
+              "sourceNote": "Backlog disclosed in official earnings release exhibit."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000003/gd-20251231exhibit991.htm",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000003/gd-20251231exhibit991.htm",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/40533/000004053326000003/gd-20251231exhibit991.htm",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "ticker": "NOC",
+      "name": "Northrop Grumman",
+      "cik": "0001133421",
+      "colorToken": "chart-5",
+      "periods": [
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 1,
+          "periodEnd": "2021-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2021-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 2,
+          "periodEnd": "2021-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 3,
+          "periodEnd": "2021-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2021-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2021,
+          "fiscalQuarter": 4,
+          "periodEnd": "2021-12-31",
+          "filingType": "10-K",
+          "filingDate": "2022-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 1,
+          "periodEnd": "2022-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2022-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 2,
+          "periodEnd": "2022-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 3,
+          "periodEnd": "2022-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2022-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2022,
+          "fiscalQuarter": 4,
+          "periodEnd": "2022-12-31",
+          "filingType": "10-K",
+          "filingDate": "2023-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 1,
+          "periodEnd": "2023-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2023-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 2,
+          "periodEnd": "2023-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 3,
+          "periodEnd": "2023-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2023-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2023,
+          "fiscalQuarter": 4,
+          "periodEnd": "2023-12-31",
+          "filingType": "10-K",
+          "filingDate": "2024-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 1,
+          "periodEnd": "2024-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2024-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 2,
+          "periodEnd": "2024-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 3,
+          "periodEnd": "2024-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2024-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2024,
+          "fiscalQuarter": 4,
+          "periodEnd": "2024-12-31",
+          "filingType": "10-K",
+          "filingDate": "2025-01-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 1,
+          "periodEnd": "2025-03-31",
+          "filingType": "10-Q",
+          "filingDate": "2025-04-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 2,
+          "periodEnd": "2025-06-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-07-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 3,
+          "periodEnd": "2025-09-30",
+          "filingType": "10-Q",
+          "filingDate": "2025-10-30",
+          "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+          "metrics": {
+            "backlog_total_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001133421&type=10-Q",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        },
+        {
+          "fiscalYear": 2025,
+          "fiscalQuarter": 4,
+          "periodEnd": "2025-12-31",
+          "filingType": "8-K",
+          "filingDate": "2026-01-29",
+          "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1133421/000113342126000002/noc-12312025xearningsrelea.htm",
+          "metrics": {
+            "backlog_total_b": {
+              "value": 95.7,
+              "status": "disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1133421/000113342126000002/noc-12312025xearningsrelea.htm",
+              "sourceNote": "Backlog disclosed in official earnings release exhibit."
+            },
+            "book_to_bill": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "ratio",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1133421/000113342126000002/noc-12312025xearningsrelea.htm",
+              "sourceNote": "Not disclosed in normalized canonical form for this seed record."
+            },
+            "revenue_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1133421/000113342126000002/noc-12312025xearningsrelea.htm",
+              "sourceNote": "Historical quarter pending manual official extraction."
+            },
+            "orders_b": {
+              "value": null,
+              "status": "not_disclosed",
+              "unit": "usd_billion",
+              "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1133421/000113342126000002/noc-12312025xearningsrelea.htm",
+              "sourceNote": "Orders/bookings not disclosed in canonical seed."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

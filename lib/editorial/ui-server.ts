@@ -1,12 +1,14 @@
-import {getArticleListForApi} from '@/lib/articles/server'
+import {getArticleListForApi, getHomeFeedData} from '@/lib/articles/server'
 import {classifyEditorialFocus, editorialFocusScoreBoost, type EditorialFocusBucket} from '@/lib/editorial/focus'
 import {fetchSemaphorSecurityStories} from '@/lib/editorial/semaphor-security'
-import {getImageGenAiAssessment, type ImageGenAiAssessment} from '@/lib/editorial/sightengine'
+import {getImageDisplayAssessment, type ImageDisplayAssessment} from '@/lib/editorial/sightengine'
 import {createOptionalSanityServerClient} from '@/lib/sanity/client'
 import {createOptionalSupabaseServerClient} from '@/lib/supabase/server'
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
 import type {
+  EditorialSource,
+  CuratedHomeForYouRail,
   CuratedHomePayload,
   CuratedReviewStatus,
   CuratedRiskLevel,
@@ -119,6 +121,7 @@ type HomeOptions = {
   limit?: number
   fallbackRaw?: boolean
   preview?: boolean
+  userId?: string | null
 }
 
 type StoryDetailOptions = {
@@ -133,8 +136,9 @@ const MAX_EVIDENCE_BATCH = 24
 const SANITY_DIGEST_LIMIT = 350
 const STORY_FEED_MIN_WORDS = 150
 const STORY_FEED_MAX_WORDS = 400
-const IMAGE_GENAI_BATCH_SIZE = 6
+const IMAGE_ASSESSMENT_BATCH_SIZE = 6
 const TOP_HOME_IMAGES = 5
+const FOR_YOU_STORY_LIMIT = 10
 const SEMAPHOR_SOURCE_ID = 'semafor-security'
 const SANITY_DIGEST_PROJECTION = `{
   clusterKey,
@@ -404,26 +408,147 @@ function resolveArticleCardImageUrl(article: Awaited<ReturnType<typeof getArticl
   return article.canonicalImageUrl ?? article.leadImageUrl ?? null
 }
 
-async function resolveImageAssessmentsByUrl(imageUrls: Array<string | null | undefined>) {
-  const uniqueImageUrls = [...new Set(imageUrls.map((value) => value?.trim()).filter((value): value is string => Boolean(value)))]
+const HIGH_RELEVANCE_PATTERNS = [
+  /\bmissile\b/i,
+  /\bdrone\b/i,
+  /\bfighter\b/i,
+  /\bbomber\b/i,
+  /\btank\b/i,
+  /\bwarship\b/i,
+  /\bnavy\b/i,
+  /\bair force\b/i,
+  /\barmy\b/i,
+  /\bmarine\b/i,
+  /\bcarrier\b/i,
+  /\bartillery\b/i,
+  /\bradar\b/i,
+  /\bsatellite\b/i,
+  /\bintercept\b/i,
+  /\bexercise\b/i,
+  /\bdeployment\b/i,
+  /\bcommander\b/i,
+  /\bsecretary\b/i,
+  /\bgeneral\b/i,
+  /\badmiral\b/i,
+  /\bminister\b/i,
+]
 
-  if (uniqueImageUrls.length === 0) {
-    return new Map<string, ImageGenAiAssessment>()
+const MEDIUM_RELEVANCE_PATTERNS = [
+  /\bdefense\b/i,
+  /\bsecurity\b/i,
+  /\bpentagon\b/i,
+  /\bmilitary\b/i,
+  /\bcontract\b/i,
+  /\baward\b/i,
+  /\bboeing\b/i,
+  /\blockheed\b/i,
+  /\braytheon\b/i,
+  /\bnorthrop\b/i,
+  /\bgeneral dynamics\b/i,
+  /\banduril\b/i,
+  /\bl3harris\b/i,
+  /\bpalantir\b/i,
+]
+
+function clampUnit(value: number) {
+  if (!Number.isFinite(value)) {
+    return 0
   }
 
-  const assessments = new Map<string, ImageGenAiAssessment>()
+  return Math.min(1, Math.max(0, value))
+}
 
-  for (let index = 0; index < uniqueImageUrls.length; index += IMAGE_GENAI_BATCH_SIZE) {
-    const batch = uniqueImageUrls.slice(index, index + IMAGE_GENAI_BATCH_SIZE)
+function scorePatternMatches(text: string, patterns: RegExp[]) {
+  let count = 0
+
+  for (const pattern of patterns) {
+    if (pattern.test(text)) {
+      count += 1
+    }
+  }
+
+  return count
+}
+
+function scoreDefenseImageRelevance(text: string) {
+  const clean = compact(text)
+
+  if (!clean) {
+    return 0.1
+  }
+
+  const highMatches = scorePatternMatches(clean, HIGH_RELEVANCE_PATTERNS)
+  const mediumMatches = scorePatternMatches(clean, MEDIUM_RELEVANCE_PATTERNS)
+  const raw = 0.18 + highMatches * 0.16 + mediumMatches * 0.08
+
+  return clampUnit(raw)
+}
+
+function scoreHomeCardImageRelevance(card: HomeCardCandidate) {
+  const text = [card.headline, card.dek, card.whyItMatters, card.sourceName, card.topicLabel ?? ''].join(' ')
+  let score = scoreDefenseImageRelevance(text)
+
+  if (card.riskLevel === 'high') {
+    score += 0.1
+  } else if (card.riskLevel === 'medium') {
+    score += 0.05
+  }
+
+  if (card.hasOfficialSource || card.reportingCount > 0) {
+    score += 0.05
+  }
+
+  return clampUnit(score)
+}
+
+function scoreStoryHeroImageRelevance(input: {
+  headline: string
+  dek: string
+  whyItMatters: string
+  riskLevel?: CuratedRiskLevel
+}) {
+  let score = scoreDefenseImageRelevance(`${input.headline} ${input.dek} ${input.whyItMatters}`)
+
+  if (input.riskLevel === 'high') {
+    score += 0.1
+  }
+
+  return clampUnit(score)
+}
+
+function scoreFeedBlockImageRelevance(headline: string, body: string) {
+  const base = scoreDefenseImageRelevance(`${headline} ${body}`)
+  return clampUnit(base)
+}
+
+async function resolveImageAssessmentsByKey(
+  requests: Array<{
+    key: string
+    imageUrl: string | null | undefined
+    relevanceScore: number
+  }>
+) {
+  if (requests.length === 0) {
+    return new Map<string, ImageDisplayAssessment>()
+  }
+
+  const assessments = new Map<string, ImageDisplayAssessment>()
+
+  for (let index = 0; index < requests.length; index += IMAGE_ASSESSMENT_BATCH_SIZE) {
+    const batch = requests.slice(index, index + IMAGE_ASSESSMENT_BATCH_SIZE)
     const batchResults = await Promise.all(
-      batch.map(async (imageUrl) => {
-        const assessment = await getImageGenAiAssessment(imageUrl)
-        return [imageUrl, assessment] as const
+      batch.map(async (request) => {
+        const assessment = await getImageDisplayAssessment({
+          imageUrl: request.imageUrl,
+          relevanceScore: request.relevanceScore,
+        })
+
+        return [request.key, assessment] as const
       })
     )
 
-    for (const [imageUrl, assessment] of batchResults) {
-      assessments.set(imageUrl, assessment)
+    for (const [key, assessment] of batchResults) {
+      assessments.set(key, assessment)
     }
   }
 
@@ -435,11 +560,12 @@ async function filterHomeCardImages(cards: HomeCardCandidate[]) {
     return cards
   }
 
-  const assessmentByUrl = await resolveImageAssessmentsByUrl(cards.map((card) => card.imageUrl))
-
-  if (assessmentByUrl.size === 0) {
-    return cards
-  }
+  const requests = cards.map((card, index) => ({
+    key: `home-${index}`,
+    imageUrl: card.imageUrl,
+    relevanceScore: scoreHomeCardImageRelevance(card),
+  }))
+  const assessmentByKey = await resolveImageAssessmentsByKey(requests)
 
   const rankedCandidates = cards
     .map((card, index) => {
@@ -449,22 +575,39 @@ async function filterHomeCardImages(cards: HomeCardCandidate[]) {
         return null
       }
 
-      const assessment = assessmentByUrl.get(imageUrl)
+      const assessment = assessmentByKey.get(`home-${index}`)
 
-      if (!assessment?.shouldDisplay || typeof assessment.aiGeneratedScore !== 'number') {
+      if (!assessment?.shouldDisplay) {
         return null
       }
+
+      const qualityScore = typeof assessment.qualityScore === 'number' ? assessment.qualityScore : 0
+      const aiGeneratedScore = typeof assessment.aiGeneratedScore === 'number' ? assessment.aiGeneratedScore : 1
+      const rankingScore = assessment.relevanceScore * 1000 + qualityScore * 220 - aiGeneratedScore * 150 + (index === 0 ? 90 : 0)
 
       return {
         index,
         imageUrl,
-        aiGeneratedScore: assessment.aiGeneratedScore,
+        rankingScore,
       }
     })
-    .filter((value): value is {index: number; imageUrl: string; aiGeneratedScore: number} => Boolean(value))
-    .sort((left, right) => left.aiGeneratedScore - right.aiGeneratedScore || left.index - right.index)
+    .filter((value): value is {index: number; imageUrl: string; rankingScore: number} => Boolean(value))
+    .sort((left, right) => right.rankingScore - left.rankingScore || left.index - right.index)
 
-  const selectedImageIndexes = new Set(rankedCandidates.slice(0, TOP_HOME_IMAGES).map((candidate) => candidate.index))
+  const selectedImageIndexes = new Set<number>()
+  const leadCandidate = rankedCandidates.find((candidate) => candidate.index === 0)
+
+  if (leadCandidate) {
+    selectedImageIndexes.add(leadCandidate.index)
+  }
+
+  for (const candidate of rankedCandidates) {
+    if (selectedImageIndexes.size >= TOP_HOME_IMAGES) {
+      break
+    }
+
+    selectedImageIndexes.add(candidate.index)
+  }
 
   return cards.map((card, index) => {
     if (!card.imageUrl) {
@@ -499,19 +642,39 @@ async function filterHomeCardImages(cards: HomeCardCandidate[]) {
 }
 
 async function filterStoryDetailImages(input: {
+  headline: string
+  dek: string
+  whyItMatters: string
+  riskLevel: CuratedRiskLevel
   heroImageUrl: string | null
   feedBlocks: StoryFeedBlock[]
 }) {
-  const assessmentByUrl = await resolveImageAssessmentsByUrl([
-    input.heroImageUrl,
-    ...input.feedBlocks.map((block) => block.imageUrl),
-  ])
+  const requests = [
+    {
+      key: 'hero',
+      imageUrl: input.heroImageUrl,
+      relevanceScore: scoreStoryHeroImageRelevance({
+        headline: input.headline,
+        dek: input.dek,
+        whyItMatters: input.whyItMatters,
+        riskLevel: input.riskLevel,
+      }),
+    },
+    ...input.feedBlocks.map((block, index) => ({
+      key: `feed-${index}`,
+      imageUrl: block.imageUrl,
+      relevanceScore: scoreFeedBlockImageRelevance(input.headline, block.body),
+    })),
+  ]
+  const assessmentByKey = await resolveImageAssessmentsByKey(requests)
 
   const normalizedHeroImageUrl = input.heroImageUrl?.trim() ?? null
   const heroImageUrl =
-    normalizedHeroImageUrl && assessmentByUrl.get(normalizedHeroImageUrl)?.shouldDisplay ? normalizedHeroImageUrl : null
+    normalizedHeroImageUrl && assessmentByKey.get('hero')?.shouldDisplay ? normalizedHeroImageUrl : null
+  const seenImageUrls = new Set<string>(heroImageUrl ? [heroImageUrl] : [])
+  let visibleInlineImages = 0
 
-  const feedBlocks = input.feedBlocks.map((block) => {
+  const feedBlocks = input.feedBlocks.map((block, index) => {
     if (!block.imageUrl) {
       return block
     }
@@ -526,7 +689,18 @@ async function filterStoryDetailImages(input: {
       }
     }
 
-    if (assessmentByUrl.get(imageUrl)?.shouldDisplay) {
+    if (!assessmentByKey.get(`feed-${index}`)?.shouldDisplay || seenImageUrls.has(imageUrl) || visibleInlineImages >= 2) {
+      return {
+        ...block,
+        imageUrl: null,
+        imageAlt: null,
+      }
+    }
+
+    seenImageUrls.add(imageUrl)
+    visibleInlineImages += 1
+
+    if (assessmentByKey.get(`feed-${index}`)?.shouldDisplay) {
       if (imageUrl === block.imageUrl) {
         return block
       }
@@ -728,6 +902,76 @@ function dedupeSourceLinks(links: CuratedSourceLink[], max = 4) {
   }
 
   return unique
+}
+
+const attributionTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+})
+
+function formatAttributionTimestamp(value: string) {
+  const parsed = new Date(value)
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value
+  }
+
+  return attributionTimeFormatter.format(parsed)
+}
+
+function sourceRoleMixLabel(links: CuratedSourceLink[]) {
+  const roles = new Set<CuratedSourceLink['sourceRole']>()
+
+  for (const link of links) {
+    roles.add(link.sourceRole)
+  }
+
+  if (roles.size === 0) {
+    return 'Mixed sources'
+  }
+
+  const orderedRoles: CuratedSourceLink['sourceRole'][] = ['reporting', 'official', 'analysis', 'opinion']
+  const labels = orderedRoles
+    .filter((role) => roles.has(role))
+    .map((role) => {
+      if (role === 'official') {
+        return 'Official'
+      }
+
+      if (role === 'analysis') {
+        return 'Analysis'
+      }
+
+      if (role === 'opinion') {
+        return 'Opinion'
+      }
+
+      return 'Reporting'
+    })
+
+  if (labels.length === 1) {
+    return labels[0] ?? 'Mixed sources'
+  }
+
+  if (labels.length === 2) {
+    return `${labels[0]} + ${labels[1]}`
+  }
+
+  return `${labels[0]} + mixed`
+}
+
+function buildStoryAttributionLine(input: {
+  sourceLinks: CuratedSourceLink[]
+  citationCount: number
+  publishedAt: string
+}) {
+  const sourceMix = sourceRoleMixLabel(input.sourceLinks)
+  const citationText = `${Math.max(1, input.citationCount)} source${input.citationCount === 1 ? '' : 's'}`
+  const updatedText = `Updated ${formatAttributionTimestamp(input.publishedAt)}`
+
+  return `${sourceMix} · ${citationText} · ${updatedText}`
 }
 
 function mapDigestToCard(digest: StoryDigestDoc): CuratedStoryCard {
@@ -1347,6 +1591,139 @@ function buildSemaphorHomeStoryStream(cards: HomeCardCandidate[], limit: number)
     .slice(0, limit)
 }
 
+type HomeFeedData = Awaited<ReturnType<typeof getHomeFeedData>>
+
+function mapTopicToForYouTopic(topic: HomeFeedData['trendingTopics'][number]) {
+  return {
+    id: topic.id,
+    slug: topic.slug,
+    label: topic.label,
+    articleCount: topic.articleCount,
+    followed: topic.followed,
+  }
+}
+
+async function filterForYouRailImages(stories: CuratedStoryCard[]) {
+  if (stories.length === 0) {
+    return stories
+  }
+
+  const [firstStory, ...rest] = stories
+
+  if (!firstStory) {
+    return stories
+  }
+
+  const relevanceScore = scoreDefenseImageRelevance(
+    `${firstStory.headline} ${firstStory.dek} ${firstStory.whyItMatters} ${firstStory.sourceName}`
+  )
+  const assessment = await getImageDisplayAssessment({
+    imageUrl: firstStory.imageUrl,
+    relevanceScore,
+  })
+
+  const normalizedFirstImage = firstStory.imageUrl?.trim() ?? null
+  const firstWithMedia: CuratedStoryCard = {
+    ...firstStory,
+    imageUrl: assessment.shouldDisplay ? normalizedFirstImage : null,
+  }
+
+  return [
+    firstWithMedia,
+    ...rest.map((story) => ({
+      ...story,
+      imageUrl: null,
+    })),
+  ]
+}
+
+async function buildForYouRail(input: {
+  userId?: string | null
+  editionStories: CuratedStoryCard[]
+}): Promise<CuratedHomeForYouRail | null> {
+  const homeFeed = await getHomeFeedData(input.userId)
+  const followedTopicIds = new Set(homeFeed.followedTopics.map((topic) => topic.id))
+  const isPersonalized = followedTopicIds.size > 0
+  const topicSource = isPersonalized ? homeFeed.followedTopics : homeFeed.trendingTopics
+  const topicSet = new Set(topicSource.map((topic) => topic.id))
+  const editionArticleIds = new Set(input.editionStories.flatMap((story) => story.sourceLinks.map((link) => link.articleId)))
+  const editionClusterKeys = new Set(input.editionStories.map((story) => story.clusterKey))
+  const candidateArticles = homeFeed.articles.filter((article) => {
+    if (editionArticleIds.has(article.id)) {
+      return false
+    }
+
+    if (editionClusterKeys.has(`raw-${article.id}`)) {
+      return false
+    }
+
+    if (topicSet.size === 0) {
+      return true
+    }
+
+    return article.topics.some((topic) => topicSet.has(topic.id))
+  })
+  const candidateStories = candidateArticles.map(mapRawArticleToCard)
+  const dedupedStories: CuratedStoryCard[] = []
+  const seenClusterKeys = new Set<string>()
+
+  for (const story of candidateStories) {
+    if (seenClusterKeys.has(story.clusterKey)) {
+      continue
+    }
+
+    seenClusterKeys.add(story.clusterKey)
+    dedupedStories.push(story)
+
+    if (dedupedStories.length >= FOR_YOU_STORY_LIMIT) {
+      break
+    }
+  }
+
+  const storiesWithMedia = await filterForYouRailImages(dedupedStories)
+
+  return {
+    title: 'For You',
+    stories: storiesWithMedia,
+    topics: topicSource.slice(0, 8).map(mapTopicToForYouTopic),
+    isPersonalized,
+    notice: isPersonalized
+      ? 'From topics you follow.'
+      : input.userId
+        ? 'Follow topics to personalize this rail.'
+        : 'Sign in and follow topics to personalize this rail.',
+  }
+}
+
+async function buildHomePayload(input: {
+  stories: CuratedStoryCard[]
+  source: EditorialSource
+  generatedAt: string
+  notice: string | null
+  userId?: string | null
+}) {
+  let forYou: CuratedHomeForYouRail | null = null
+
+  try {
+    forYou = await buildForYouRail({
+      userId: input.userId,
+      editionStories: input.stories,
+    })
+  } catch (error) {
+    logEditorialUiEvent('warn', 'home_for_you_failed', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+    })
+  }
+
+  return {
+    stories: input.stories,
+    forYou,
+    source: input.source,
+    generatedAt: input.generatedAt,
+    notice: input.notice,
+  } satisfies CuratedHomePayload
+}
+
 export async function getCuratedHomeData(options: HomeOptions = {}): Promise<CuratedHomePayload> {
   const limit = Math.max(1, Math.min(options.limit ?? DEFAULT_HOME_STORIES, 120))
   const fallbackRaw = options.fallbackRaw ?? true
@@ -1366,12 +1743,13 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
   })
 
   if (stories.length > 0) {
-    return {
+    return buildHomePayload({
       stories,
       source: 'raw-fallback',
       generatedAt,
       notice: `Showing Semafor Security coverage (${stories.length} stories).`,
-    }
+      userId: options.userId,
+    })
   }
 
   const publishedCards = await fetchSanityDigestCards({preview})
@@ -1387,22 +1765,24 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
     if (stream.stories.length > 0) {
       const filteredStories = await filterHomeCardImages(stream.stories)
 
-      return {
+      return buildHomePayload({
         stories: filteredStories,
         source: 'sanity',
         generatedAt,
         notice: 'Semafor Security stream is unavailable. Falling back to published editorial digests.',
-      }
+        userId: options.userId,
+      })
     }
   }
 
   if (!fallbackRaw) {
-    return {
+    return buildHomePayload({
       stories: [],
       source: 'raw-fallback',
       generatedAt,
       notice: 'No Semafor Security stories are available right now.',
-    }
+      userId: options.userId,
+    })
   }
 
   const fallbackCards = await fetchRawFallbackCards(limit * 3)
@@ -1414,7 +1794,7 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
   })
   const filteredFallbackStories = await filterHomeCardImages(fallbackStream.stories)
 
-  return {
+  return buildHomePayload({
     stories: filteredFallbackStories,
     source: 'raw-fallback',
     generatedAt,
@@ -1422,7 +1802,8 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
       filteredFallbackStories.length > 0
         ? 'Semafor Security stream is unavailable. Showing fallback coverage while the stream recovers.'
         : 'No Semafor Security stories are available right now.',
-  }
+    userId: options.userId,
+  })
 }
 
 function buildEvidenceFromRows(input: {rows: IngestedArticleRow[]; orderByArticleId?: string[]}) {
@@ -1827,6 +2208,10 @@ async function buildSemaphorStoryDetailFromRow(input: {
     heroImageUrl
   )
   const filteredStoryImages = await filterStoryDetailImages({
+    headline: sanitizeHeadlineText(input.row.title),
+    dek: resolvedDek,
+    whyItMatters: resolvedWhyItMatters,
+    riskLevel: deriveRiskFromText(`${input.row.title} ${input.row.summary ?? input.row.full_text_excerpt ?? ''}`),
     heroImageUrl,
     feedBlocks,
   })
@@ -1849,6 +2234,11 @@ async function buildSemaphorStoryDetailFromRow(input: {
   return {
     clusterKey: input.clusterKey,
     topicLabel: normalizeTopicLabel(input.topicLabel),
+    attributionLine: buildStoryAttributionLine({
+      sourceLinks,
+      citationCount: 1,
+      publishedAt: input.row.published_at ?? input.row.fetched_at,
+    }),
     headline: sanitizeHeadlineText(input.row.title),
     dek: resolvedDek,
     whyItMatters: resolvedWhyItMatters,
@@ -2044,6 +2434,10 @@ export async function getCuratedStoryDetail(
           heroImageUrl
         )
         const filteredStoryImages = await filterStoryDetailImages({
+          headline: sanitizeHeadlineText(digest.headline),
+          dek: resolvedDek,
+          whyItMatters: resolvedWhyItMatters,
+          riskLevel: asRiskLevel(digest.riskLevel),
           heroImageUrl,
           feedBlocks,
         })
@@ -2052,6 +2446,11 @@ export async function getCuratedStoryDetail(
         return {
           clusterKey: digest.clusterKey,
           topicLabel: normalizeTopicLabel(digest.topicLabel),
+          attributionLine: buildStoryAttributionLine({
+            sourceLinks,
+            citationCount: Math.max(0, Number(digest.citationCount ?? sourceLinks.length)),
+            publishedAt: digest.generatedAt ?? new Date().toISOString(),
+          }),
           headline: sanitizeHeadlineText(digest.headline),
           dek: resolvedDek,
           whyItMatters: resolvedWhyItMatters,
@@ -2166,6 +2565,10 @@ export async function getCuratedStoryDetail(
       heroImageUrl
     )
     const filteredStoryImages = await filterStoryDetailImages({
+      headline: sanitizeHeadlineText(row.title),
+      dek: resolvedDek,
+      whyItMatters: resolvedWhyItMatters,
+      riskLevel: deriveRiskFromText(`${row.title} ${row.summary ?? ''}`),
       heroImageUrl,
       feedBlocks,
     })
@@ -2200,6 +2603,11 @@ export async function getCuratedStoryDetail(
     return {
       clusterKey: safeClusterKey,
       topicLabel: 'General defense',
+      attributionLine: buildStoryAttributionLine({
+        sourceLinks,
+        citationCount: 1,
+        publishedAt: row.published_at ?? row.fetched_at,
+      }),
       headline: sanitizeHeadlineText(row.title),
       dek: resolvedDek,
       whyItMatters: resolvedWhyItMatters,
@@ -2333,6 +2741,10 @@ export async function getCuratedStoryDetail(
     heroImageUrl
   )
   const filteredStoryImages = await filterStoryDetailImages({
+    headline: sanitizeHeadlineText(clusterRow.headline),
+    dek: resolvedDek,
+    whyItMatters: resolvedWhyItMatters,
+    riskLevel: (clusterRow.congestion_score ?? 0) >= 0.85 ? 'high' : (clusterRow.congestion_score ?? 0) >= 0.6 ? 'medium' : 'low',
     heroImageUrl,
     feedBlocks,
   })
@@ -2347,6 +2759,11 @@ export async function getCuratedStoryDetail(
   return {
     clusterKey: clusterRow.cluster_key,
     topicLabel: normalizeTopicLabel(clusterRow.topic_label),
+    attributionLine: buildStoryAttributionLine({
+      sourceLinks,
+      citationCount: evidence.length,
+      publishedAt: clusterRow.last_generated_at ?? new Date().toISOString(),
+    }),
     headline: sanitizeHeadlineText(clusterRow.headline),
     dek: resolvedDek,
     whyItMatters: resolvedWhyItMatters,

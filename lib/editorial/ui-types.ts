@@ -52,8 +52,25 @@ export type CuratedRail = {
 
 export type CuratedHomePayload = {
   stories: CuratedStoryCard[]
+  forYou: CuratedHomeForYouRail | null
   source: EditorialSource
   generatedAt: string
+  notice: string | null
+}
+
+export type CuratedHomeForYouTopic = {
+  id: string
+  slug: string
+  label: string
+  articleCount: number
+  followed: boolean
+}
+
+export type CuratedHomeForYouRail = {
+  title: string
+  stories: CuratedStoryCard[]
+  topics: CuratedHomeForYouTopic[]
+  isPersonalized: boolean
   notice: string | null
 }
 
@@ -79,6 +96,7 @@ export type StoryFeedBlock = {
 export type CuratedStoryDetail = {
   clusterKey: string
   topicLabel: string | null
+  attributionLine: string
   headline: string
   dek: string
   whyItMatters: string

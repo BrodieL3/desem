@@ -3,8 +3,9 @@ import type {ReactNode} from 'react'
 
 import {buildHomeEditionLayout} from '@/lib/editorial/home-layout'
 import {resolveInternalStoryHref} from '@/lib/editorial/linking'
-import type {CuratedStoryCard} from '@/lib/editorial/ui-types'
+import type {CuratedHomeForYouRail, CuratedStoryCard} from '@/lib/editorial/ui-types'
 import {getCuratedHomeData} from '@/lib/editorial/ui-server'
+import {getUserSession} from '@/lib/user/session'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
@@ -96,7 +97,7 @@ function LeadStory({story}: {story: CuratedStoryCard}) {
   )
 }
 
-function SectionStoryRow({story, showSummary = true}: {story: CuratedStoryCard; showSummary?: boolean}) {
+function SectionStoryRow({story, showSummary = true, showImage = false}: {story: CuratedStoryCard; showSummary?: boolean; showImage?: boolean}) {
   const summary = compactStorySummary(story)
 
   return (
@@ -110,6 +111,11 @@ function SectionStoryRow({story, showSummary = true}: {story: CuratedStoryCard; 
           {story.headline}
         </StoryTitleLink>
       </h3>
+
+      {showImage && story.imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={story.imageUrl} alt={story.headline} className="mt-3 h-44 w-full object-cover" loading="lazy" />
+      ) : null}
 
       {showSummary && summary ? <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">{summary}</p> : null}
     </article>
@@ -149,8 +155,76 @@ function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps
         <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">No stories.</p>
       ) : (
         <div className="news-divider-list">
-          {stories.map((story) => (
-            <SectionStoryRow key={story.clusterKey} story={story} />
+          {stories.map((story, index) => (
+            <SectionStoryRow key={story.clusterKey} story={story} showImage={index === 0} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ForYouTopicLine({rail}: {rail: CuratedHomeForYouRail}) {
+  if (rail.topics.length === 0) {
+    return null
+  }
+
+  return (
+    <p className="text-muted-foreground text-sm leading-relaxed">
+      {rail.topics.map((topic, index) => (
+        <span key={topic.id}>
+          {index > 0 ? ' · ' : null}
+          <Link href={`/topics/${topic.slug}`} className="hover:text-primary">
+            {topic.label}
+          </Link>
+        </span>
+      ))}
+    </p>
+  )
+}
+
+function ForYouStoryRow({story, showImage}: {story: CuratedStoryCard; showImage: boolean}) {
+  return (
+    <article className="news-divider-item news-divider-item-compact px-1">
+      <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+      </p>
+
+      <h3 className="font-display text-[1.45rem] leading-tight text-foreground">
+        <StoryTitleLink story={story} className="hover:text-primary">
+          {story.headline}
+        </StoryTitleLink>
+      </h3>
+
+      {showImage && story.imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={story.imageUrl} alt={story.headline} className="mt-3 h-36 w-full object-cover" loading="lazy" />
+      ) : null}
+    </article>
+  )
+}
+
+function ForYouRail({rail}: {rail: CuratedHomeForYouRail | null}) {
+  if (!rail) {
+    return null
+  }
+
+  return (
+    <section className="space-y-4" aria-labelledby="for-you-heading">
+      <h2 id="for-you-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+        {rail.title}
+      </h2>
+
+      {rail.notice ? <p className="text-muted-foreground text-sm">{rail.notice}</p> : null}
+
+      <ForYouTopicLine rail={rail} />
+
+      {rail.stories.length === 0 ? (
+        <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">No stories in this rail yet.</p>
+      ) : (
+        <div className="news-divider-list">
+          {rail.stories.map((story, index) => (
+            <ForYouStoryRow key={story.clusterKey} story={story} showImage={index === 0} />
           ))}
         </div>
       )}
@@ -159,9 +233,11 @@ function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps
 }
 
 export default async function HomePage() {
+  const session = await getUserSession()
   const home = await getCuratedHomeData({
     limit: 84,
     fallbackRaw: true,
+    userId: session.userId,
   })
 
   const now = dateFormatter.format(new Date())
@@ -190,47 +266,53 @@ export default async function HomePage() {
             No international-event or U.S. defense-company stories are available yet.
           </p>
         ) : (
-          <div className="space-y-10">
-            <section aria-labelledby="lead-heading">
-              <h2 id="lead-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
-                Lead
-              </h2>
-              <LeadStory story={layout.lead} />
-            </section>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="space-y-10">
+              <section aria-labelledby="lead-heading">
+                <h2 id="lead-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                  Lead
+                </h2>
+                <LeadStory story={layout.lead} />
+              </section>
 
-            <section aria-labelledby="edition-columns-heading" className="space-y-4">
-              <h2
-                id="edition-columns-heading"
-                className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground"
-              >
-                Edition
-              </h2>
+              <section aria-labelledby="edition-columns-heading" className="space-y-4">
+                <h2
+                  id="edition-columns-heading"
+                  className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground"
+                >
+                  Edition
+                </h2>
 
-              <div className="grid gap-6 lg:grid-cols-3">
-                <HomeColumnSection heading="Signals" stories={layout.signals} />
-                <HomeColumnSection heading="World" stories={layout.world} className="news-column-rule" />
-                <HomeColumnSection heading="Industry" stories={layout.industry} className="news-column-rule" />
-              </div>
-            </section>
-
-            <section aria-labelledby="wire-heading" className="space-y-4">
-              <h2 id="wire-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
-                Wire
-              </h2>
-
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="news-divider-list">
-                  {wireLeft.map((story) => (
-                    <WireStoryRow key={story.clusterKey} story={story} />
-                  ))}
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <HomeColumnSection heading="Signals" stories={layout.signals} />
+                  <HomeColumnSection heading="World" stories={layout.world} className="news-column-rule" />
+                  <HomeColumnSection heading="Industry" stories={layout.industry} className="news-column-rule" />
                 </div>
-                <div className="news-divider-list news-column-rule">
-                  {wireRight.map((story) => (
-                    <WireStoryRow key={story.clusterKey} story={story} />
-                  ))}
+              </section>
+
+              <section aria-labelledby="wire-heading" className="space-y-4">
+                <h2 id="wire-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                  Wire
+                </h2>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="news-divider-list">
+                    {wireLeft.map((story) => (
+                      <WireStoryRow key={story.clusterKey} story={story} />
+                    ))}
+                  </div>
+                  <div className="news-divider-list news-column-rule">
+                    {wireRight.map((story) => (
+                      <WireStoryRow key={story.clusterKey} story={story} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
+
+            <aside className="news-column-rule space-y-4 lg:sticky lg:top-4 lg:self-start">
+              <ForYouRail rail={home.forYou} />
+            </aside>
           </div>
         )}
       </div>

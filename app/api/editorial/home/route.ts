@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server'
 
 import {getCuratedHomeData} from '@/lib/editorial/ui-server'
+import {getAuthenticatedUser} from '@/lib/user/session'
 
 function parseIntParam(value: string | null, fallback: number, min: number, max: number) {
   if (!value) {
@@ -48,17 +49,20 @@ export async function GET(request: Request) {
   const limit = parseIntParam(url.searchParams.get('limit'), 72, 1, 120)
   const fallbackRaw = parseBooleanParam(url.searchParams.get('fallbackRaw'), true)
   const preview = resolvePreviewParam(url.searchParams.get('preview'))
+  const user = await getAuthenticatedUser()
 
   const data = await getCuratedHomeData({
     limit,
     fallbackRaw,
     preview,
+    userId: user?.id ?? null,
   })
 
   return NextResponse.json({
     data,
     meta: {
       stories: data.stories.length,
+      forYouStories: data.forYou?.stories.length ?? 0,
       limit,
       fallbackRaw,
       preview,
