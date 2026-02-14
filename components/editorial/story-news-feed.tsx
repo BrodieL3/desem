@@ -1,3 +1,8 @@
+'use client'
+
+import {useState} from 'react'
+
+import {Button} from '@/components/ui/button'
 import type {StoryFeedBlock} from '@/lib/editorial/ui-types'
 
 type StoryNewsFeedProps = {
@@ -34,26 +39,31 @@ function paragraphize(text: string) {
 }
 
 export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
+  const [expanded, setExpanded] = useState(false)
+
   if (blocks.length === 0) {
     return (
       <section className="space-y-3" aria-labelledby="story-feed-heading">
         <h2 id="story-feed-heading" className="font-display text-[2.2rem] leading-tight text-foreground">
-          Full briefing
+          Briefing summary
         </h2>
         <p className="text-muted-foreground text-base">No narrative content is available for this story yet.</p>
       </section>
     )
   }
 
+  const visibleBlocks = expanded ? blocks : blocks.slice(0, 1)
+
   return (
     <section className="space-y-5" aria-labelledby="story-feed-heading">
       <h2 id="story-feed-heading" className="border-b border-border pb-4 font-display text-[2.2rem] leading-tight text-foreground">
-        Full briefing
+        Briefing summary
       </h2>
 
       <div className="story-prose">
-        {blocks.map((block) => {
+        {visibleBlocks.map((block) => {
           const paragraphs = paragraphize(block.body)
+          const visibleParagraphs = expanded ? paragraphs : paragraphs.slice(0, 2)
 
           return (
             <section key={block.id} className="story-prose-section">
@@ -68,13 +78,24 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
                   />
                 </figure>
               ) : null}
-              {paragraphs.map((paragraph, paragraphIndex) => (
+              {visibleParagraphs.map((paragraph, paragraphIndex) => (
                 <p key={`${block.id}-${paragraphIndex}`}>{paragraph}</p>
               ))}
             </section>
           )
         })}
       </div>
+
+      {blocks.length > 1 ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+          <p className="text-muted-foreground text-sm">
+            {expanded ? `Showing all ${blocks.length} briefing sections.` : `Showing 1 of ${blocks.length} briefing sections.`}
+          </p>
+          <Button type="button" variant="secondary" onClick={() => setExpanded((current) => !current)}>
+            {expanded ? 'Show less' : 'Read full briefing'}
+          </Button>
+        </div>
+      ) : null}
     </section>
   )
 }

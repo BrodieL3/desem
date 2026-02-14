@@ -39,33 +39,33 @@
 :root {
   --radius: 0.78rem;
 
-  --background: oklch(0.985 0.004 92);
-  --foreground: oklch(0.27 0.012 88);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
 
-  --card: oklch(0.992 0.003 92);
-  --card-foreground: oklch(0.27 0.012 88);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
 
-  --popover: oklch(0.992 0.003 92);
-  --popover-foreground: oklch(0.27 0.012 88);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
 
-  --primary: oklch(0.34 0.058 248);
-  --primary-foreground: oklch(0.985 0.003 92);
+  --primary: oklch(0.53 0.21 304);
+  --primary-foreground: oklch(0.985 0 0);
 
-  --secondary: oklch(0.955 0.005 92);
-  --secondary-foreground: oklch(0.3 0.012 88);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
 
-  --muted: oklch(0.95 0.004 92);
-  --muted-foreground: oklch(0.45 0.012 88);
+  --muted: oklch(0.95 0 0);
+  --muted-foreground: oklch(0.46 0 0);
 
-  --accent: oklch(0.925 0.008 92);
-  --accent-foreground: oklch(0.31 0.014 88);
+  --accent: oklch(0.94 0.035 304);
+  --accent-foreground: oklch(0.29 0.07 304);
 
   --destructive: oklch(0.52 0.195 28);
-  --destructive-foreground: oklch(0.985 0.003 92);
+  --destructive-foreground: oklch(0.985 0 0);
 
-  --border: oklch(0.84 0.01 88);
-  --input: oklch(0.84 0.01 88);
-  --ring: oklch(0.36 0.055 248);
+  --border: oklch(0.88 0 0);
+  --input: oklch(0.88 0 0);
+  --ring: oklch(0.58 0.19 304);
 
   --warning: oklch(0.79 0.11 84);
   --warning-foreground: oklch(0.33 0.055 72);
@@ -73,41 +73,41 @@
   --success: oklch(0.73 0.11 154);
   --success-foreground: oklch(0.3 0.06 154);
 
-  --chart-1: oklch(0.67 0.2 40);
-  --chart-2: oklch(0.62 0.12 186);
-  --chart-3: oklch(0.46 0.08 251);
-  --chart-4: oklch(0.77 0.16 88);
-  --chart-5: oklch(0.66 0.2 330);
+  --chart-1: oklch(0.58 0.21 304);
+  --chart-2: oklch(0.35 0 0);
+  --chart-3: oklch(0.7 0.02 304);
+  --chart-4: oklch(0.48 0.14 304);
+  --chart-5: oklch(0.82 0.01 0);
 }
 
 .dark {
-  --background: oklch(0.205 0.008 260);
-  --foreground: oklch(0.94 0.006 92);
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.96 0 0);
 
-  --card: oklch(0.235 0.008 260);
-  --card-foreground: oklch(0.94 0.006 92);
+  --card: oklch(0.16 0 0);
+  --card-foreground: oklch(0.96 0 0);
 
-  --popover: oklch(0.235 0.008 260);
-  --popover-foreground: oklch(0.94 0.006 92);
+  --popover: oklch(0.16 0 0);
+  --popover-foreground: oklch(0.96 0 0);
 
-  --primary: oklch(0.78 0.085 248);
-  --primary-foreground: oklch(0.205 0.008 260);
+  --primary: oklch(0.72 0.19 304);
+  --primary-foreground: oklch(0.14 0 0);
 
-  --secondary: oklch(0.29 0.008 260);
-  --secondary-foreground: oklch(0.94 0.006 92);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.94 0 0);
 
-  --muted: oklch(0.28 0.008 260);
-  --muted-foreground: oklch(0.77 0.01 92);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.73 0 0);
 
-  --accent: oklch(0.315 0.015 260);
-  --accent-foreground: oklch(0.94 0.006 92);
+  --accent: oklch(0.27 0.045 304);
+  --accent-foreground: oklch(0.94 0.015 304);
 
   --destructive: oklch(0.66 0.18 28);
-  --destructive-foreground: oklch(0.205 0.008 260);
+  --destructive-foreground: oklch(0.14 0 0);
 
-  --border: oklch(0.39 0.01 260);
-  --input: oklch(0.39 0.01 260);
-  --ring: oklch(0.77 0.08 248);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: oklch(0.73 0.19 304);
 
   --warning: oklch(0.5 0.11 83);
   --warning-foreground: oklch(0.94 0.01 94);
@@ -115,11 +115,11 @@
   --success: oklch(0.5 0.11 156);
   --success-foreground: oklch(0.94 0.01 157);
 
-  --chart-1: oklch(0.62 0.19 40);
-  --chart-2: oklch(0.7 0.15 165);
-  --chart-3: oklch(0.74 0.16 82);
-  --chart-4: oklch(0.67 0.2 303);
-  --chart-5: oklch(0.7 0.19 17);
+  --chart-1: oklch(0.73 0.2 304);
+  --chart-2: oklch(0.9 0 0);
+  --chart-3: oklch(0.66 0.06 304);
+  --chart-4: oklch(0.56 0.16 304);
+  --chart-5: oklch(0.45 0 0);
 }
 
 * {
@@ -134,23 +134,7 @@ body {
 body {
   @apply bg-background text-foreground;
   font-family: var(--font-public-sans), 'Avenir Next', 'Segoe UI', sans-serif;
-  background-image:
-    linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--background), white 2%) 0%,
-      var(--background) 34%,
-      color-mix(in oklch, var(--background), black 2%) 100%
-    );
-}
-
-.dark body {
-  background-image:
-    linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--background), white 2%) 0%,
-      var(--background) 34%,
-      color-mix(in oklch, var(--background), black 8%) 100%
-    );
+  background-image: none;
 }
 
 p {

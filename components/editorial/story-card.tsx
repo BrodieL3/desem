@@ -82,44 +82,57 @@ function riskBadgeClass(level: CuratedStoryCard['riskLevel']) {
   return 'bg-success/20 text-success-foreground'
 }
 
+function compactText(value: string, maxChars: number) {
+  const normalized = value.trim().replace(/\s+/g, ' ')
+
+  if (normalized.length <= maxChars) {
+    return normalized
+  }
+
+  const slice = normalized.slice(0, maxChars + 1)
+  const breakIndex = slice.lastIndexOf(' ')
+  const bounded = breakIndex > Math.floor(maxChars * 0.6) ? slice.slice(0, breakIndex) : slice.slice(0, maxChars)
+  return `${bounded.trimEnd()}...`
+}
+
 export function StoryCard({card, showImage = false, featured = false}: StoryCardProps) {
   const displayImage = showImage && Boolean(card.imageUrl)
   const mixLabel = sourceMixLabel(card)
   const diversityLabel = sourceDiversityLabel(card)
-  const leadDek = card.dek.trim() || card.whyItMatters.trim()
-  const secondaryDek =
-    featured && card.whyItMatters.trim() && card.whyItMatters.trim() !== leadDek ? card.whyItMatters.trim() : null
+  const leadDek = compactText(card.dek.trim() || card.whyItMatters.trim(), featured ? 220 : 170)
 
   return (
-    <article className="news-divider-item group relative flex flex-col overflow-hidden px-1 transition-colors duration-200">
-      <header className="mb-4 flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-sm font-semibold">{card.sourceName}</span>
-        <span className="text-muted-foreground">{formatTimestamp(card.publishedAt)}</span>
-        <Badge variant="secondary" className={`text-[10px] uppercase tracking-[0.08em] ${riskBadgeClass(card.riskLevel)}`}>
-          {card.riskLevel} risk
-        </Badge>
-        {diversityLabel ? <span className="text-muted-foreground">{diversityLabel}</span> : null}
-      </header>
+    <article className="news-divider-item relative flex flex-col overflow-hidden px-1 transition-colors duration-200">
+      <Link
+        href={`/stories/${encodeURIComponent(card.clusterKey)}`}
+        className="group block rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <header className="mb-4 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-sm font-semibold">{card.sourceName}</span>
+          <span className="text-muted-foreground">{formatTimestamp(card.publishedAt)}</span>
+          <Badge variant="secondary" className={`text-[10px] uppercase tracking-[0.08em] ${riskBadgeClass(card.riskLevel)}`}>
+            {card.riskLevel} risk
+          </Badge>
+          {diversityLabel ? <span className="text-muted-foreground">{diversityLabel}</span> : null}
+        </header>
 
-      {displayImage ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={card.imageUrl ?? undefined}
-          alt={card.headline}
-          className={`mb-4 w-full object-cover ${featured ? 'h-52' : 'h-40'}`}
-          loading="lazy"
-        />
-      ) : null}
+        {displayImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={card.imageUrl ?? undefined}
+            alt={card.headline}
+            className={`mb-4 w-full object-cover ${featured ? 'h-52' : 'h-40'}`}
+            loading="lazy"
+          />
+        ) : null}
 
-      <h3 className={`font-display leading-tight ${featured ? 'text-[2.1rem]' : 'text-[1.85rem]'}`}>
-        <Link href={`/stories/${encodeURIComponent(card.clusterKey)}`} className="hover:text-primary">
+        <h3 className={`font-display leading-tight transition-colors group-hover:text-primary ${featured ? 'text-[2.1rem]' : 'text-[1.85rem]'}`}>
           {card.headline}
-        </Link>
-      </h3>
+        </h3>
 
-      {leadDek ? <p className="text-muted-foreground mt-3 text-base leading-relaxed">{leadDek}</p> : null}
-      {secondaryDek ? <p className="text-muted-foreground mt-3 text-base leading-relaxed">{secondaryDek}</p> : null}
-      {mixLabel ? <p className="text-muted-foreground mt-4 text-[11px] tracking-[0.08em] uppercase">{mixLabel}</p> : null}
+        {leadDek ? <p className="text-muted-foreground mt-3 text-base leading-relaxed">{leadDek}</p> : null}
+        {mixLabel ? <p className="text-muted-foreground mt-4 text-[11px] tracking-[0.08em] uppercase">{mixLabel}</p> : null}
+      </Link>
     </article>
   )
 }

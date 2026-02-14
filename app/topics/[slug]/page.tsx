@@ -17,6 +17,19 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
+function compactText(value: string, maxChars: number) {
+  const normalized = value.trim().replace(/\s+/g, ' ')
+
+  if (normalized.length <= maxChars) {
+    return normalized
+  }
+
+  const slice = normalized.slice(0, maxChars + 1)
+  const breakIndex = slice.lastIndexOf(' ')
+  const bounded = breakIndex > Math.floor(maxChars * 0.6) ? slice.slice(0, breakIndex) : slice.slice(0, maxChars)
+  return `${bounded.trimEnd()}...`
+}
+
 export default async function TopicPage({params}: TopicPageProps) {
   const {slug} = await params
   const session = await getUserSession()
@@ -57,21 +70,24 @@ export default async function TopicPage({params}: TopicPageProps) {
               <div className="news-divider-list">
                 {data.articles.map((article) => (
                   <article key={article.id} className="news-divider-item px-1">
-                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-                      <span className="font-medium">{article.sourceName}</span>
-                      <span className="text-muted-foreground">{dateFormatter.format(new Date(article.publishedAt ?? article.fetchedAt))}</span>
-                      {article.commentCount > 0 ? <span className="text-muted-foreground">{article.commentCount} comments</span> : null}
-                    </div>
+                    <Link
+                      href={`/articles/${article.id}`}
+                      className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="font-medium">{article.sourceName}</span>
+                        <span className="text-muted-foreground">{dateFormatter.format(new Date(article.publishedAt ?? article.fetchedAt))}</span>
+                        {article.commentCount > 0 ? <span className="text-muted-foreground">{article.commentCount} comments</span> : null}
+                      </div>
 
-                    <h2 className="font-display text-[2rem] leading-tight">
-                      <Link href={`/articles/${article.id}`} className="hover:text-primary">
+                      <h2 className="font-display text-[2rem] leading-tight transition-colors group-hover:text-primary">
                         {article.title}
-                      </Link>
-                    </h2>
+                      </h2>
 
-                    <p className="text-muted-foreground mt-3 text-base leading-relaxed">
-                      {article.summary ?? article.fullTextExcerpt ?? 'Read full text on the article page.'}
-                    </p>
+                      <p className="text-muted-foreground mt-3 text-base leading-relaxed">
+                        {compactText(article.summary ?? article.fullTextExcerpt ?? 'Read full text on the article page.', 200)}
+                      </p>
+                    </Link>
 
                     <div className="mt-3 flex flex-wrap gap-1.5">
                       {article.topics.slice(0, 6).map((topic) => (

@@ -33,8 +33,22 @@ function formatStoryTimestamp(value: string) {
   return storyTimeFormatter.format(parsed)
 }
 
-function compactStorySummary(story: CuratedStoryCard) {
-  return story.whyItMatters.trim() || story.dek.trim() || ''
+function compactText(value: string, maxChars: number) {
+  const normalized = value.trim().replace(/\s+/g, ' ')
+
+  if (normalized.length <= maxChars) {
+    return normalized
+  }
+
+  const slice = normalized.slice(0, maxChars + 1)
+  const breakIndex = slice.lastIndexOf(' ')
+  const bounded = breakIndex > Math.floor(maxChars * 0.6) ? slice.slice(0, breakIndex) : slice.slice(0, maxChars)
+  return `${bounded.trimEnd()}...`
+}
+
+function compactStorySummary(story: CuratedStoryCard, maxChars = 180) {
+  const raw = story.whyItMatters.trim() || story.dek.trim() || ''
+  return raw ? compactText(raw, maxChars) : ''
 }
 
 function resolveStoryHref(story: CuratedStoryCard) {
@@ -62,7 +76,7 @@ function splitForWireColumns(stories: CuratedStoryCard[]) {
 
 type StoryTitleLinkProps = {
   story: CuratedStoryCard
-  className?: string
+  className: string
   children: ReactNode
 }
 
@@ -75,51 +89,57 @@ function StoryTitleLink({story, className, children}: StoryTitleLinkProps) {
 }
 
 function LeadStory({story}: {story: CuratedStoryCard}) {
-  const summary = compactStorySummary(story)
+  const summary = compactStorySummary(story, 220)
 
   return (
     <article className="news-divider-item px-1 md:py-6">
-      <p className="text-muted-foreground mb-3 text-xs tracking-[0.12em] uppercase">
-        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)} · {story.citationCount} sources
-      </p>
+      <StoryTitleLink
+        story={story}
+        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <p className="text-muted-foreground mb-3 text-xs tracking-[0.12em] uppercase">
+          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)} · {story.citationCount} sources
+        </p>
 
-      <h2 className="font-display text-[2.55rem] leading-[1.01] text-foreground md:text-[3.35rem]">
-        <StoryTitleLink story={story} className="hover:text-primary">
+        <h2 className="font-display text-[2.55rem] leading-[1.01] text-foreground transition-colors group-hover:text-primary md:text-[3.35rem]">
           {story.headline}
-        </StoryTitleLink>
-      </h2>
+        </h2>
 
-      {summary ? <p className="text-muted-foreground mt-4 max-w-4xl text-[1.14rem] leading-relaxed">{summary}</p> : null}
+        {summary ? <p className="text-muted-foreground mt-4 max-w-4xl text-[1.14rem] leading-relaxed">{summary}</p> : null}
 
-      {story.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={story.imageUrl} alt={story.headline} className="mt-5 h-[25rem] w-full object-cover" loading="lazy" />
-      ) : null}
+        {story.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={story.imageUrl} alt={story.headline} className="mt-5 h-[25rem] w-full object-cover" loading="lazy" />
+        ) : null}
+      </StoryTitleLink>
     </article>
   )
 }
 
 function SectionStoryRow({story, showSummary = true, showImage = false}: {story: CuratedStoryCard; showSummary?: boolean; showImage?: boolean}) {
-  const summary = compactStorySummary(story)
+  const summary = compactStorySummary(story, 170)
 
   return (
     <article className="news-divider-item px-1">
-      <p className="text-muted-foreground mb-2 text-xs tracking-[0.12em] uppercase">
-        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
-      </p>
+      <StoryTitleLink
+        story={story}
+        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <p className="text-muted-foreground mb-2 text-xs tracking-[0.12em] uppercase">
+          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+        </p>
 
-      <h3 className="font-display text-[1.92rem] leading-[1.08] text-foreground">
-        <StoryTitleLink story={story} className="hover:text-primary">
+        <h3 className="font-display text-[1.92rem] leading-[1.08] text-foreground transition-colors group-hover:text-primary">
           {story.headline}
-        </StoryTitleLink>
-      </h3>
+        </h3>
 
-      {showImage && story.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={story.imageUrl} alt={story.headline} className="mt-3 h-44 w-full object-cover" loading="lazy" />
-      ) : null}
+        {showImage && story.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={story.imageUrl} alt={story.headline} className="mt-3 h-44 w-full object-cover" loading="lazy" />
+        ) : null}
 
-      {showSummary && summary ? <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">{summary}</p> : null}
+        {showSummary && summary ? <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">{summary}</p> : null}
+      </StoryTitleLink>
     </article>
   )
 }
@@ -127,15 +147,18 @@ function SectionStoryRow({story, showSummary = true, showImage = false}: {story:
 function WireStoryRow({story}: {story: CuratedStoryCard}) {
   return (
     <article className="news-divider-item news-divider-item-compact px-1">
-      <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
-        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
-      </p>
+      <StoryTitleLink
+        story={story}
+        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+        </p>
 
-      <h3 className="font-display text-[1.6rem] leading-tight text-foreground">
-        <StoryTitleLink story={story} className="hover:text-primary">
+        <h3 className="font-display text-[1.6rem] leading-tight text-foreground transition-colors group-hover:text-primary">
           {story.headline}
-        </StoryTitleLink>
-      </h3>
+        </h3>
+      </StoryTitleLink>
     </article>
   )
 }
@@ -158,7 +181,7 @@ function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps
       ) : (
         <div className="news-divider-list">
           {stories.map((story, index) => (
-            <SectionStoryRow key={story.clusterKey} story={story} showImage={index === 0} />
+            <SectionStoryRow key={story.clusterKey} story={story} showImage={index === 0} showSummary={index < 2} />
           ))}
         </div>
       )}
@@ -169,20 +192,23 @@ function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps
 function ForYouStoryRow({story, showImage}: {story: CuratedStoryCard; showImage: boolean}) {
   return (
     <article className="news-divider-item news-divider-item-compact px-1">
-      <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
-        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
-      </p>
+      <StoryTitleLink
+        story={story}
+        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+        </p>
 
-      <h3 className="font-display text-[1.45rem] leading-tight text-foreground">
-        <StoryTitleLink story={story} className="hover:text-primary">
+        <h3 className="font-display text-[1.45rem] leading-tight text-foreground transition-colors group-hover:text-primary">
           {story.headline}
-        </StoryTitleLink>
-      </h3>
+        </h3>
 
-      {showImage && story.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={story.imageUrl} alt={story.headline} className="mt-3 h-36 w-full object-cover" loading="lazy" />
-      ) : null}
+        {showImage && story.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={story.imageUrl} alt={story.headline} className="mt-3 h-36 w-full object-cover" loading="lazy" />
+        ) : null}
+      </StoryTitleLink>
     </article>
   )
 }

@@ -20,7 +20,7 @@ export default async function StoryPage({params}: StoryPageProps) {
 
   const detail = await getCuratedStoryDetail(clusterKey, {
     offset: 0,
-    limit: 24,
+    limit: 12,
   })
 
   if (!detail) {

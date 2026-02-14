@@ -42,21 +42,39 @@ function storySummary(summary: string | null, excerpt: string | null) {
   return summary ?? excerpt ?? 'Open this story for the latest reporting and discussion.'
 }
 
+function compactText(value: string, maxChars: number) {
+  const normalized = value.trim().replace(/\s+/g, ' ')
+
+  if (normalized.length <= maxChars) {
+    return normalized
+  }
+
+  const slice = normalized.slice(0, maxChars + 1)
+  const breakIndex = slice.lastIndexOf(' ')
+  const bounded = breakIndex > Math.floor(maxChars * 0.6) ? slice.slice(0, breakIndex) : slice.slice(0, maxChars)
+  return `${bounded.trimEnd()}...`
+}
+
 function FeedStoryCard({story}: {story: ArticleCard}) {
+  const summary = compactText(storySummary(story.summary, story.fullTextExcerpt), 170)
+
   return (
     <article className="news-divider-item px-1">
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs tracking-[0.08em] uppercase">
-        <span className="font-medium">{story.sourceName}</span>
-        <span className="text-muted-foreground">{formatStoryTimestamp(story.publishedAt, story.fetchedAt)}</span>
-      </div>
+      <Link
+        href={`/articles/${story.id}`}
+        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs tracking-[0.08em] uppercase">
+          <span className="font-medium">{story.sourceName}</span>
+          <span className="text-muted-foreground">{formatStoryTimestamp(story.publishedAt, story.fetchedAt)}</span>
+        </div>
 
-      <h3 className="font-display text-[1.7rem] leading-tight text-foreground">
-        <Link href={`/articles/${story.id}`} className="hover:text-primary">
+        <h3 className="font-display text-[1.7rem] leading-tight text-foreground transition-colors group-hover:text-primary">
           {story.title}
-        </Link>
-      </h3>
+        </h3>
 
-      <p className="text-muted-foreground mt-2 text-base leading-relaxed">{storySummary(story.summary, story.fullTextExcerpt)}</p>
+        <p className="text-muted-foreground mt-2 text-base leading-relaxed">{summary}</p>
+      </Link>
     </article>
   )
 }
