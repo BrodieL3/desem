@@ -188,6 +188,10 @@ a {
   border-top: 1px solid color-mix(in oklch, var(--foreground), transparent 84%);
 }
 
+.news-divider-list-no-top {
+  border-top: 0;
+}
+
 .news-divider-item {
   border-bottom: 1px solid color-mix(in oklch, var(--foreground), transparent 84%);
   padding-block: 0.95rem;

@@ -6,6 +6,8 @@ import {resolveInternalStoryHref} from '@/lib/editorial/linking'
 import type {CuratedHomeForYouRail, CuratedStoryCard} from '@/lib/editorial/ui-types'
 import {getCuratedHomeData} from '@/lib/editorial/ui-server'
 import {getUserSession} from '@/lib/user/session'
+import {RightRailTopics} from '@/components/editorial/right-rail-topics'
+import {SectionLabel} from '@/components/editorial/section-label'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
@@ -147,9 +149,9 @@ type HomeColumnSectionProps = {
 function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps) {
   return (
     <section className={className} aria-labelledby={`${heading.toLowerCase()}-heading`}>
-      <h2 id={`${heading.toLowerCase()}-heading`} className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+      <SectionLabel id={`${heading.toLowerCase()}-heading`} withRule>
         {heading}
-      </h2>
+      </SectionLabel>
 
       {stories.length === 0 ? (
         <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">No stories.</p>
@@ -161,25 +163,6 @@ function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps
         </div>
       )}
     </section>
-  )
-}
-
-function ForYouTopicLine({rail}: {rail: CuratedHomeForYouRail}) {
-  if (rail.topics.length === 0) {
-    return null
-  }
-
-  return (
-    <p className="text-muted-foreground text-sm leading-relaxed">
-      {rail.topics.map((topic, index) => (
-        <span key={topic.id}>
-          {index > 0 ? ' · ' : null}
-          <Link href={`/topics/${topic.slug}`} className="hover:text-primary">
-            {topic.label}
-          </Link>
-        </span>
-      ))}
-    </p>
   )
 }
 
@@ -211,18 +194,20 @@ function ForYouRail({rail}: {rail: CuratedHomeForYouRail | null}) {
 
   return (
     <section className="space-y-4" aria-labelledby="for-you-heading">
-      <h2 id="for-you-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+      <SectionLabel id="for-you-heading">
         {rail.title}
-      </h2>
+      </SectionLabel>
 
       {rail.notice ? <p className="text-muted-foreground text-sm">{rail.notice}</p> : null}
 
-      <ForYouTopicLine rail={rail} />
+      <RightRailTopics topics={rail.topics} />
 
       {rail.stories.length === 0 ? (
-        <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">No stories in this rail yet.</p>
+        <p className="news-divider-list news-divider-list-no-top news-divider-item px-1 text-sm text-muted-foreground">
+          No stories in this rail yet.
+        </p>
       ) : (
-        <div className="news-divider-list">
+        <div className="news-divider-list news-divider-list-no-top">
           {rail.stories.map((story, index) => (
             <ForYouStoryRow key={story.clusterKey} story={story} showImage={index === 0} />
           ))}
@@ -269,19 +254,18 @@ export default async function HomePage() {
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
             <div className="space-y-10">
               <section aria-labelledby="lead-heading">
-                <h2 id="lead-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                <SectionLabel id="lead-heading">
                   Lead
-                </h2>
-                <LeadStory story={layout.lead} />
+                </SectionLabel>
+                <div className="news-divider-list news-divider-list-no-top">
+                  <LeadStory story={layout.lead} />
+                </div>
               </section>
 
               <section aria-labelledby="edition-columns-heading" className="space-y-4">
-                <h2
-                  id="edition-columns-heading"
-                  className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground"
-                >
+                <SectionLabel id="edition-columns-heading" withRule>
                   Edition
-                </h2>
+                </SectionLabel>
 
                 <div className="grid gap-6 lg:grid-cols-3">
                   <HomeColumnSection heading="Signals" stories={layout.signals} />
@@ -291,17 +275,17 @@ export default async function HomePage() {
               </section>
 
               <section aria-labelledby="wire-heading" className="space-y-4">
-                <h2 id="wire-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                <SectionLabel id="wire-heading">
                   Wire
-                </h2>
+                </SectionLabel>
 
                 <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="news-divider-list">
+                  <div className="news-divider-list news-divider-list-no-top">
                     {wireLeft.map((story) => (
                       <WireStoryRow key={story.clusterKey} story={story} />
                     ))}
                   </div>
-                  <div className="news-divider-list news-column-rule">
+                  <div className="news-divider-list news-divider-list-no-top news-column-rule">
                     {wireRight.map((story) => (
                       <WireStoryRow key={story.clusterKey} story={story} />
                     ))}
