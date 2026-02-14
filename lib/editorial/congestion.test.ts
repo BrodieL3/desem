@@ -18,6 +18,7 @@ function makeCluster(articleCount: number, sourceCount: number): StoryCluster {
         articleUrl: `https://example.com/${index}`,
         sourceId: `source-${sourceIndex}`,
         sourceName: `Source ${sourceIndex}`,
+        sourceCategory: 'journalism',
         sourceBadge: 'Analysis',
         publishedAt: '2026-02-13T12:00:00.000Z',
         fetchedAt: '2026-02-13T12:00:00.000Z',

@@ -21,9 +21,9 @@ export default async function SignInPage({searchParams}: SignInPageProps) {
   const errorMessage = params?.error ?? null
 
   return (
-    <main className="min-h-screen px-3 py-4 md:px-6 md:py-7">
-      <div className="editorial-shell mx-auto flex min-h-[80svh] w-full max-w-lg items-center px-4 py-10">
-        <Card className="w-full border-slate-300/75 bg-white/90 shadow-sm">
+    <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
+      <div className="editorial-shell mx-auto flex min-h-[80svh] w-full max-w-lg items-center p-5 md:p-8">
+        <Card className="w-full">
           <CardHeader className="space-y-2">
             <CardTitle className="font-display text-4xl leading-tight">Sign in</CardTitle>
             <CardDescription>
@@ -33,7 +33,7 @@ export default async function SignInPage({searchParams}: SignInPageProps) {
           <CardContent className="space-y-4">
             <SignInForm nextPath={nextPath} errorMessage={errorMessage} />
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
               <Link href="/" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
                 Continue without signing in
               </Link>

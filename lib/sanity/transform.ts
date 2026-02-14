@@ -53,6 +53,8 @@ export async function transformStoryDigestInPlace(input: {
       'Do not invent facts or entities. Keep all claims grounded in citations.',
       'Keep headline concise (<130 chars), dek concise (<240 chars), keyPoints to 3-5 bullets.',
       'Preserve explicit source attribution in citations and keep reviewStatus as needs_review.',
+      'Preserve reporting-first balance; keep opinion citations clearly labeled and limited.',
+      'If this story appears press-release-driven, keep at least one official citation.',
       'Use neutral editorial tone and avoid speculative language.',
     ]),
     instructionParams: {

@@ -9,10 +9,13 @@
     "lint": "eslint",
     "test": "bun test",
     "ingest:pull": "bun run scripts/pull-defense-articles.ts",
-    "ingest:backfill": "bun run scripts/backfill-article-content.ts"
+    "ingest:backfill": "bun run scripts/backfill-article-content.ts",
+    "ingest:scrape-semafor": "bun run scripts/scrape-semafor-article.ts",
+    "editorial:sync-semafor": "bun run scripts/sync-semafor-to-sanity.ts"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
+    "@sanity/cli": "^5.9.0",
     "@sanity/client": "^7.1.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",

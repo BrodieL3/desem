@@ -1,5 +1,6 @@
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
+import {editorialSourceRolePriority, resolveEditorialSourceRole} from './curation'
 import type {EditorialArticle, StoryCluster} from './types'
 
 type BuildStoryClustersOptions = {
@@ -149,6 +150,27 @@ function clusterKeyForArticle(article: EditorialArticle) {
 
 function pickRepresentative(members: EditorialArticle[]) {
   return [...members].sort((left, right) => {
+    const rightRole = resolveEditorialSourceRole({
+      sourceId: right.sourceId,
+      sourceName: right.sourceName,
+      sourceBadge: right.sourceBadge,
+      sourceCategory: right.sourceCategory,
+      title: right.title,
+    })
+    const leftRole = resolveEditorialSourceRole({
+      sourceId: left.sourceId,
+      sourceName: left.sourceName,
+      sourceBadge: left.sourceBadge,
+      sourceCategory: left.sourceCategory,
+      title: left.title,
+    })
+
+    const roleDiff = editorialSourceRolePriority(rightRole) - editorialSourceRolePriority(leftRole)
+
+    if (roleDiff !== 0) {
+      return roleDiff
+    }
+
     const rightPrimaryTopics = right.topics.filter((topic) => topic.isPrimary).length
     const leftPrimaryTopics = left.topics.filter((topic) => topic.isPrimary).length
 

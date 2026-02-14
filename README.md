@@ -49,6 +49,7 @@ Apply these in Supabase SQL editor:
 4. `db/migrations/202602120005_topics.sql`
 5. `db/migrations/202602120006_comments.sql`
 6. `db/migrations/202602130007_editorial_pipeline.sql`
+7. `db/migrations/202602130008_source_curation_metadata.sql`
 
 Notes:
 - Migration `202602120003_article_tagging.sql` is legacy and no longer required for V2 behavior.
@@ -75,11 +76,16 @@ SANITY_API_VERSION="vX" # required for Transform API calls
 # Optional controls
 EDITORIAL_PIPELINE_ENABLED="true"
 EDITORIAL_SANITY_READS_ENABLED="true"
+EDITORIAL_SANITY_PREVIEW_DRAFTS="false" # dev preview: include Sanity drafts in home/story reads
 EDITORIAL_TRANSFORM_ENABLED="true"
 EDITORIAL_EMBEDDINGS_ENABLED="true"
 EDITORIAL_CLUSTER_THRESHOLD="0.72"
 EDITORIAL_MAX_EMBEDDING_ARTICLES="120"
 EDITORIAL_EMBEDDING_MODEL="text-embedding-3-small"
+EDITORIAL_SEMAPHOR_SYNC_ENABLED="true"
+EDITORIAL_SEMAPHOR_LIMIT="200"
+EDITORIAL_SEMAPHOR_CONCURRENCY="4"
+EDITORIAL_SEMAPHOR_TIMEOUT_MS="20000"
 OPENAI_API_KEY="..." # optional for embedding similarity in clustering
 ```
 
@@ -117,6 +123,18 @@ Then enrich full text + topics for existing rows:
 bun run ingest:backfill
 ```
 
+Scrape full article text from a Semafor article URL:
+
+```bash
+bun run ingest:scrape-semafor --url https://www.semafor.com/article/MM/DD/YYYY/slug
+```
+
+Backfill/sync Semafor Security stories into Sanity `newsItem` docs (with full text):
+
+```bash
+bun run editorial:sync-semafor --limit=200 --concurrency=4
+```
+
 ## Cron ingestion
 
 `/api/cron/pull-articles` runs:
@@ -128,6 +146,7 @@ bun run ingest:backfill
 - congestion scoring (Transform fallback only when cluster has >=10 stories and >=6 sources in 24h)
 - deterministic digest fallback if Transform fails/unavailable
 - draft-first Sanity sync for `newsItem` and `storyDigest`
+- Semafor Security sync into Sanity `newsItem` docs with full body text for continuous-scroll reads
 - Supabase ops persistence in `editorial_generation_runs`, `story_clusters`, and `cluster_members`
 
 Example local invocation:

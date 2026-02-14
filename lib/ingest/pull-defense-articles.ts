@@ -1,6 +1,6 @@
 import {XMLParser} from 'fast-xml-parser'
 
-import {defenseFeedSources, type DefenseFeedSource} from './sources'
+import {defenseFeedSources, getDefenseFeedSourceById, sourceQualityWeight, type DefenseFeedSource} from './sources'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -42,6 +42,18 @@ const namedHtmlEntities: Record<string, string> = {
 
 const sourceWeightLookup = new Map(defenseFeedSources.map((source) => [source.id, source.weight]))
 
+function maxPerSourceForCadence(source: DefenseFeedSource, defaultMaxPerSource: number) {
+  if (source.updateCadence === 'weekly') {
+    return Math.min(defaultMaxPerSource, 18)
+  }
+
+  if (source.updateCadence === 'daily') {
+    return Math.min(defaultMaxPerSource, 42)
+  }
+
+  return defaultMaxPerSource
+}
+
 export interface PulledArticle {
   sourceId: string
   sourceName: string
@@ -53,6 +65,7 @@ export interface PulledArticle {
   title: string
   url: string
   summary: string
+  imageUrl?: string
   publishedAt?: string
   author?: string
   guid?: string
@@ -212,6 +225,159 @@ function canonicalizeUrl(value: string): string {
   }
 }
 
+function resolveUrl(value: string, baseUrl: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  if (trimmed.startsWith('data:') || trimmed.startsWith('javascript:')) {
+    return ''
+  }
+
+  try {
+    const parsed = new URL(trimmed, baseUrl)
+    parsed.hash = ''
+    return parsed.toString()
+  } catch {
+    return ''
+  }
+}
+
+function normalizeImageUrl(value: unknown, baseUrl: string): string {
+  const resolved = resolveUrl(readText(value), baseUrl)
+  if (!resolved) {
+    return ''
+  }
+
+  if (/\.(svg)(?:[?#]|$)/i.test(resolved)) {
+    return ''
+  }
+
+  return resolved
+}
+
+function isImageAttachment(entry: RecordValue): boolean {
+  const medium = readText(entry.medium).toLowerCase()
+  if (medium && medium !== 'image') {
+    return false
+  }
+
+  const type = readText(entry.type).toLowerCase()
+  if (type && !type.startsWith('image/')) {
+    return false
+  }
+
+  return true
+}
+
+function extractImageUrlFromNode(value: unknown, articleUrl: string): string {
+  for (const node of asArray(value)) {
+    const record = asRecord(node)
+    if (!record) {
+      const direct = normalizeImageUrl(node, articleUrl)
+      if (direct) {
+        return direct
+      }
+      continue
+    }
+
+    if (!isImageAttachment(record)) {
+      continue
+    }
+
+    const candidates = [record.url, record.href, record.src, record['media:url']]
+    for (const candidate of candidates) {
+      const normalized = normalizeImageUrl(candidate, articleUrl)
+      if (normalized) {
+        return normalized
+      }
+    }
+  }
+
+  return ''
+}
+
+function extractImageUrlFromMediaGroup(value: unknown, articleUrl: string): string {
+  for (const group of asArray(value)) {
+    const record = asRecord(group)
+    if (!record) {
+      continue
+    }
+
+    const fromContent = extractImageUrlFromNode(record['media:content'], articleUrl)
+    if (fromContent) {
+      return fromContent
+    }
+
+    const fromThumbnail = extractImageUrlFromNode(record['media:thumbnail'], articleUrl)
+    if (fromThumbnail) {
+      return fromThumbnail
+    }
+  }
+
+  return ''
+}
+
+function firstSrcFromSrcset(value: string): string {
+  for (const part of value.split(',')) {
+    const src = part.trim().split(/\s+/)[0]
+    if (src) {
+      return src
+    }
+  }
+
+  return ''
+}
+
+function extractFirstImageUrlFromHtml(value: unknown, articleUrl: string): string {
+  const text = readText(value)
+  if (!text) {
+    return ''
+  }
+
+  const imgTagMatch = text.match(/<img\b[^>]*>/i)
+  if (!imgTagMatch) {
+    return ''
+  }
+
+  const tag = imgTagMatch[0]
+  const srcMatch = tag.match(/\b(?:src|data-src|data-original)\s*=\s*(['"])(.*?)\1/i)
+  if (srcMatch?.[2]) {
+    const normalized = normalizeImageUrl(srcMatch[2], articleUrl)
+    if (normalized) {
+      return normalized
+    }
+  }
+
+  const srcsetMatch = tag.match(/\bsrcset\s*=\s*(['"])(.*?)\1/i)
+  if (srcsetMatch?.[2]) {
+    return normalizeImageUrl(firstSrcFromSrcset(srcsetMatch[2]), articleUrl)
+  }
+
+  return ''
+}
+
+function extractRssItemImageUrl(item: RecordValue, articleUrl: string): string | undefined {
+  const candidates = [
+    extractImageUrlFromNode(item['media:content'], articleUrl),
+    extractImageUrlFromNode(item['media:thumbnail'], articleUrl),
+    extractImageUrlFromMediaGroup(item['media:group'], articleUrl),
+    extractImageUrlFromNode(item.enclosure, articleUrl),
+    normalizeImageUrl(asRecord(item['itunes:image'])?.href ?? item['itunes:image'], articleUrl),
+    extractFirstImageUrlFromHtml(item['content:encoded'], articleUrl),
+    extractFirstImageUrlFromHtml(item.description, articleUrl),
+  ]
+
+  for (const candidate of candidates) {
+    if (candidate) {
+      return candidate
+    }
+  }
+
+  return undefined
+}
+
 function extractRssLink(item: RecordValue): string {
   const directLink = canonicalizeUrl(readText(item.link))
   if (directLink) {
@@ -270,6 +436,54 @@ function extractAtomLink(entry: RecordValue): string {
   return fallback
 }
 
+function extractAtomLinkImageUrl(entry: RecordValue, articleUrl: string): string {
+  const links = asArray(entry.link)
+
+  for (const rawLink of links) {
+    const record = asRecord(rawLink)
+    if (!record) {
+      continue
+    }
+
+    const rel = readText(record.rel).toLowerCase()
+    const type = readText(record.type).toLowerCase()
+    const href = normalizeImageUrl(record.href, articleUrl)
+    if (!href) {
+      continue
+    }
+
+    if (type.startsWith('image/')) {
+      return href
+    }
+
+    if (rel === 'enclosure' || rel === 'image' || rel === 'preview') {
+      return href
+    }
+  }
+
+  return ''
+}
+
+function extractAtomEntryImageUrl(entry: RecordValue, articleUrl: string): string | undefined {
+  const candidates = [
+    extractAtomLinkImageUrl(entry, articleUrl),
+    extractImageUrlFromNode(entry['media:content'], articleUrl),
+    extractImageUrlFromNode(entry['media:thumbnail'], articleUrl),
+    extractImageUrlFromMediaGroup(entry['media:group'], articleUrl),
+    normalizeImageUrl(asRecord(entry['itunes:image'])?.href ?? entry['itunes:image'], articleUrl),
+    extractFirstImageUrlFromHtml(entry.content, articleUrl),
+    extractFirstImageUrlFromHtml(entry.summary, articleUrl),
+  ]
+
+  for (const candidate of candidates) {
+    if (candidate) {
+      return candidate
+    }
+  }
+
+  return undefined
+}
+
 function normalizeRssItem(source: DefenseFeedSource, rawItem: unknown): PulledArticle | null {
   const item = asRecord(rawItem)
   if (!item) {
@@ -285,6 +499,7 @@ function normalizeRssItem(source: DefenseFeedSource, rawItem: unknown): PulledAr
 
   const summary =
     stripHtml(readText(item.description)) || stripHtml(readText(item['content:encoded'])) || stripHtml(readText(item.content))
+  const imageUrl = extractRssItemImageUrl(item, url)
 
   return {
     sourceId: source.id,
@@ -297,6 +512,7 @@ function normalizeRssItem(source: DefenseFeedSource, rawItem: unknown): PulledAr
     title,
     url,
     summary: truncateSummary(summary),
+    imageUrl,
     publishedAt:
       normalizeTimestamp(item.pubDate) ||
       normalizeTimestamp(item['dc:date']) ||
@@ -327,6 +543,7 @@ function normalizeAtomEntry(source: DefenseFeedSource, rawEntry: unknown): Pulle
   }
 
   const summary = stripHtml(readText(entry.summary) || readText(entry.content))
+  const imageUrl = extractAtomEntryImageUrl(entry, url)
 
   return {
     sourceId: source.id,
@@ -339,6 +556,7 @@ function normalizeAtomEntry(source: DefenseFeedSource, rawEntry: unknown): Pulle
     title,
     url,
     summary: truncateSummary(summary),
+    imageUrl,
     publishedAt: normalizeTimestamp(entry.published) || normalizeTimestamp(entry.updated),
     author: extractAtomAuthor(entry),
     guid: readText(entry.id) || undefined,
@@ -402,10 +620,13 @@ function articleDedupKey(article: PulledArticle): string {
 }
 
 function articleRank(article: PulledArticle): number {
+  const source = getDefenseFeedSourceById(article.sourceId)
   const sourceWeight = sourceWeightLookup.get(article.sourceId) ?? article.sourceWeight
+  const qualityWeight = sourceQualityWeight(source?.qualityTier ?? 'medium')
+  const roleAdjustment = source?.storyRole === 'opinion' ? -32_000 : source?.storyRole === 'official' ? 10_000 : 0
   const published = publishedEpoch(article)
   const summaryScore = Math.min(article.summary.length, 320)
-  return sourceWeight * 1000 + published + summaryScore
+  return published + Math.round(sourceWeight * 1000 * qualityWeight) + summaryScore + roleAdjustment
 }
 
 function dedupeArticles(articles: PulledArticle[]): PulledArticle[] {
@@ -466,7 +687,9 @@ export async function pullDefenseArticles(options: PullDefenseArticlesOptions = 
   const sources = resolveDefenseSources(options.sourceIds)
   const errors: PullDefenseArticlesError[] = []
 
-  const results = await Promise.allSettled(sources.map((source) => pullSource(source, timeoutMs, maxPerSource)))
+  const results = await Promise.allSettled(
+    sources.map((source) => pullSource(source, timeoutMs, maxPerSourceForCadence(source, maxPerSource)))
+  )
 
   const articles: PulledArticle[] = []
 

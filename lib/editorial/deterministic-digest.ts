@@ -1,5 +1,6 @@
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
+import {buildCuratedCitations} from './curation'
 import type {CongestionEvaluation, StoryCluster, StoryDigestRecord} from './types'
 
 function compact(value: string) {
@@ -94,6 +95,17 @@ export function buildDeterministicStoryDigest(
   congestion: CongestionEvaluation
 ): StoryDigestRecord {
   const uniqueSources = new Set(cluster.members.map((member) => member.article.sourceName))
+  const curated = buildCuratedCitations(cluster, {
+    maxCitations: 10,
+  })
+  const citations = curated.citations.map((citation) => ({
+    ...citation,
+    headline: sanitizeHeadlineText(citation.headline),
+  }))
+  const officialNote =
+    curated.summary.pressReleaseDriven && curated.summary.hasOfficialSource
+      ? ' Primary-source official documentation is included for verification.'
+      : ''
 
   return {
     clusterKey: cluster.clusterKey,
@@ -101,16 +113,19 @@ export function buildDeterministicStoryDigest(
     dek: buildDek(cluster),
     keyPoints: collectKeyPoints(cluster),
     whyItMatters: cluster.topicLabel
-      ? `${uniqueSources.size} sources are converging on ${cluster.topicLabel}. This digest highlights operational and policy implications without collapsing distinct reporting lines.`
-      : `${uniqueSources.size} sources are covering this developing defense story. The digest summarizes overlapping facts and preserves source-attributed context.`,
+      ? `${uniqueSources.size} sources are converging on ${cluster.topicLabel}. This digest highlights operational and policy implications without collapsing distinct reporting lines.${officialNote}`
+      : `${uniqueSources.size} sources are covering this developing defense story. The digest summarizes overlapping facts and preserves source-attributed context.${officialNote}`,
     riskLevel: determineRiskLevel(cluster, congestion),
-    citations: cluster.members.slice(0, 10).map((member) => ({
-      articleId: member.article.id,
-      headline: sanitizeHeadlineText(member.article.title),
-      sourceName: member.article.sourceName,
-      url: member.article.articleUrl,
-    })),
-    citationCount: Math.min(cluster.members.length, 10),
+    citations,
+    citationCount: citations.length,
+    hasOfficialSource: curated.summary.hasOfficialSource,
+    reportingCount: curated.summary.reportingCount,
+    analysisCount: curated.summary.analysisCount,
+    officialCount: curated.summary.officialCount,
+    opinionCount: curated.summary.opinionCount,
+    pressReleaseDriven: curated.summary.pressReleaseDriven,
+    opinionLimited: curated.summary.opinionLimited,
+    sourceDiversity: curated.summary.sourceDiversity,
     generationMode: 'deterministic',
     reviewStatus: 'needs_review',
     isCongestedCluster: congestion.isCongested,

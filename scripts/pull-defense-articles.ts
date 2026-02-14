@@ -189,6 +189,9 @@ async function run() {
   if (options.toSupabase) {
     const persisted = await upsertToSupabase(result)
     console.log(`\nUpserted ${persisted.upsertedArticleCount} articles into Supabase.`)
+    if (persisted.usedLegacySchema) {
+      console.log('News source curation columns were not detected; used legacy news_sources schema fallback.')
+    }
     console.log('Run `bun run scripts/backfill-article-content.ts` to enrich full text and topic metadata.')
   }
 }

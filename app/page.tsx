@@ -1,11 +1,10 @@
 import Link from 'next/link'
+import type {ReactNode} from 'react'
 
-import {FollowTopicButton} from '@/components/aggregator/follow-topic-button'
-import {Badge} from '@/components/ui/badge'
-import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
-import {getHomeFeedData} from '@/lib/articles/server'
-import {getUserSession} from '@/lib/user/session'
+import {buildHomeEditionLayout} from '@/lib/editorial/home-layout'
+import {resolveInternalStoryHref} from '@/lib/editorial/linking'
+import type {CuratedStoryCard} from '@/lib/editorial/ui-types'
+import {getCuratedHomeData} from '@/lib/editorial/ui-server'
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
@@ -14,292 +13,226 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
-const timeFormatter = new Intl.DateTimeFormat('en-US', {
+const storyTimeFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'short',
   day: 'numeric',
   hour: 'numeric',
   minute: '2-digit',
 })
 
-function formatTimestamp(value: string | null | undefined, fallback: string) {
-  const candidate = value ?? fallback
-  const parsed = new Date(candidate)
+function formatStoryTimestamp(value: string) {
+  const parsed = new Date(value)
 
   if (Number.isNaN(parsed.getTime())) {
-    return candidate
+    return value
   }
 
-  return timeFormatter.format(parsed)
+  return storyTimeFormatter.format(parsed)
+}
+
+function compactStorySummary(story: CuratedStoryCard) {
+  return story.whyItMatters.trim() || story.dek.trim() || ''
+}
+
+function resolveStoryHref(story: CuratedStoryCard) {
+  return resolveInternalStoryHref({
+    articleId: story.sourceLinks[0]?.articleId,
+    clusterKey: story.clusterKey,
+  })
+}
+
+function splitForWireColumns(stories: CuratedStoryCard[]) {
+  const left: CuratedStoryCard[] = []
+  const right: CuratedStoryCard[] = []
+
+  stories.forEach((story, index) => {
+    if (index % 2 === 0) {
+      left.push(story)
+      return
+    }
+
+    right.push(story)
+  })
+
+  return [left, right] as const
+}
+
+type StoryTitleLinkProps = {
+  story: CuratedStoryCard
+  className?: string
+  children: ReactNode
+}
+
+function StoryTitleLink({story, className, children}: StoryTitleLinkProps) {
+  return (
+    <Link href={resolveStoryHref(story)} className={className}>
+      {children}
+    </Link>
+  )
+}
+
+function LeadStory({story}: {story: CuratedStoryCard}) {
+  const summary = compactStorySummary(story)
+
+  return (
+    <article className="news-divider-item px-1 md:py-6">
+      <p className="text-muted-foreground mb-3 text-xs tracking-[0.12em] uppercase">
+        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)} · {story.citationCount} sources
+      </p>
+
+      <h2 className="font-display text-[2.55rem] leading-[1.01] text-foreground md:text-[3.35rem]">
+        <StoryTitleLink story={story} className="hover:text-primary">
+          {story.headline}
+        </StoryTitleLink>
+      </h2>
+
+      {summary ? <p className="text-muted-foreground mt-4 max-w-4xl text-[1.14rem] leading-relaxed">{summary}</p> : null}
+
+      {story.imageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={story.imageUrl} alt={story.headline} className="mt-5 h-[25rem] w-full object-cover" loading="lazy" />
+      ) : null}
+    </article>
+  )
+}
+
+function SectionStoryRow({story, showSummary = true}: {story: CuratedStoryCard; showSummary?: boolean}) {
+  const summary = compactStorySummary(story)
+
+  return (
+    <article className="news-divider-item px-1">
+      <p className="text-muted-foreground mb-2 text-xs tracking-[0.12em] uppercase">
+        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+      </p>
+
+      <h3 className="font-display text-[1.92rem] leading-[1.08] text-foreground">
+        <StoryTitleLink story={story} className="hover:text-primary">
+          {story.headline}
+        </StoryTitleLink>
+      </h3>
+
+      {showSummary && summary ? <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">{summary}</p> : null}
+    </article>
+  )
+}
+
+function WireStoryRow({story}: {story: CuratedStoryCard}) {
+  return (
+    <article className="news-divider-item news-divider-item-compact px-1">
+      <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+        {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+      </p>
+
+      <h3 className="font-display text-[1.6rem] leading-tight text-foreground">
+        <StoryTitleLink story={story} className="hover:text-primary">
+          {story.headline}
+        </StoryTitleLink>
+      </h3>
+    </article>
+  )
+}
+
+type HomeColumnSectionProps = {
+  heading: string
+  stories: CuratedStoryCard[]
+  className?: string
+}
+
+function HomeColumnSection({heading, stories, className}: HomeColumnSectionProps) {
+  return (
+    <section className={className} aria-labelledby={`${heading.toLowerCase()}-heading`}>
+      <h2 id={`${heading.toLowerCase()}-heading`} className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+        {heading}
+      </h2>
+
+      {stories.length === 0 ? (
+        <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">No stories.</p>
+      ) : (
+        <div className="news-divider-list">
+          {stories.map((story) => (
+            <SectionStoryRow key={story.clusterKey} story={story} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
 }
 
 export default async function HomePage() {
-  const session = await getUserSession()
-  const feed = await getHomeFeedData(session.userId)
+  const home = await getCuratedHomeData({
+    limit: 84,
+    fallbackRaw: true,
+  })
 
-  const lead = feed.articles[0] ?? null
-  const headlineRiver = lead ? feed.articles.slice(1, 13) : feed.articles.slice(0, 12)
-  const deskArticles = lead ? feed.articles.slice(13, 45) : feed.articles.slice(12, 44)
   const now = dateFormatter.format(new Date())
+  const layout = buildHomeEditionLayout(home.stories)
+  const [wireLeft, wireRight] = splitForWireColumns(layout.wire)
 
   return (
-    <main className="min-h-screen px-3 py-4 md:px-6 md:py-7">
-      <div className="editorial-shell mx-auto max-w-[1480px] overflow-hidden border-slate-300/80 bg-white/95">
-        <header className="border-b border-slate-300/75 px-4 py-6 md:px-8">
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="space-y-2">
-              <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase">Field Brief | Defense Desk</p>
-              <h1 className="font-display text-5xl leading-none text-slate-900 sm:text-[4rem]">
-                Field <span className="text-[var(--brand)]">Brief</span>
+    <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
+      <div className="editorial-shell mx-auto max-w-[1320px] p-5 md:p-8">
+        <header className="mb-8 border-b border-border pb-6 md:pb-8">
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div className="space-y-3">
+              <h1 className="font-display text-[3.25rem] leading-none text-foreground sm:text-[4.2rem] md:text-[4.7rem]">
+                Field <span className="text-primary">Brief</span>
               </h1>
-              <p className="max-w-3xl text-sm leading-relaxed text-slate-600">
-                Defense reporting aggregated in one newsroom experience. Read full-text coverage, follow the entities that
-                matter, and join discussion around each story.
-              </p>
+              <p className="text-muted-foreground text-xs tracking-[0.14em] uppercase">International defense desk</p>
+              {home.notice ? <p className="text-muted-foreground text-sm">{home.notice}</p> : null}
             </div>
-            <div className="space-y-2 text-right">
-              <p className="text-muted-foreground text-xs tracking-[0.16em] uppercase">{now}</p>
-              {session.isAuthenticated ? (
-                <Button asChild size="sm" variant="outline" className="rounded-full border-slate-300 bg-white">
-                  <Link href="/auth/sign-out">Sign out</Link>
-                </Button>
-              ) : (
-                <Button asChild size="sm" className="rounded-full">
-                  <Link href="/auth/sign-in?next=/">Sign in</Link>
-                </Button>
-              )}
-            </div>
+
+            <p className="text-muted-foreground text-xs tracking-[0.14em] uppercase">{now}</p>
           </div>
         </header>
 
-        <div className="grid gap-6 px-4 py-6 md:px-8 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="space-y-6">
-            {lead ? (
-              <Card className="overflow-hidden border-slate-300/80 bg-white py-0">
-                <CardContent className="grid gap-0 p-0 lg:grid-cols-[1.2fr_minmax(0,1fr)]">
-                  <div className="space-y-4 p-6 md:p-8">
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <Badge variant="outline" className="border-slate-300 bg-white text-[11px] uppercase">
-                        Lead Story
-                      </Badge>
-                      <span className="text-muted-foreground">{lead.sourceName}</span>
-                      <span className="text-muted-foreground">{formatTimestamp(lead.publishedAt, lead.fetchedAt)}</span>
-                    </div>
+        {!layout.lead ? (
+          <p className="news-divider-list news-divider-item px-1 text-base text-muted-foreground">
+            No international-event or U.S. defense-company stories are available yet.
+          </p>
+        ) : (
+          <div className="space-y-10">
+            <section aria-labelledby="lead-heading">
+              <h2 id="lead-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                Lead
+              </h2>
+              <LeadStory story={layout.lead} />
+            </section>
 
-                    <h2 className="font-display text-4xl leading-tight text-slate-900 md:text-[2.8rem]">
-                      <Link href={`/articles/${lead.id}`} className="transition-colors hover:text-[var(--brand)]">
-                        {lead.title}
-                      </Link>
-                    </h2>
+            <section aria-labelledby="edition-columns-heading" className="space-y-4">
+              <h2
+                id="edition-columns-heading"
+                className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground"
+              >
+                Edition
+              </h2>
 
-                    <p className="text-muted-foreground text-base leading-relaxed">
-                      {lead.summary ?? lead.fullTextExcerpt ?? 'Full text available in Field Brief.'}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Button asChild className="rounded-full">
-                        <Link href={`/articles/${lead.id}`}>Read full article</Link>
-                      </Button>
-                      <Button asChild variant="outline" className="rounded-full border-slate-300 bg-white">
-                        <a href={lead.articleUrl} target="_blank" rel="noreferrer">
-                          Open original source
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-slate-300/70 bg-slate-50 lg:border-t-0 lg:border-l">
-                    {lead.leadImageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={lead.leadImageUrl}
-                        alt={lead.title}
-                        className="h-64 w-full object-cover lg:h-full"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex h-full min-h-[220px] items-center justify-center p-6">
-                        <p className="font-display text-3xl leading-tight text-slate-700">Read the full story inside Field Brief</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="border-slate-300/80 bg-white">
-                <CardContent className="p-6 text-sm text-slate-600">No articles available yet. Run ingestion to populate the desk.</CardContent>
-              </Card>
-            )}
-
-            <section className="space-y-3 border-t border-slate-300/70 pt-5">
-              <div className="flex items-end justify-between gap-3">
-                <h3 className="font-display text-3xl leading-tight text-slate-900">Headline river</h3>
-                <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Latest coverage</p>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {headlineRiver.map((article) => (
-                  <article key={article.id} className="rounded-xl border border-slate-300/70 bg-white p-4">
-                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-                      <span className="font-medium text-slate-700">{article.sourceName}</span>
-                      <span className="text-muted-foreground">{formatTimestamp(article.publishedAt, article.fetchedAt)}</span>
-                      {article.personalizationScore > 0 ? (
-                        <Badge variant="secondary" className="rounded-full bg-[var(--brand)] text-[11px] text-white">
-                          Followed topic match
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <h4 className="font-display text-[1.45rem] leading-tight text-slate-900">
-                      <Link href={`/articles/${article.id}`} className="hover:text-[var(--brand)]">
-                        {article.title}
-                      </Link>
-                    </h4>
-                    <p className="text-muted-foreground mt-2 line-clamp-3 text-sm leading-relaxed">
-                      {article.summary ?? article.fullTextExcerpt ?? 'Read full text on article page.'}
-                    </p>
-                  </article>
-                ))}
+              <div className="grid gap-6 lg:grid-cols-3">
+                <HomeColumnSection heading="Signals" stories={layout.signals} />
+                <HomeColumnSection heading="World" stories={layout.world} className="news-column-rule" />
+                <HomeColumnSection heading="Industry" stories={layout.industry} className="news-column-rule" />
               </div>
             </section>
 
-            <section className="space-y-3 border-t border-slate-300/70 pt-5">
-              <div className="flex items-end justify-between gap-3">
-                <h3 className="font-display text-3xl leading-tight text-slate-900">News desk</h3>
-                <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">{deskArticles.length} stories</p>
-              </div>
+            <section aria-labelledby="wire-heading" className="space-y-4">
+              <h2 id="wire-heading" className="border-t border-border pt-4 text-xs tracking-[0.16em] uppercase text-muted-foreground">
+                Wire
+              </h2>
 
-              <div className="space-y-2">
-                {deskArticles.map((article) => (
-                  <article key={article.id} className="rounded-xl border border-slate-300/75 bg-white p-4">
-                    <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-                      <span className="font-medium text-slate-700">{article.sourceName}</span>
-                      <span className="text-muted-foreground">{formatTimestamp(article.publishedAt, article.fetchedAt)}</span>
-                      {article.commentCount > 0 ? (
-                        <span className="text-muted-foreground">{article.commentCount} comments</span>
-                      ) : null}
-                    </div>
-
-                    <h4 className="font-display text-2xl leading-tight text-slate-900">
-                      <Link href={`/articles/${article.id}`} className="hover:text-[var(--brand)]">
-                        {article.title}
-                      </Link>
-                    </h4>
-
-                    <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                      {article.summary ?? article.fullTextExcerpt ?? 'Read full text on article page.'}
-                    </p>
-                  </article>
-                ))}
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="news-divider-list">
+                  {wireLeft.map((story) => (
+                    <WireStoryRow key={story.clusterKey} story={story} />
+                  ))}
+                </div>
+                <div className="news-divider-list news-column-rule">
+                  {wireRight.map((story) => (
+                    <WireStoryRow key={story.clusterKey} story={story} />
+                  ))}
+                </div>
               </div>
             </section>
-          </section>
-
-          <aside className="space-y-4 lg:sticky lg:top-4">
-            {lead ? (
-              <Card className="border-slate-300/75 bg-white/95">
-                <CardHeader>
-                  <CardTitle className="font-display text-3xl leading-tight">Lead topics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {lead.topics.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No topics extracted for this lead article.</p>
-                  ) : (
-                    lead.topics.slice(0, 10).map((topic) => (
-                      <div key={`lead-topic-${topic.id}`} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-white px-3 py-2">
-                        <Link href={`/topics/${topic.slug}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">
-                          {topic.label}
-                        </Link>
-                        <FollowTopicButton
-                          topicId={topic.id}
-                          initialFollowed={feed.followedTopics.some((followed) => followed.id === topic.id)}
-                          isAuthenticated={session.isAuthenticated}
-                          className="h-7 rounded-full px-2 text-[11px]"
-                        />
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            ) : null}
-
-            <Card className="border-slate-300/75 bg-white/95">
-              <CardHeader>
-                <CardTitle className="font-display text-3xl leading-tight">Trending topics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {feed.trendingTopics.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">Topics appear after ingestion + extraction runs.</p>
-                ) : (
-                  feed.trendingTopics.map((topic) => (
-                    <div key={topic.id} className="flex items-center justify-between gap-2 rounded-xl border border-slate-300/75 bg-white px-3 py-2">
-                      <Link href={`/topics/${topic.slug}`} className="text-sm font-medium text-slate-800 hover:text-[var(--brand)]">
-                        {topic.label}
-                      </Link>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground text-xs">{topic.articleCount}</span>
-                        <FollowTopicButton
-                          topicId={topic.id}
-                          initialFollowed={topic.followed}
-                          isAuthenticated={session.isAuthenticated}
-                          className="h-7 rounded-full px-2 text-[11px]"
-                        />
-                      </div>
-                    </div>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-300/75 bg-white/95">
-              <CardHeader>
-                <CardTitle className="font-display text-3xl leading-tight">Your followed topics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {session.isAuthenticated ? (
-                  feed.followedTopics.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">Follow topics from story chips to tune your ranking.</p>
-                  ) : (
-                    feed.followedTopics.map((topic) => (
-                      <div key={topic.id} className="flex items-center justify-between rounded-xl border border-slate-300/75 bg-white px-3 py-2">
-                        <Link href={`/topics/${topic.slug}`} className="text-sm font-medium hover:text-[var(--brand)]">
-                          {topic.label}
-                        </Link>
-                        <span className="text-muted-foreground text-xs">{topic.articleCount}</span>
-                      </div>
-                    ))
-                  )
-                ) : (
-                  <>
-                    <p className="text-muted-foreground text-sm">Sign in to follow entities, programs, and technologies.</p>
-                    <Button asChild size="sm" className="rounded-full">
-                      <Link href="/auth/sign-in?next=/">Sign in</Link>
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="border-slate-300/75 bg-white/95">
-              <CardHeader>
-                <CardTitle className="font-display text-3xl leading-tight">Most discussed</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {feed.mostDiscussed.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No active discussions yet.</p>
-                ) : (
-                  feed.mostDiscussed.map((article) => (
-                    <Link
-                      key={article.id}
-                      href={`/articles/${article.id}`}
-                      className="block rounded-xl border border-slate-300/75 bg-white px-3 py-2 hover:border-[var(--brand)]"
-                    >
-                      <p className="font-medium text-slate-800">{article.title}</p>
-                      <p className="text-muted-foreground mt-1 text-xs">{article.commentCount} comments</p>
-                    </Link>
-                  ))
-                )}
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
+          </div>
+        )}
       </div>
     </main>
   )

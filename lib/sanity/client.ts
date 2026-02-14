@@ -82,3 +82,24 @@ export function createSanityWriteClientFromEnv(): {
     schemaId: env.schemaId,
   }
 }
+
+export function createSanityTokenWriteClientFromEnv(): SanityClient {
+  const env = getSanityServerEnv()
+
+  if (!env) {
+    throw new Error('Missing SANITY_PROJECT_ID/SANITY_DATASET (or NEXT_PUBLIC_SANITY_* fallbacks).')
+  }
+
+  if (!env.token) {
+    throw new Error('Missing SANITY_AGENT_TOKEN for Sanity write operations.')
+  }
+
+  return createClient({
+    projectId: env.projectId,
+    dataset: env.dataset,
+    apiVersion: env.apiVersion,
+    token: env.token,
+    useCdn: false,
+    perspective: 'raw',
+  })
+}

@@ -24,7 +24,7 @@ export function ShareLinkButton({className}: ShareLinkButtonProps) {
   }
 
   return (
-    <Button type="button" variant="outline" className={className} onClick={copyLink}>
+    <Button type="button" variant="secondary" className={className} onClick={copyLink}>
       {copied ? 'Link copied' : 'Share link'}
     </Button>
   )

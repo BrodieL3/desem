@@ -4,6 +4,7 @@ import {Moon, Sun} from 'lucide-react'
 import {useEffect, useState} from 'react'
 
 import {Button} from '@/components/ui/button'
+import {cn} from '@/lib/utils'
 
 type Theme = 'light' | 'dark'
 
@@ -28,7 +29,12 @@ function getInitialTheme(): Theme {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export function ThemeToggle() {
+type ThemeToggleProps = {
+  className?: string
+  showLabel?: boolean
+}
+
+export function ThemeToggle({className, showLabel = true}: ThemeToggleProps) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
@@ -39,18 +45,17 @@ export function ThemeToggle() {
   const isDark = theme === 'dark'
 
   return (
-    <div className="fixed top-3 right-3 z-50 md:top-5 md:right-5">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="rounded-full border-slate-300 bg-white/90 backdrop-blur dark:border-slate-700 dark:bg-slate-900/90"
-        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-        onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      >
-        {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        <span className="ml-2 text-xs">{isDark ? 'Light' : 'Dark'}</span>
-      </Button>
-    </div>
+    <Button
+      type="button"
+      variant="secondary"
+      size="sm"
+      className={cn(showLabel ? 'justify-start' : 'justify-center', className)}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+    >
+      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      {showLabel ? <span>{isDark ? 'Light mode' : 'Dark mode'}</span> : null}
+    </Button>
   )
 }

@@ -3,6 +3,7 @@
 import {useState} from 'react'
 
 import {Button} from '@/components/ui/button'
+import {cn} from '@/lib/utils'
 
 type FollowTopicButtonProps = {
   topicId: string
@@ -18,6 +19,7 @@ export function FollowTopicButton({topicId, initialFollowed, isAuthenticated, cl
   if (!isAuthenticated) {
     return null
   }
+
   const label = isPending ? 'Saving…' : isFollowed ? 'Following' : 'Follow'
 
   async function toggleFollow() {
@@ -61,7 +63,7 @@ export function FollowTopicButton({topicId, initialFollowed, isAuthenticated, cl
       type="button"
       variant={isFollowed ? 'secondary' : 'outline'}
       size="sm"
-      className={className}
+      className={cn('min-h-11', className)}
       disabled={isPending}
       onClick={toggleFollow}
     >

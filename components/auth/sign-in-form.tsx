@@ -19,7 +19,7 @@ export function SignInForm({nextPath, errorMessage}: SignInFormProps) {
     event.preventDefault()
 
     if (!email.trim()) {
-      setStatusMessage('Enter an email address to continue.')
+      setStatusMessage('Please enter an email address to continue.')
       return
     }
 
@@ -66,18 +66,26 @@ export function SignInForm({nextPath, errorMessage}: SignInFormProps) {
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-soft)]"
+          className="min-h-11 w-full border-b border-input bg-transparent px-0 py-2 text-sm"
           placeholder="you@company.com"
           required
         />
 
-        <Button type="submit" className="w-full rounded-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Sending link...' : 'Send magic link'}
         </Button>
       </form>
 
-      {errorMessage ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{errorMessage}</p> : null}
-      {statusMessage ? <p className="rounded-md bg-slate-100 p-3 text-sm text-slate-700">{statusMessage}</p> : null}
+      {errorMessage ? (
+        <p className="border-t border-border pt-3 text-sm text-destructive" role="alert">
+          {errorMessage}
+        </p>
+      ) : null}
+      {statusMessage ? (
+        <p className="border-t border-border pt-3 text-sm text-muted-foreground" aria-live="polite">
+          {statusMessage}
+        </p>
+      ) : null}
     </div>
   )
 }

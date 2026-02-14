@@ -1,5 +1,5 @@
 import {Readability} from '@mozilla/readability'
-import {JSDOM} from 'jsdom'
+import {JSDOM, VirtualConsole} from 'jsdom'
 
 type ExtractStatus = 'fetched' | 'failed'
 
@@ -26,8 +26,35 @@ const contentFallbackSelectors = [
   '.content-body',
 ]
 
+const semaforArticlePathPattern = /^\/article\/\d{2}\/\d{2}\/\d{4}\//
+const nextFlightChunkLiteralPattern = /self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g
+
+type SemaforArticlePayload = {
+  headline?: string | null
+  description?: unknown
+  intro?: unknown
+  semaforms?: unknown
+  sematexts?: unknown
+  signal?: unknown
+  tragedy?: unknown
+}
+
+type PlainRecord = Record<string, unknown>
+
 function collapseWhitespace(value: string) {
   return value.replace(/\s+/g, ' ').trim()
+}
+
+function countWords(value: string) {
+  return value.split(/\s+/).filter(Boolean).length
+}
+
+function asRecord(value: unknown): PlainRecord | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return null
+  }
+
+  return value as PlainRecord
 }
 
 function safeUrl(rawValue: string | null | undefined, baseUrl: string) {
@@ -135,6 +162,208 @@ function extractTextFallback(document: Document) {
   return collapseWhitespace(document.body?.textContent ?? '')
 }
 
+function isSemaforArticleUrl(articleUrl: string) {
+  try {
+    const parsed = new URL(articleUrl)
+    return parsed.hostname.endsWith('semafor.com') && semaforArticlePathPattern.test(parsed.pathname)
+  } catch {
+    return false
+  }
+}
+
+function extractPortableTextBlock(block: unknown) {
+  const record = asRecord(block)
+
+  if (!record) {
+    return ''
+  }
+
+  if (record._type === 'block' && Array.isArray(record.children)) {
+    const text = record.children
+      .map((child) => {
+        const childRecord = asRecord(child)
+        return typeof childRecord?.text === 'string' ? childRecord.text : ''
+      })
+      .join('')
+
+    return collapseWhitespace(text)
+  }
+
+  if (typeof record.text === 'string') {
+    return collapseWhitespace(record.text)
+  }
+
+  const imageEmbed = asRecord(record.imageEmbed)
+  if (typeof imageEmbed?.caption === 'string') {
+    return collapseWhitespace(imageEmbed.caption)
+  }
+
+  if (typeof record.caption === 'string') {
+    return collapseWhitespace(record.caption)
+  }
+
+  return ''
+}
+
+function extractPortableText(value: unknown) {
+  if (typeof value === 'string') {
+    return collapseWhitespace(value)
+  }
+
+  if (!Array.isArray(value)) {
+    return ''
+  }
+
+  return value
+    .map((entry) => extractPortableTextBlock(entry))
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+function pushUnique(segments: string[], value: string) {
+  const text = value.trim()
+
+  if (!text) {
+    return
+  }
+
+  const normalized = collapseWhitespace(text).toLowerCase()
+
+  if (segments.some((entry) => collapseWhitespace(entry).toLowerCase() === normalized)) {
+    return
+  }
+
+  segments.push(text)
+}
+
+function extractSemaforPayloadFromScript(script: string): SemaforArticlePayload | null {
+  if (!script.includes('__next_f.push') || !script.includes('\\\"article\\\"')) {
+    return null
+  }
+
+  const chunkPattern = new RegExp(nextFlightChunkLiteralPattern.source, 'g')
+
+  for (const match of script.matchAll(chunkPattern)) {
+    const literal = match[1]
+
+    if (!literal) {
+      continue
+    }
+
+    let chunk = ''
+
+    try {
+      chunk = JSON.parse(literal) as string
+    } catch {
+      continue
+    }
+
+    if (!chunk.includes('"article"')) {
+      continue
+    }
+
+    const separatorIndex = chunk.indexOf(':')
+    if (separatorIndex < 0) {
+      continue
+    }
+
+    const serializedPayload = chunk.slice(separatorIndex + 1).trim()
+    let parsedPayload: unknown
+
+    try {
+      parsedPayload = JSON.parse(serializedPayload)
+    } catch {
+      continue
+    }
+
+    if (!Array.isArray(parsedPayload)) {
+      continue
+    }
+
+    const payload = asRecord(parsedPayload[3])
+    const article = asRecord(payload?.article)
+
+    if (article) {
+      return article as SemaforArticlePayload
+    }
+  }
+
+  return null
+}
+
+function extractSemaforSectionText(section: PlainRecord) {
+  const segments: string[] = []
+  const title = typeof section.title === 'string' ? collapseWhitespace(section.title) : ''
+
+  if (title) {
+    segments.push(title)
+  }
+
+  for (const [key, value] of Object.entries(section)) {
+    if (key.startsWith('_') || key === 'title' || key === 'schemaVersion') {
+      continue
+    }
+
+    const text = extractPortableText(value)
+    if (text) {
+      segments.push(text)
+    }
+  }
+
+  return segments.join('\n\n')
+}
+
+function extractSemaforArticleText(document: Document, articleUrl: string) {
+  if (!isSemaforArticleUrl(articleUrl)) {
+    return ''
+  }
+
+  const scripts = Array.from(document.querySelectorAll('script'))
+  let payload: SemaforArticlePayload | null = null
+
+  for (const script of scripts) {
+    const content = script.textContent ?? ''
+    payload = extractSemaforPayloadFromScript(content)
+
+    if (payload) {
+      break
+    }
+  }
+
+  if (!payload) {
+    return ''
+  }
+
+  const leadSegments: string[] = []
+  pushUnique(leadSegments, extractPortableText(payload.intro))
+
+  const bodySegments: string[] = []
+
+  if (Array.isArray(payload.semaforms)) {
+    for (const section of payload.semaforms) {
+      const sectionRecord = asRecord(section)
+
+      if (!sectionRecord) {
+        continue
+      }
+
+      pushUnique(bodySegments, extractSemaforSectionText(sectionRecord))
+    }
+  }
+
+  pushUnique(bodySegments, extractPortableText(payload.sematexts))
+  pushUnique(bodySegments, extractPortableText(payload.signal))
+  pushUnique(bodySegments, extractPortableText(payload.tragedy))
+
+  if (bodySegments.length === 0) {
+    pushUnique(leadSegments, extractPortableText(payload.description))
+  }
+
+  const combined = bodySegments.length > 0 ? [...leadSegments, ...bodySegments] : leadSegments
+
+  return combined.join('\n\n').trim()
+}
+
 function failWith(message: string): ExtractedArticleContent {
   return {
     fullText: null,
@@ -153,30 +382,50 @@ export function extractArticleContentFromHtml(articleUrl: string, html: string):
   let dom: JSDOM
 
   try {
-    dom = new JSDOM(html, {url: articleUrl})
+    const virtualConsole = new VirtualConsole()
+
+    // Ignore noisy stylesheet parse warnings from malformed publisher CSS.
+    virtualConsole.on('jsdomError', (error) => {
+      const message = error instanceof Error ? error.message : String(error)
+
+      if (message.includes('Could not parse CSS stylesheet')) {
+        return
+      }
+
+      console.warn('[content-extract]', message)
+    })
+
+    dom = new JSDOM(html, {
+      url: articleUrl,
+      virtualConsole,
+    })
   } catch {
     return failWith('Unable to parse article HTML.')
   }
 
   const document = dom.window.document
   const leadImage = extractLeadImage(document, articleUrl)
+  const isSemaforArticle = isSemaforArticleUrl(articleUrl)
+  const bodyReadFloor = isSemaforArticle ? 40 : 80
 
-  let extractedText = ''
+  let extractedText = extractSemaforArticleText(document, articleUrl)
 
-  try {
-    const readability = new Readability(document)
-    const parsed = readability.parse()
+  if (!extractedText || countWords(extractedText) < bodyReadFloor) {
+    try {
+      const readability = new Readability(document)
+      const parsed = readability.parse()
 
-    extractedText = collapseWhitespace(parsed?.textContent ?? '')
-  } catch {
-    extractedText = ''
+      extractedText = collapseWhitespace(parsed?.textContent ?? '')
+    } catch {
+      extractedText = ''
+    }
   }
 
-  if (!extractedText || extractedText.split(/\s+/).length < 80) {
+  if (!extractedText || countWords(extractedText) < bodyReadFloor) {
     extractedText = extractTextFallback(document)
   }
 
-  if (!extractedText || extractedText.split(/\s+/).length < 40) {
+  if (!extractedText || countWords(extractedText) < 40) {
     return failWith('No usable article body found.')
   }
 

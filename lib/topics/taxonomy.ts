@@ -176,6 +176,31 @@ const taxonomySeed: Array<Omit<TaxonomyTopic, 'slug'>> = [
     aliases: ['L3 Harris', 'L3Harris Technologies'],
   },
   {
+    label: 'Leidos',
+    topicType: 'company',
+    aliases: ['Leidos Holdings'],
+  },
+  {
+    label: 'Huntington Ingalls Industries',
+    topicType: 'company',
+    aliases: ['HII', 'Huntington Ingalls'],
+  },
+  {
+    label: 'AeroVironment',
+    topicType: 'company',
+    aliases: ['AeroVironment Inc'],
+  },
+  {
+    label: 'Kratos Defense & Security Solutions',
+    topicType: 'company',
+    aliases: ['Kratos Defense', 'Kratos'],
+  },
+  {
+    label: 'CACI International',
+    topicType: 'company',
+    aliases: ['CACI'],
+  },
+  {
     label: 'Middle East',
     topicType: 'geography',
     aliases: ['Gulf region'],

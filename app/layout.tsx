@@ -1,7 +1,8 @@
 import type {Metadata} from 'next'
 import {Newsreader, Public_Sans} from 'next/font/google'
 
-import {ThemeToggle} from '@/components/theme-toggle'
+import {SiteDrawer} from '@/components/site-drawer'
+import {getUserSession} from '@/lib/user/session'
 
 import './globals.css'
 
@@ -23,15 +24,17 @@ export const metadata: Metadata = {
     'A defense-focused news aggregator with full-text article reading, topic follows, and article discussions.',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getUserSession()
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${publicSans.variable} ${newsreader.variable} antialiased`}>
-        <ThemeToggle />
+        <SiteDrawer isAuthenticated={session.isAuthenticated} email={session.email} />
         {children}
       </body>
     </html>

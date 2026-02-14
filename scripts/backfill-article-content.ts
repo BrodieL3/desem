@@ -27,7 +27,7 @@ async function run() {
   console.log(`Found ${missingTopics.length} articles missing topic links.`)
 
   const topicResult = await enrichArticleTopicsBatch(supabase, missingTopics, {
-    concurrency: 5,
+    concurrency: 2,
   })
 
   console.log(`Topic enrichment complete. Processed=${topicResult.processed}, withTopics=${topicResult.withTopics}.`)

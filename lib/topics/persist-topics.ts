@@ -17,8 +17,50 @@ type TopicLookupRow = {
   topic_type: TopicType
 }
 
+const retryableDatabaseErrorPatterns = [
+  /deadlock detected/i,
+  /could not serialize access/i,
+  /canceling statement due to lock timeout/i,
+  /lock not available/i,
+]
+
 function roundConfidence(value: number) {
   return Math.min(0.999, Math.max(0, Number(value.toFixed(3))))
+}
+
+function asErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function isRetryableDatabaseError(error: unknown) {
+  const message = asErrorMessage(error)
+  return retryableDatabaseErrorPatterns.some((pattern) => pattern.test(message))
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function withDatabaseRetry<T>(operation: string, task: () => Promise<T>, maxAttempts = 4): Promise<T> {
+  let attempt = 0
+  let lastError: unknown
+
+  while (attempt < maxAttempts) {
+    try {
+      return await task()
+    } catch (error) {
+      lastError = error
+      attempt += 1
+
+      if (!isRetryableDatabaseError(error) || attempt >= maxAttempts) {
+        throw new Error(`${operation}: ${asErrorMessage(error)}`)
+      }
+
+      await sleep(80 * attempt)
+    }
+  }
+
+  throw new Error(`${operation}: ${asErrorMessage(lastError)}`)
 }
 
 export async function persistExtractedTopicsForArticle(
@@ -31,7 +73,13 @@ export async function persistExtractedTopicsForArticle(
     fullText: article.full_text,
   })
 
-  await supabase.from('article_topics').delete().eq('article_id', article.id)
+  await withDatabaseRetry('Unable to clear existing article topics', async () => {
+    const {error} = await supabase.from('article_topics').delete().eq('article_id', article.id)
+
+    if (error) {
+      throw new Error(error.message)
+    }
+  })
 
   if (extracted.length === 0) {
     return {topicCount: 0}
@@ -47,27 +95,32 @@ export async function persistExtractedTopicsForArticle(
     })
   }
 
-  const topicsToUpsert = [...uniqueBySlug.values()]
+  const topicsToUpsert = [...uniqueBySlug.values()].sort((left, right) => left.slug.localeCompare(right.slug))
 
-  const {error: upsertTopicsError} = await supabase.from('topics').upsert(topicsToUpsert, {
-    onConflict: 'slug',
+  await withDatabaseRetry('Unable to upsert topics', async () => {
+    const {error: upsertTopicsError} = await supabase.from('topics').upsert(topicsToUpsert, {
+      onConflict: 'slug',
+    })
+
+    if (upsertTopicsError) {
+      throw new Error(upsertTopicsError.message)
+    }
   })
 
-  if (upsertTopicsError) {
-    throw new Error(`Unable to upsert topics: ${upsertTopicsError.message}`)
-  }
-
   const slugs = topicsToUpsert.map((topic) => topic.slug)
+  const topicRows = await withDatabaseRetry('Unable to resolve topic ids', async () => {
+    const {data, error: lookupError} = await supabase
+      .from('topics')
+      .select('id, slug, label, topic_type')
+      .in('slug', slugs)
+      .returns<TopicLookupRow[]>()
 
-  const {data: topicRows, error: lookupError} = await supabase
-    .from('topics')
-    .select('id, slug, label, topic_type')
-    .in('slug', slugs)
-    .returns<TopicLookupRow[]>()
+    if (lookupError || !data) {
+      throw new Error(lookupError?.message ?? 'No topic rows returned.')
+    }
 
-  if (lookupError || !topicRows) {
-    throw new Error(`Unable to resolve topic ids: ${lookupError?.message ?? 'No topic rows returned.'}`)
-  }
+    return data
+  })
 
   const topicIdBySlug = new Map(topicRows.map((row) => [row.slug, row.id]))
 
@@ -88,16 +141,19 @@ export async function persistExtractedTopicsForArticle(
       }
     })
     .filter((row): row is NonNullable<typeof row> => row !== null)
+    .sort((left, right) => left.topic_id.localeCompare(right.topic_id))
 
   if (articleTopicRows.length === 0) {
     return {topicCount: 0}
   }
 
-  const {error: insertError} = await supabase.from('article_topics').insert(articleTopicRows)
+  await withDatabaseRetry('Unable to insert article topics', async () => {
+    const {error: insertError} = await supabase.from('article_topics').insert(articleTopicRows)
 
-  if (insertError) {
-    throw new Error(`Unable to insert article topics: ${insertError.message}`)
-  }
+    if (insertError) {
+      throw new Error(insertError.message)
+    }
+  })
 
   return {topicCount: articleTopicRows.length}
 }

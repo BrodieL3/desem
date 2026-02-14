@@ -1,0 +1,291 @@
+[
+  {
+    "fields": [
+      {
+        "name": "articleId",
+        "type": "string"
+      },
+      {
+        "name": "clusterKey",
+        "type": "string"
+      },
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "summary",
+        "type": "text"
+      },
+      {
+        "name": "fullTextExcerpt",
+        "type": "text"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "articleUrl",
+        "type": "url"
+      },
+      {
+        "name": "sourceId",
+        "type": "string"
+      },
+      {
+        "name": "sourceName",
+        "type": "string"
+      },
+      {
+        "name": "sourceCategory",
+        "type": "string"
+      },
+      {
+        "name": "sourceBadge",
+        "type": "string"
+      },
+      {
+        "name": "publishedAt",
+        "type": "datetime"
+      },
+      {
+        "name": "fetchedAt",
+        "type": "datetime"
+      },
+      {
+        "name": "wordCount",
+        "type": "number"
+      },
+      {
+        "name": "readingMinutes",
+        "type": "number"
+      },
+      {
+        "name": "contentFetchStatus",
+        "type": "string"
+      },
+      {
+        "name": "isCongestedCluster",
+        "type": "boolean"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "topicId",
+                "type": "string"
+              },
+              {
+                "name": "slug",
+                "type": "string"
+              },
+              {
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "name": "topicType",
+                "type": "string"
+              },
+              {
+                "name": "isPrimary",
+                "type": "boolean"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "topics",
+        "type": "array"
+      },
+      {
+        "name": "syncedAt",
+        "type": "datetime"
+      }
+    ],
+    "name": "newsItem",
+    "type": "document"
+  },
+  {
+    "fields": [
+      {
+        "name": "clusterKey",
+        "type": "string"
+      },
+      {
+        "name": "representativeArticleId",
+        "type": "string"
+      },
+      {
+        "name": "topicLabel",
+        "type": "string"
+      },
+      {
+        "name": "headline",
+        "type": "string"
+      },
+      {
+        "name": "dek",
+        "type": "text"
+      },
+      {
+        "of": [
+          {
+            "type": "string"
+          }
+        ],
+        "name": "keyPoints",
+        "type": "array"
+      },
+      {
+        "name": "whyItMatters",
+        "type": "text"
+      },
+      {
+        "name": "riskLevel",
+        "type": "string"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "name": "articleId",
+                "type": "string"
+              },
+              {
+                "name": "headline",
+                "type": "string"
+              },
+              {
+                "name": "sourceName",
+                "type": "string"
+              },
+              {
+                "validation": [
+                  {
+                    "rules": [
+                      {
+                        "flag": "uri",
+                        "constraint": {
+                          "options": {
+                            "scheme": [
+                              "/^http$/",
+                              "/^https$/"
+                            ],
+                            "allowRelative": false,
+                            "relativeOnly": false,
+                            "allowCredentials": false
+                          }
+                        }
+                      }
+                    ],
+                    "level": "error"
+                  }
+                ],
+                "name": "url",
+                "type": "url"
+              },
+              {
+                "name": "sourceRole",
+                "type": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "citations",
+        "type": "array"
+      },
+      {
+        "name": "citationCount",
+        "type": "number"
+      },
+      {
+        "name": "hasOfficialSource",
+        "type": "boolean"
+      },
+      {
+        "name": "reportingCount",
+        "type": "number"
+      },
+      {
+        "name": "analysisCount",
+        "type": "number"
+      },
+      {
+        "name": "officialCount",
+        "type": "number"
+      },
+      {
+        "name": "opinionCount",
+        "type": "number"
+      },
+      {
+        "name": "pressReleaseDriven",
+        "type": "boolean"
+      },
+      {
+        "name": "opinionLimited",
+        "type": "boolean"
+      },
+      {
+        "name": "sourceDiversity",
+        "type": "number"
+      },
+      {
+        "name": "generationMode",
+        "type": "string"
+      },
+      {
+        "name": "transformStatus",
+        "type": "string"
+      },
+      {
+        "name": "reviewStatus",
+        "type": "string"
+      },
+      {
+        "name": "isCongestedCluster",
+        "type": "boolean"
+      },
+      {
+        "name": "articleCount24h",
+        "type": "number"
+      },
+      {
+        "name": "uniqueSources24h",
+        "type": "number"
+      },
+      {
+        "name": "congestionScore",
+        "type": "number"
+      },
+      {
+        "name": "generatedAt",
+        "type": "datetime"
+      }
+    ],
+    "name": "storyDigest",
+    "type": "document"
+  }
+]
