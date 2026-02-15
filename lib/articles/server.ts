@@ -1,4 +1,6 @@
 import {createOptionalSupabaseServerClient} from '@/lib/supabase/server'
+import {isLowValueTopicLabel} from '@/lib/topics/quality'
+import {curatedTopicTaxonomy} from '@/lib/topics/taxonomy'
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
 import type {ArticleCard, ArticleTopic, TopicSummary} from './types'
@@ -51,6 +53,16 @@ type CommentCountRow = {
   article_id: string
 }
 
+const taxonomyTopicSlugs = new Set(curatedTopicTaxonomy.map((topic) => topic.slug))
+
+function isCanonicalTopicSlug(slug: string) {
+  return taxonomyTopicSlugs.has(slug)
+}
+
+function isCanonicalTopicLabel(label: string) {
+  return Boolean(label) && !isLowValueTopicLabel(label)
+}
+
 function parseTimestamp(value: string | null | undefined) {
   if (!value) {
     return 0
@@ -72,7 +84,7 @@ function resolveTopicRow(value: ArticleTopicRow['topics']) {
   return value
 }
 
-function asTopicType(value: string | null | undefined) {
+function asTopicType(value: string | null | undefined): ArticleTopic['topicType'] {
   if (
     value === 'organization' ||
     value === 'program' ||
@@ -143,6 +155,10 @@ async function fetchArticleTopicsByArticleId(articleIds: string[]) {
     const topic = resolveTopicRow(row.topics)
 
     if (!topic) {
+      continue
+    }
+
+    if (!isCanonicalTopicSlug(topic.slug) || !isCanonicalTopicLabel(topic.label)) {
       continue
     }
 
@@ -227,6 +243,10 @@ async function fetchFollowedTopics(userId?: string | null) {
     const topic = Array.isArray(row.topics) ? row.topics[0] : row.topics
 
     if (!topic) {
+      continue
+    }
+
+    if (!isCanonicalTopicSlug(topic.slug) || !isCanonicalTopicLabel(topic.label)) {
       continue
     }
 
@@ -317,7 +337,15 @@ function sortArticlesForViewer(articles: ArticleCard[], followedTopicIds: Set<st
   })
 }
 
-function buildTrendingTopics(articles: ArticleCard[], followedTopicIds: Set<string>, limit = 10): TopicSummary[] {
+export function isDisplayEligibleTopicSummary(topic: TopicSummary) {
+  if (!isCanonicalTopicLabel(topic.label)) {
+    return false
+  }
+
+  return isCanonicalTopicSlug(topic.slug)
+}
+
+export function buildTrendingTopics(articles: ArticleCard[], followedTopicIds: Set<string>, limit = 10): TopicSummary[] {
   const counts = new Map<string, TopicSummary>()
 
   for (const article of articles) {
@@ -341,6 +369,33 @@ function buildTrendingTopics(articles: ArticleCard[], followedTopicIds: Set<stri
   }
 
   return [...counts.values()]
+    .filter((topic) => isDisplayEligibleTopicSummary(topic))
+    .sort((a, b) => b.articleCount - a.articleCount || a.label.localeCompare(b.label))
+    .slice(0, limit)
+}
+
+export function buildCooccurringTopicSummaries(
+  topics: Array<Pick<TopicSummary, 'id' | 'slug' | 'label' | 'topicType' | 'followed'>>,
+  limit = 14
+) {
+  const counts = new Map<string, TopicSummary>()
+
+  for (const topic of topics) {
+    const existing = counts.get(topic.id)
+
+    if (!existing) {
+      counts.set(topic.id, {
+        ...topic,
+        articleCount: 1,
+      })
+      continue
+    }
+
+    existing.articleCount += 1
+  }
+
+  return [...counts.values()]
+    .filter((topic) => isDisplayEligibleTopicSummary(topic))
     .sort((a, b) => b.articleCount - a.articleCount || a.label.localeCompare(b.label))
     .slice(0, limit)
 }
@@ -481,6 +536,10 @@ export async function getTopicBySlug(slug: string) {
     return null
   }
 
+  if (!isCanonicalTopicSlug(data.slug) || !isCanonicalTopicLabel(data.label)) {
+    return null
+  }
+
   return {
     id: data.id,
     slug: data.slug,
@@ -553,40 +612,29 @@ export async function getTopicPageData(topicSlug: string, userId?: string | null
     .in('article_id', articleIds)
     .neq('topic_id', topic.id)
     .returns<Array<{topic_id: string; topics: TopicRow | TopicRow[] | null}>>()
+  const cooccurringTopicCandidates = (coTopicRows ?? [])
+    .map((row) => {
+      const resolved = Array.isArray(row.topics) ? row.topics[0] : row.topics
 
-  const coTopicCounts = new Map<string, TopicSummary>()
+      if (!resolved) {
+        return null
+      }
 
-  for (const row of coTopicRows ?? []) {
-    const resolved = Array.isArray(row.topics) ? row.topics[0] : row.topics
-
-    if (!resolved) {
-      continue
-    }
-
-    const existing = coTopicCounts.get(row.topic_id)
-
-    if (!existing) {
-      coTopicCounts.set(row.topic_id, {
+      return {
         id: resolved.id,
         slug: resolved.slug,
         label: resolved.label,
         topicType: asTopicType(resolved.topic_type),
-        articleCount: 1,
         followed: followState.followedTopicIds.has(resolved.id),
-      })
-      continue
-    }
-
-    existing.articleCount += 1
-  }
+      }
+    })
+    .filter((topic): topic is NonNullable<typeof topic> => topic !== null)
 
   return {
     topic,
     isFollowed: followState.followedTopicIds.has(topic.id),
     articles: sortedCards,
-    cooccurringTopics: [...coTopicCounts.values()]
-      .sort((a, b) => b.articleCount - a.articleCount || a.label.localeCompare(b.label))
-      .slice(0, 14),
+    cooccurringTopics: buildCooccurringTopicSummaries(cooccurringTopicCandidates, 14),
   }
 }
 

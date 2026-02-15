@@ -70,7 +70,7 @@ function SearchTopHit({
 
   return (
     <Link
-      href={`/articles/${hit.id}`}
+      href={`/stories/article/${hit.id}`}
       onClick={onNavigate}
       className="news-divider-item news-divider-item-compact block px-3 py-2 transition-colors hover:bg-muted/65"
     >

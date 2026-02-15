@@ -5,6 +5,8 @@ import {defaultCongestionRules} from '@/lib/editorial/congestion'
 import {isEditorialFocusMatch} from '@/lib/editorial/focus'
 import {syncSemaphorSecurityNewsItemsToSanity} from '@/lib/editorial/semaphor-sync'
 import type {EditorialArticle, EditorialTopic, StoryCluster} from '@/lib/editorial/types'
+import {syncDefenseMoneySignals} from '@/lib/data/signals/sync'
+import {syncPrimeMetricsFromSec} from '@/lib/data/primes/sync'
 import {
   enrichArticleContentBatch,
   enrichArticleTopicsBatch,
@@ -531,59 +533,211 @@ async function persistStoryClusters(input: {
   }
 }
 
-async function runIngestion(request: Request) {
-  if (!authorizeCronRequest(request)) {
-    return NextResponse.json({error: 'Unauthorized'}, {status: 401})
+type SemaphorSegment = {
+  enabled: boolean
+  status: 'succeeded' | 'partial_failed' | 'failed'
+  fetchedStories: number
+  processed: number
+  synced: number
+  failed: number
+  error: string | null
+  errors: Array<{
+    storyId: string
+    articleUrl: string
+    message: string
+  }>
+}
+
+type PrimeMetricsSegment = {
+  enabled: boolean
+  status: 'succeeded' | 'partial_failed' | 'failed'
+  runId: string | null
+  processedCompanies: number
+  processedPeriods: number
+  warnings: string[]
+  error: string | null
+}
+
+type IngestEditorialSegment = {
+  status: 'succeeded' | 'partial_failed' | 'failed'
+  fetchedAt: string | null
+  sourceCount: number
+  articleCount: number
+  upsertedSourceCount: number
+  upsertedArticleCount: number
+  usedLegacySourceSchema: boolean
+  sourceErrors: Array<{
+    sourceId: string
+    sourceName: string
+    message: string
+  }>
+  enrichment: {
+    contentProcessed: number
+    contentFetched: number
+    contentFailed: number
+    topicProcessed: number
+    topicWithMatches: number
+  }
+  editorial: {
+    enabled: boolean
+    runId: string | null
+    articleCount: number
+    clusterCount: number
+    newsItemCount: number
+    digestCount: number
+    transformAttemptedCount: number
+    transformSucceededCount: number
+    transformFailedCount: number
+    focusFilterEnabled: boolean
+    focusedArticleCount: number
+    excludedArticleCount: number
+    error: string | null
+  }
+  error: string | null
+}
+
+type MoneySignalsSegment = Awaited<ReturnType<typeof syncDefenseMoneySignals>>
+
+function resolveOverallStatus(statuses: Array<'succeeded' | 'partial_failed' | 'failed'>) {
+  const hasFailed = statuses.includes('failed')
+  const hasPartial = statuses.includes('partial_failed')
+
+  if (!hasFailed && !hasPartial) {
+    return 'succeeded' as const
+  }
+
+  if (hasFailed && statuses.every((status) => status === 'failed')) {
+    return 'failed' as const
+  }
+
+  return 'partial_failed' as const
+}
+
+async function runSemaphorSegment(): Promise<SemaphorSegment> {
+  const semaphorSyncEnabled = asBoolean(process.env.EDITORIAL_SEMAPHOR_SYNC_ENABLED, true)
+  const semaphorLimit = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_LIMIT, 200, 1, 200)
+  const semaphorConcurrency = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_CONCURRENCY, 4, 1, 10)
+  const semaphorTimeoutMs = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_TIMEOUT_MS, 20000, 5000, 30000)
+
+  const semaphor: SemaphorSegment = {
+    enabled: semaphorSyncEnabled,
+    status: 'succeeded',
+    fetchedStories: 0,
+    processed: 0,
+    synced: 0,
+    failed: 0,
+    error: null,
+    errors: [],
+  }
+
+  if (!semaphorSyncEnabled) {
+    return semaphor
   }
 
   try {
-    const pullSinceHours = parsePositiveInt(process.env.INGEST_PULL_SINCE_HOURS, 72, 12, 168)
-    const pullMaxPerSource = parsePositiveInt(process.env.INGEST_PULL_MAX_PER_SOURCE, 80, 10, 200)
-    const pullLimit = parsePositiveInt(process.env.INGEST_PULL_LIMIT, 1600, 100, 4000)
-    const editorialWindowHours = parsePositiveInt(process.env.EDITORIAL_WINDOW_HOURS, 96, 24, 336)
-    const editorialArticleLimit = parsePositiveInt(process.env.EDITORIAL_ARTICLE_LIMIT, 2500, 200, 5000)
-    const focusFilterEnabled = asBoolean(process.env.EDITORIAL_FOCUS_FILTER_ENABLED, true)
-
-    const pullResult = await pullDefenseArticles({
-      sinceHours: pullSinceHours,
-      maxPerSource: pullMaxPerSource,
-      limit: pullLimit,
-      timeoutMs: 20000,
+    const sanity = createSanityTokenWriteClientFromEnv()
+    const semaphorSync = await syncSemaphorSecurityNewsItemsToSanity({
+      client: sanity,
+      limit: semaphorLimit,
+      concurrency: semaphorConcurrency,
+      timeoutMs: semaphorTimeoutMs,
     })
 
-    const supabase = createSupabaseAdminClientFromEnv()
-    const persisted = await upsertPullResultToSupabase(supabase, pullResult)
+    semaphor.fetchedStories = semaphorSync.fetchedStories
+    semaphor.processed = semaphorSync.processed
+    semaphor.synced = semaphorSync.synced
+    semaphor.failed = semaphorSync.failed
+    semaphor.errors = semaphorSync.errors.slice(0, 30)
+    semaphor.status = semaphorSync.failed > 0 ? 'partial_failed' : 'succeeded'
+  } catch (error) {
+    semaphor.status = 'failed'
+    semaphor.error = error instanceof Error ? error.message : 'Unknown Semafor sync failure.'
+  }
 
-    const recentlyIngested = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+  return semaphor
+}
 
-    const contentResult = await enrichArticleContentBatch(supabase, recentlyIngested, {
-      concurrency: 5,
-      timeoutMs: 15000,
+async function runPrimeMetricsSegment(): Promise<PrimeMetricsSegment> {
+  const primeSyncEnabled = asBoolean(process.env.PRIME_SYNC_ENABLED, true)
+  const primeFilingsPerCompany = parsePositiveInt(process.env.PRIME_SYNC_FILINGS_PER_COMPANY, 1, 1, 4)
+
+  const primeMetrics: PrimeMetricsSegment = {
+    enabled: primeSyncEnabled,
+    status: 'succeeded',
+    runId: null,
+    processedCompanies: 0,
+    processedPeriods: 0,
+    warnings: [],
+    error: null,
+  }
+
+  if (!primeSyncEnabled) {
+    return primeMetrics
+  }
+
+  try {
+    const primeResult = await syncPrimeMetricsFromSec({
+      filingsPerCompany: primeFilingsPerCompany,
     })
 
-    const refreshedRows = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+    primeMetrics.runId = primeResult.runId
+    primeMetrics.processedCompanies = primeResult.processedCompanies
+    primeMetrics.processedPeriods = primeResult.processedPeriods
+    primeMetrics.warnings = primeResult.warnings
+    primeMetrics.status = primeResult.warnings.length > 0 ? 'partial_failed' : 'succeeded'
+  } catch (error) {
+    primeMetrics.status = 'failed'
+    primeMetrics.error = error instanceof Error ? error.message : 'Unknown prime metrics sync failure.'
+  }
 
-    const topicResult = await enrichArticleTopicsBatch(supabase, refreshedRows, {
-      concurrency: 2,
+  return primeMetrics
+}
+
+async function runMoneySignalsSegment(): Promise<MoneySignalsSegment> {
+  try {
+    return await syncDefenseMoneySignals({
+      triggerSource: 'cron:pull-articles',
     })
+  } catch (error) {
+    return {
+      runId: null,
+      status: 'failed',
+      processedTransactions: 0,
+      processedTickers: 0,
+      processedBriefs: 0,
+      warnings: [],
+      error: error instanceof Error ? error.message : 'Unknown money signals sync failure.',
+      targetDate: new Date().toISOString().slice(0, 10),
+    }
+  }
+}
 
-    const editorialEnabled = asBoolean(process.env.EDITORIAL_PIPELINE_ENABLED, true)
+async function runIngestEditorialSegment(): Promise<IngestEditorialSegment> {
+  const pullSinceHours = parsePositiveInt(process.env.INGEST_PULL_SINCE_HOURS, 72, 12, 168)
+  const pullMaxPerSource = parsePositiveInt(process.env.INGEST_PULL_MAX_PER_SOURCE, 80, 10, 200)
+  const pullLimit = parsePositiveInt(process.env.INGEST_PULL_LIMIT, 1600, 100, 4000)
+  const editorialWindowHours = parsePositiveInt(process.env.EDITORIAL_WINDOW_HOURS, 96, 24, 336)
+  const editorialArticleLimit = parsePositiveInt(process.env.EDITORIAL_ARTICLE_LIMIT, 2500, 200, 5000)
+  const focusFilterEnabled = asBoolean(process.env.EDITORIAL_FOCUS_FILTER_ENABLED, true)
+  const editorialEnabled = asBoolean(process.env.EDITORIAL_PIPELINE_ENABLED, true)
 
-    const editorial: {
-      enabled: boolean
-      runId: string | null
-      articleCount: number
-      clusterCount: number
-      newsItemCount: number
-      digestCount: number
-      transformAttemptedCount: number
-      transformSucceededCount: number
-      transformFailedCount: number
-      focusFilterEnabled: boolean
-      focusedArticleCount: number
-      excludedArticleCount: number
-      error: string | null
-    } = {
+  const segment: IngestEditorialSegment = {
+    status: 'succeeded',
+    fetchedAt: null,
+    sourceCount: 0,
+    articleCount: 0,
+    upsertedSourceCount: 0,
+    upsertedArticleCount: 0,
+    usedLegacySourceSchema: false,
+    sourceErrors: [],
+    enrichment: {
+      contentProcessed: 0,
+      contentFetched: 0,
+      contentFailed: 0,
+      topicProcessed: 0,
+      topicWithMatches: 0,
+    },
+    editorial: {
       enabled: editorialEnabled,
       runId: null,
       articleCount: 0,
@@ -597,12 +751,50 @@ async function runIngestion(request: Request) {
       focusedArticleCount: 0,
       excludedArticleCount: 0,
       error: null,
-    }
+    },
+    error: null,
+  }
+
+  try {
+    const pullResult = await pullDefenseArticles({
+      sinceHours: pullSinceHours,
+      maxPerSource: pullMaxPerSource,
+      limit: pullLimit,
+      timeoutMs: 20000,
+    })
+    segment.fetchedAt = pullResult.fetchedAt
+    segment.sourceCount = pullResult.sourceCount
+    segment.articleCount = pullResult.articleCount
+    segment.sourceErrors = pullResult.errors
+
+    const supabase = createSupabaseAdminClientFromEnv()
+    const persisted = await upsertPullResultToSupabase(supabase, pullResult)
+    segment.upsertedSourceCount = persisted.upsertedSourceCount
+    segment.upsertedArticleCount = persisted.upsertedArticleCount
+    segment.usedLegacySourceSchema = persisted.usedLegacySchema
+
+    const recentlyIngested = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+
+    const contentResult = await enrichArticleContentBatch(supabase, recentlyIngested, {
+      concurrency: 5,
+      timeoutMs: 15000,
+    })
+    segment.enrichment.contentProcessed = contentResult.processed
+    segment.enrichment.contentFetched = contentResult.fetched
+    segment.enrichment.contentFailed = contentResult.failed
+
+    const refreshedRows = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+
+    const topicResult = await enrichArticleTopicsBatch(supabase, refreshedRows, {
+      concurrency: 2,
+    })
+    segment.enrichment.topicProcessed = topicResult.processed
+    segment.enrichment.topicWithMatches = topicResult.withTopics
 
     if (editorialEnabled) {
       const generatedAt = new Date()
       const runId = await beginEditorialRun(supabase, pullResult.fetchedAt)
-      editorial.runId = runId
+      segment.editorial.runId = runId
 
       try {
         const allEditorialArticles = await fetchRecentEditorialArticles(supabase, {
@@ -614,9 +806,9 @@ async function runIngestion(request: Request) {
         const editorialArticles =
           focusFilterEnabled && focusFiltered.focusedCount > 0 ? focusFiltered.focused : allEditorialArticles
 
-        editorial.articleCount = editorialArticles.length
-        editorial.focusedArticleCount = focusFiltered.focusedCount
-        editorial.excludedArticleCount = focusFiltered.nonFocusedCount
+        segment.editorial.articleCount = editorialArticles.length
+        segment.editorial.focusedArticleCount = focusFiltered.focusedCount
+        segment.editorial.excludedArticleCount = focusFiltered.nonFocusedCount
 
         const clusters = await buildStoryClusters(editorialArticles, {
           threshold: Number(process.env.EDITORIAL_CLUSTER_THRESHOLD ?? '0.72'),
@@ -628,7 +820,7 @@ async function runIngestion(request: Request) {
           maxEmbeddingArticles: parsePositiveInt(process.env.EDITORIAL_MAX_EMBEDDING_ARTICLES, 240, 24, 1200),
         })
 
-        editorial.clusterCount = clusters.length
+        segment.editorial.clusterCount = clusters.length
 
         const sanity = createSanityWriteClientFromEnv()
         const synced = await syncEditorialDrafts({
@@ -640,11 +832,11 @@ async function runIngestion(request: Request) {
           congestionRules: defaultCongestionRules,
         })
 
-        editorial.newsItemCount = synced.newsItemCount
-        editorial.digestCount = synced.digestCount
-        editorial.transformAttemptedCount = synced.transformAttemptedCount
-        editorial.transformSucceededCount = synced.transformSucceededCount
-        editorial.transformFailedCount = synced.transformFailedCount
+        segment.editorial.newsItemCount = synced.newsItemCount
+        segment.editorial.digestCount = synced.digestCount
+        segment.editorial.transformAttemptedCount = synced.transformAttemptedCount
+        segment.editorial.transformSucceededCount = synced.transformSucceededCount
+        segment.editorial.transformFailedCount = synced.transformFailedCount
 
         await persistStoryClusters({
           supabase,
@@ -656,100 +848,82 @@ async function runIngestion(request: Request) {
 
         await completeEditorialRun(supabase, runId, {
           status: 'succeeded',
-          articleCount: editorial.articleCount,
-          clusterCount: editorial.clusterCount,
-          transformAttemptedCount: editorial.transformAttemptedCount,
-          transformSuccessCount: editorial.transformSucceededCount,
-          transformFailedCount: editorial.transformFailedCount,
+          articleCount: segment.editorial.articleCount,
+          clusterCount: segment.editorial.clusterCount,
+          transformAttemptedCount: segment.editorial.transformAttemptedCount,
+          transformSuccessCount: segment.editorial.transformSucceededCount,
+          transformFailedCount: segment.editorial.transformFailedCount,
         })
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown editorial pipeline failure.'
-        editorial.error = message
+        segment.editorial.error = message
 
         await completeEditorialRun(supabase, runId, {
           status: 'failed',
-          articleCount: editorial.articleCount,
-          clusterCount: editorial.clusterCount,
-          transformAttemptedCount: editorial.transformAttemptedCount,
-          transformSuccessCount: editorial.transformSucceededCount,
-          transformFailedCount: editorial.transformFailedCount,
+          articleCount: segment.editorial.articleCount,
+          clusterCount: segment.editorial.clusterCount,
+          transformAttemptedCount: segment.editorial.transformAttemptedCount,
+          transformSuccessCount: segment.editorial.transformSucceededCount,
+          transformFailedCount: segment.editorial.transformFailedCount,
           errorMessage: message,
         })
       }
     }
 
-    const semaphorSyncEnabled = asBoolean(process.env.EDITORIAL_SEMAPHOR_SYNC_ENABLED, true)
-    const semaphorLimit = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_LIMIT, 200, 1, 200)
-    const semaphorConcurrency = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_CONCURRENCY, 4, 1, 10)
-    const semaphorTimeoutMs = parsePositiveInt(process.env.EDITORIAL_SEMAPHOR_TIMEOUT_MS, 20000, 5000, 30000)
-
-    const semaphor: {
-      enabled: boolean
-      fetchedStories: number
-      processed: number
-      synced: number
-      failed: number
-      error: string | null
-      errors: Array<{
-        storyId: string
-        articleUrl: string
-        message: string
-      }>
-    } = {
-      enabled: semaphorSyncEnabled,
-      fetchedStories: 0,
-      processed: 0,
-      synced: 0,
-      failed: 0,
-      error: null,
-      errors: [],
-    }
-
-    if (semaphorSyncEnabled) {
-      try {
-        const sanity = createSanityTokenWriteClientFromEnv()
-        const semaphorSync = await syncSemaphorSecurityNewsItemsToSanity({
-          client: sanity,
-          limit: semaphorLimit,
-          concurrency: semaphorConcurrency,
-          timeoutMs: semaphorTimeoutMs,
-        })
-
-        semaphor.fetchedStories = semaphorSync.fetchedStories
-        semaphor.processed = semaphorSync.processed
-        semaphor.synced = semaphorSync.synced
-        semaphor.failed = semaphorSync.failed
-        semaphor.errors = semaphorSync.errors.slice(0, 30)
-      } catch (error) {
-        semaphor.error = error instanceof Error ? error.message : 'Unknown Semafor sync failure.'
-      }
-    }
-
-    const body = {
-      ok: true,
-      fetchedAt: pullResult.fetchedAt,
-      sourceCount: pullResult.sourceCount,
-      articleCount: pullResult.articleCount,
-      upsertedSourceCount: persisted.upsertedSourceCount,
-      upsertedArticleCount: persisted.upsertedArticleCount,
-      usedLegacySourceSchema: persisted.usedLegacySchema,
-      enrichment: {
-        contentProcessed: contentResult.processed,
-        contentFetched: contentResult.fetched,
-        contentFailed: contentResult.failed,
-        topicProcessed: topicResult.processed,
-        topicWithMatches: topicResult.withTopics,
-      },
-      editorial,
-      semaphor,
-      sourceErrors: pullResult.errors,
-    }
-
-    return NextResponse.json(body)
+    segment.status = segment.editorial.error ? 'partial_failed' : 'succeeded'
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown cron ingestion failure.'
-    return NextResponse.json({ok: false, error: message}, {status: 500})
+    segment.status = 'failed'
+    segment.error = error instanceof Error ? error.message : 'Unknown ingest/editorial segment failure.'
   }
+
+  return segment
+}
+
+async function runIngestion(request: Request) {
+  if (!authorizeCronRequest(request)) {
+    return NextResponse.json({error: 'Unauthorized'}, {status: 401})
+  }
+
+  const [ingestEditorial, semaphor, primeMetrics, moneySignals] = await Promise.all([
+    runIngestEditorialSegment(),
+    runSemaphorSegment(),
+    runPrimeMetricsSegment(),
+    runMoneySignalsSegment(),
+  ])
+
+  const overallStatus = resolveOverallStatus([
+    ingestEditorial.status,
+    semaphor.status,
+    primeMetrics.status,
+    moneySignals.status,
+  ])
+
+  const body = {
+    ok: overallStatus === 'succeeded',
+    overallStatus,
+    segmentStatus: {
+      ingestEditorial: ingestEditorial.status,
+      semaphor: semaphor.status,
+      primeMetrics: primeMetrics.status,
+      moneySignals: moneySignals.status,
+    },
+    fetchedAt: ingestEditorial.fetchedAt,
+    sourceCount: ingestEditorial.sourceCount,
+    articleCount: ingestEditorial.articleCount,
+    upsertedSourceCount: ingestEditorial.upsertedSourceCount,
+    upsertedArticleCount: ingestEditorial.upsertedArticleCount,
+    usedLegacySourceSchema: ingestEditorial.usedLegacySourceSchema,
+    enrichment: ingestEditorial.enrichment,
+    editorial: ingestEditorial.editorial,
+    semaphor,
+    primeMetrics,
+    moneySignals,
+    sourceErrors: ingestEditorial.sourceErrors,
+    ingestEditorial,
+  }
+
+  const statusCode = overallStatus === 'succeeded' ? 200 : overallStatus === 'partial_failed' ? 207 : 500
+  return NextResponse.json(body, {status: statusCode})
 }
 
 export async function GET(request: Request) {

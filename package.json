@@ -13,7 +13,12 @@
     "ingest:scrape-semafor": "bun run scripts/scrape-semafor-article.ts",
     "editorial:sync-semafor": "bun run scripts/sync-semafor-to-sanity.ts",
     "data:backfill-primes": "bun run scripts/backfill-prime-metrics.ts",
-    "data:sync-primes": "bun run scripts/sync-prime-metrics.ts"
+    "data:sync-primes": "bun run scripts/sync-prime-metrics.ts",
+    "data:sync-money": "bun run scripts/sync-defense-money-signals.ts",
+    "data:backfill-money": "bun run scripts/backfill-defense-money-signals.ts",
+    "data:rebuild-money-rollups": "bun run scripts/rebuild-defense-money-rollups.ts",
+    "data:backfill-market": "bun run scripts/backfill-market-signals.ts",
+    "data:sync-macro": "bun run scripts/sync-macro-context.ts"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",

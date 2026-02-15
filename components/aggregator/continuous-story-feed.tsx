@@ -61,7 +61,7 @@ function FeedStoryCard({story}: {story: ArticleCard}) {
   return (
     <article className="news-divider-item px-1">
       <Link
-        href={`/articles/${story.id}`}
+        href={`/stories/article/${story.id}`}
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs tracking-[0.08em] uppercase">

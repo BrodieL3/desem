@@ -14,6 +14,15 @@ export type PrimeBackfillPersistResult = {
   metricPointCount: number
 }
 
+const primeDisplayOrder: Record<PrimeTicker, number> = {
+  LMT: 1,
+  RTX: 2,
+  BA: 3,
+  GD: 4,
+  NOC: 5,
+  LHX: 6,
+}
+
 function asPeriodMetricRows(input: {
   periodId: string
   metrics: NonNullable<PrimeBackfillDocument['companies'][number]['periods'][number]['metrics']>
@@ -74,7 +83,7 @@ export async function upsertPrimeBackfillDocument(
         name: company.name,
         cik: company.cik,
         is_active: true,
-        display_order: company.ticker === 'LMT' ? 1 : company.ticker === 'RTX' ? 2 : company.ticker === 'BA' ? 3 : company.ticker === 'GD' ? 4 : 5,
+        display_order: primeDisplayOrder[company.ticker],
       },
       {onConflict: 'ticker'}
     )

@@ -66,6 +66,8 @@ export type CuratedHomeForYouTopic = {
   followed: boolean
 }
 
+export type CuratedStoryTopic = CuratedHomeForYouTopic
+
 export type CuratedHomeForYouRail = {
   title: string
   stories: CuratedStoryCard[]
@@ -108,6 +110,7 @@ export type CuratedStoryDetail = {
   publishedAt: string
   heroImageUrl?: string | null
   sourceLinks: CuratedSourceLink[]
+  topics: CuratedStoryTopic[]
   feedBlocks: StoryFeedBlock[]
   totalFeedBlocks: number
   evidence: EvidenceBlock[]

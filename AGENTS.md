@@ -55,7 +55,7 @@ Use these rules when making tradeoffs:
 - Home (`/`) is editorial-first and assembled by `/Users/brodielee/desem/lib/editorial/ui-server.ts`.
 - Home currently prefers live Semafor Security stream coverage, then falls back to Sanity digests/raw fallback synthesis.
 - Story pages (`/stories/[clusterKey]`) are verification-focused: digest narrative plus paged evidence blocks.
-- Article pages (`/articles/[id]`) preserve full-text reading + topic actions + discussion.
+- Source-detail pages (`/stories/article/[id]`) preserve full-text reading + topic actions + discussion.
 - Topic pages (`/topics/[slug]`) support exploration and follow personalization.
 - `/briefings` and `/data` are intentionally reserved for future curated modules.
 - Pipeline output targets Sanity drafts (`newsItem`, `storyDigest`) while retaining Supabase operational data.
@@ -129,7 +129,7 @@ Use these rules when making tradeoffs:
   - Goal-critical pages:
     - `/Users/brodielee/desem/app/page.tsx` (scan-first home)
     - `/Users/brodielee/desem/app/stories/[clusterKey]/page.tsx` (verification-focused story view)
-    - `/Users/brodielee/desem/app/articles/[id]/page.tsx` (source article + discussion)
+    - `/Users/brodielee/desem/app/stories/article/[id]/page.tsx` (source article + discussion)
     - `/Users/brodielee/desem/app/topics/[slug]/page.tsx` (topic discovery + follows)
   - Goal-critical APIs:
     - `/Users/brodielee/desem/app/api/cron/pull-articles/route.ts`

@@ -1,0 +1,18 @@
+- effectiveWeekStart: 2026-02-09
+  headline: "FY26 pressure remains on rapid fielding accounts"
+  summary: "Recent topline defense budget discussions keep near-term pressure on programs tied to readiness, munitions depth, and resilient C5ISR procurement."
+  soWhat: "Prioritize offers and roadmap decisions that reduce deployment friction and cycle time for operators buying under execution pressure."
+  sourceLabel: "DoD budget transparency references"
+  sourceUrl: "https://api.usaspending.gov/docs/endpoints"
+  tags: [budget, dod, topline]
+
+- effectiveWeekStart: 2026-02-16
+  headline: "Supplemental framing favors production throughput"
+  summary: "Policy framing around supplemental defense appropriations continues to emphasize production capacity and sustainment readiness."
+  soWhat: "Position BD around surge manufacturing, repair throughput, and supply-chain resilience where appropriation velocity is likely to stay strongest."
+  sourceLabel: "USAspending + public budget context"
+  sourceUrl: "https://api.usaspending.gov/docs/endpoints"
+  tags:
+    - supplemental
+    - production
+    - sustainment

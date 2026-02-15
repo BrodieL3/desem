@@ -17,13 +17,22 @@ export type TaxonomyTopic = {
   slug: string
   topicType: TopicType
   aliases: string[]
+  contextGatedAliases?: string[]
 }
 
 const taxonomySeed: Array<Omit<TaxonomyTopic, 'slug'>> = [
   {
     label: 'Department of Defense',
     topicType: 'organization',
-    aliases: ['DoD', 'U.S. Department of Defense', 'US Department of Defense'],
+    aliases: [
+      'DoD',
+      'DOD',
+      'D.o.D.',
+      'U.S. Department of Defense',
+      'US Department of Defense',
+      'Department of War',
+    ],
+    contextGatedAliases: ['DOW', 'DoW'],
   },
   {
     label: 'Small Business Innovation Research',
@@ -209,6 +218,11 @@ const taxonomySeed: Array<Omit<TaxonomyTopic, 'slug'>> = [
     label: 'Indo-Pacific',
     topicType: 'geography',
     aliases: ['Indopacific', 'Asia-Pacific'],
+  },
+  {
+    label: 'Iran',
+    topicType: 'geography',
+    aliases: ['Iranian'],
   },
   {
     label: 'Ukraine',

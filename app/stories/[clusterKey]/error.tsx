@@ -1,7 +1,6 @@
 'use client'
 
-import Link from 'next/link'
-
+import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 
@@ -13,6 +12,10 @@ export default function StoryErrorPage({reset}: StoryErrorPageProps) {
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
       <div className="editorial-shell mx-auto max-w-[760px] p-5 md:p-8">
+        <div className="mb-5">
+          <BackToFrontPageButton />
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="font-display text-3xl leading-tight">Story unavailable right now</CardTitle>
@@ -24,9 +27,6 @@ export default function StoryErrorPage({reset}: StoryErrorPageProps) {
             <div className="flex flex-wrap gap-2">
               <Button type="button" onClick={reset}>
                 Retry
-              </Button>
-              <Button asChild type="button" variant="ghost">
-                <Link href="/">Back to front page</Link>
               </Button>
             </div>
           </CardContent>

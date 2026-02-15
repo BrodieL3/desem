@@ -25,13 +25,14 @@ describe('/api/data/primes', () => {
     try {
       const response = await GET(new Request('http://localhost:3000/api/data/primes?windowQuarters=20'))
       const payload = (await response.json()) as {
-        data?: {windowQuarters?: number}
+        data?: {windowQuarters?: number; companies?: Array<{ticker: string}>}
         meta?: {windowQuarters?: number}
       }
 
       expect(response.status).toBe(200)
       expect(payload.data?.windowQuarters).toBe(20)
       expect(payload.meta?.windowQuarters).toBe(20)
+      expect(payload.data?.companies?.some((company) => company.ticker === 'LHX')).toBe(true)
     } finally {
       process.env.DATA_PRIMES_ENABLED = original
     }

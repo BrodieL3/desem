@@ -1,8 +1,8 @@
-export const primeTickerValues = ['LMT', 'RTX', 'BA', 'GD', 'NOC'] as const
+export const primeTickerValues = ['LMT', 'RTX', 'BA', 'GD', 'NOC', 'LHX'] as const
 
 export type PrimeTicker = (typeof primeTickerValues)[number]
 
-export type PrimeColorToken = `chart-${1 | 2 | 3 | 4 | 5}`
+export type PrimeColorToken = `chart-${1 | 2 | 3 | 4 | 5 | 6}`
 
 export const primeMetricKeyValues = ['backlog_total_b', 'book_to_bill', 'revenue_b', 'orders_b'] as const
 

@@ -33,6 +33,7 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
   --radius: var(--radius);
 }
 
@@ -78,6 +79,7 @@
   --chart-3: oklch(0.7 0.02 304);
   --chart-4: oklch(0.48 0.14 304);
   --chart-5: oklch(0.82 0.01 0);
+  --chart-6: oklch(0.56 0.13 210);
 }
 
 .dark {
@@ -120,6 +122,7 @@
   --chart-3: oklch(0.66 0.06 304);
   --chart-4: oklch(0.56 0.16 304);
   --chart-5: oklch(0.45 0 0);
+  --chart-6: oklch(0.72 0.12 210);
 }
 
 * {
@@ -135,6 +138,21 @@ body {
   @apply bg-background text-foreground;
   font-family: var(--font-public-sans), "Avenir Next", "Segoe UI", sans-serif;
   background-image: none;
+}
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.scrollable::-webkit-scrollbar {
+  display: none;
 }
 
 p {
@@ -194,6 +212,18 @@ a {
     border-left: 1px solid
       color-mix(in oklch, var(--foreground), transparent 84%);
     padding-left: 1.5rem;
+  }
+
+  .right-rail-scroll {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+    padding-right: 0.25rem;
   }
 }
 

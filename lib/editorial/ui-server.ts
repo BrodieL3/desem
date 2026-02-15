@@ -4,6 +4,8 @@ import {fetchSemaphorSecurityStories} from '@/lib/editorial/semaphor-security'
 import {getImageDisplayAssessment, type ImageDisplayAssessment} from '@/lib/editorial/sightengine'
 import {createOptionalSanityServerClient} from '@/lib/sanity/client'
 import {createOptionalSupabaseServerClient} from '@/lib/supabase/server'
+import {isLowValueTopicLabel} from '@/lib/topics/quality'
+import {curatedTopicTaxonomy} from '@/lib/topics/taxonomy'
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
 import type {
@@ -117,6 +119,29 @@ type ClusterMemberRow = {
   similarity: number | null
 }
 
+type StoryTopicRow = {
+  article_id: string
+  topic_id: string
+  topics:
+    | {
+        id: string
+        slug: string
+        label: string
+        topic_type: string
+      }
+    | Array<{
+        id: string
+        slug: string
+        label: string
+        topic_type: string
+      }>
+    | null
+}
+
+type StoryTopicFollowRow = {
+  topic_id: string
+}
+
 type HomeOptions = {
   limit?: number
   fallbackRaw?: boolean
@@ -128,6 +153,7 @@ type StoryDetailOptions = {
   offset?: number
   limit?: number
   preview?: boolean
+  userId?: string | null
 }
 
 const DEFAULT_HOME_STORIES = 24
@@ -140,6 +166,8 @@ const IMAGE_ASSESSMENT_BATCH_SIZE = 6
 const TOP_HOME_IMAGES = 5
 const FOR_YOU_STORY_LIMIT = 10
 const SEMAPHOR_SOURCE_ID = 'semafor-security'
+const STORY_TOPIC_LIMIT = 8
+const taxonomyStoryTopicSlugs = new Set(curatedTopicTaxonomy.map((topic) => topic.slug))
 const SANITY_DIGEST_PROJECTION = `{
   clusterKey,
   topicLabel,
@@ -389,6 +417,141 @@ function normalizeTopicLabel(value: string | null | undefined) {
   }
 
   return label
+}
+
+function resolveStoryTopic(value: StoryTopicRow['topics']) {
+  if (!value) {
+    return null
+  }
+
+  if (Array.isArray(value)) {
+    return value[0] ?? null
+  }
+
+  return value
+}
+
+function isDisplayEligibleStoryTopic(topic: {
+  slug: string
+  label: string
+  articleCount: number
+  followed: boolean
+}) {
+  if (!topic.label || isLowValueTopicLabel(topic.label)) {
+    return false
+  }
+
+  return taxonomyStoryTopicSlugs.has(topic.slug)
+}
+
+export function mapStoryTopicsForDetail(input: {
+  topicRows: Array<{articleId: string; id: string; slug: string; label: string}>
+  followedTopicIds: Set<string>
+  limit?: number
+}) {
+  const aggregated = new Map<string, {id: string; slug: string; label: string; articleIds: Set<string>; followed: boolean}>()
+
+  for (const row of input.topicRows) {
+    const existing = aggregated.get(row.id)
+
+    if (!existing) {
+      aggregated.set(row.id, {
+        id: row.id,
+        slug: row.slug,
+        label: normalizeTopicLabel(row.label),
+        articleIds: new Set([row.articleId]),
+        followed: input.followedTopicIds.has(row.id),
+      })
+      continue
+    }
+
+    existing.articleIds.add(row.articleId)
+    existing.followed = input.followedTopicIds.has(row.id)
+  }
+
+  const limit = Math.max(1, input.limit ?? STORY_TOPIC_LIMIT)
+
+  return [...aggregated.values()]
+    .map((topic) => ({
+      id: topic.id,
+      slug: topic.slug,
+      label: topic.label,
+      articleCount: topic.articleIds.size,
+      followed: topic.followed,
+    }))
+    .filter((topic) => isDisplayEligibleStoryTopic(topic))
+    .sort((left, right) => {
+      if (left.followed !== right.followed) {
+        return Number(right.followed) - Number(left.followed)
+      }
+
+      return right.articleCount - left.articleCount || left.label.localeCompare(right.label)
+    })
+    .slice(0, limit)
+}
+
+async function buildStoryTopicsForDetail(input: {
+  articleIds: string[]
+  userId?: string | null
+}) {
+  const articleIds = [...new Set(input.articleIds.map((id) => id.trim()).filter(Boolean))]
+
+  if (articleIds.length === 0) {
+    return [] as CuratedStoryDetail['topics']
+  }
+
+  const supabase = await createOptionalSupabaseServerClient()
+
+  if (!supabase) {
+    return [] as CuratedStoryDetail['topics']
+  }
+
+  const [{data: topicRows, error: topicError}, followResult] = await Promise.all([
+    supabase
+      .from('article_topics')
+      .select('article_id, topic_id, topics(id, slug, label, topic_type)')
+      .in('article_id', articleIds)
+      .returns<StoryTopicRow[]>(),
+    input.userId
+      ? supabase
+          .from('user_topic_follows')
+          .select('topic_id')
+          .eq('user_id', input.userId)
+          .returns<StoryTopicFollowRow[]>()
+      : Promise.resolve({data: [] as StoryTopicFollowRow[], error: null}),
+  ])
+
+  if (topicError || !topicRows) {
+    logEditorialUiEvent('warn', 'story_detail_topics_fetch_failed', {
+      message: topicError?.message ?? 'No topic rows returned.',
+      articleCount: articleIds.length,
+    })
+    return [] as CuratedStoryDetail['topics']
+  }
+
+  const followedTopicIds = new Set<string>((followResult.data ?? []).map((row) => row.topic_id))
+  const flattenedTopicRows = topicRows
+    .map((row) => {
+      const resolved = resolveStoryTopic(row.topics)
+
+      if (!resolved) {
+        return null
+      }
+
+      return {
+        articleId: row.article_id,
+        id: resolved.id,
+        slug: resolved.slug,
+        label: normalizeTopicLabel(resolved.label),
+      }
+    })
+    .filter((row): row is NonNullable<typeof row> => row !== null)
+
+  return mapStoryTopicsForDetail({
+    topicRows: flattenedTopicRows,
+    followedTopicIds,
+    limit: STORY_TOPIC_LIMIT,
+  })
 }
 
 function normalizeEvidenceBatchSize(value: number | undefined) {
@@ -2181,9 +2344,14 @@ async function buildSemaphorStoryDetailFromRow(input: {
   offset: number
   evidenceLimit: number
   feedLimit: number
+  userId?: string | null
 }): Promise<CuratedStoryDetail> {
   const evidence = buildEvidenceFromRows({rows: [input.row]})
   const paged = paginateEvidenceBlocks(evidence, input.offset, input.evidenceLimit)
+  const storyTopics = await buildStoryTopicsForDetail({
+    articleIds: [input.row.id],
+    userId: input.userId,
+  })
   const heroImageUrl = resolveArticleRowImageUrl(input.row)
   const narrativeFallback = deriveNarrativeFromRows([input.row], 260)
   const resolvedDek = selectNarrativeText({
@@ -2250,6 +2418,7 @@ async function buildSemaphorStoryDetailFromRow(input: {
     publishedAt: input.row.published_at ?? input.row.fetched_at,
     heroImageUrl: filteredStoryImages.heroImageUrl,
     sourceLinks,
+    topics: storyTopics,
     ...curation,
     feedBlocks: pagedFeed.slice,
     totalFeedBlocks: pagedFeed.total,
@@ -2268,6 +2437,7 @@ async function buildSemaphorStoryDetailFromSanity(input: {
   offset: number
   evidenceLimit: number
   feedLimit: number
+  userId?: string | null
 }): Promise<CuratedStoryDetail | null> {
   const row = toIngestedRowFromSemaphorNewsItem(input.newsItem)
 
@@ -2287,6 +2457,7 @@ async function buildSemaphorStoryDetailFromSanity(input: {
     offset: input.offset,
     evidenceLimit: input.evidenceLimit,
     feedLimit: input.feedLimit,
+    userId: input.userId,
   })
 }
 
@@ -2295,6 +2466,7 @@ async function buildSemaphorStoryDetailFromSecurityFeed(input: {
   offset: number
   evidenceLimit: number
   feedLimit: number
+  userId?: string | null
 }): Promise<CuratedStoryDetail | null> {
   try {
     const stories = await fetchSemaphorSecurityStories(200)
@@ -2318,6 +2490,7 @@ async function buildSemaphorStoryDetailFromSecurityFeed(input: {
       offset: input.offset,
       evidenceLimit: input.evidenceLimit,
       feedLimit: input.feedLimit,
+      userId: input.userId,
     })
   } catch (error) {
     logEditorialUiEvent('warn', 'story_detail_semaphor_feed_fetch_failed', {
@@ -2442,6 +2615,10 @@ export async function getCuratedStoryDetail(
           feedBlocks,
         })
         const pagedFeed = paginateFeedBlocks(filteredStoryImages.feedBlocks, offset, feedLimit)
+        const storyTopics = await buildStoryTopicsForDetail({
+          articleIds: orderedArticleIds,
+          userId: options.userId,
+        })
 
         return {
           clusterKey: digest.clusterKey,
@@ -2462,6 +2639,7 @@ export async function getCuratedStoryDetail(
           publishedAt: digest.generatedAt ?? new Date().toISOString(),
           heroImageUrl: filteredStoryImages.heroImageUrl,
           sourceLinks,
+          topics: storyTopics,
           hasOfficialSource,
           reportingCount,
           analysisCount,
@@ -2490,6 +2668,7 @@ export async function getCuratedStoryDetail(
           offset,
           evidenceLimit,
           feedLimit,
+          userId: options.userId,
         })
 
         if (semaphorDetail) {
@@ -2512,6 +2691,7 @@ export async function getCuratedStoryDetail(
       offset,
       evidenceLimit,
       feedLimit,
+      userId: options.userId,
     })
 
     if (semaphorFallback) {
@@ -2594,6 +2774,10 @@ export async function getCuratedStoryDetail(
       pressReleaseDriven: sourceRole === 'official',
       opinionLimited: false,
     })
+    const storyTopics = await buildStoryTopicsForDetail({
+      articleIds: [row.id],
+      userId: options.userId,
+    })
 
     logEditorialUiEvent('info', 'story_detail_raw_fallback', {
       clusterKey: safeClusterKey,
@@ -2619,6 +2803,7 @@ export async function getCuratedStoryDetail(
       publishedAt: row.published_at ?? row.fetched_at,
       heroImageUrl: filteredStoryImages.heroImageUrl,
       sourceLinks,
+      topics: storyTopics,
       hasOfficialSource: curation.hasOfficialSource,
       reportingCount: curation.reportingCount,
       analysisCount: curation.analysisCount,
@@ -2652,6 +2837,7 @@ export async function getCuratedStoryDetail(
       offset,
       evidenceLimit,
       feedLimit,
+      userId: options.userId,
     })
 
     if (semaphorFallback) {
@@ -2749,6 +2935,10 @@ export async function getCuratedStoryDetail(
     feedBlocks,
   })
   const pagedFeed = paginateFeedBlocks(filteredStoryImages.feedBlocks, offset, feedLimit)
+  const storyTopics = await buildStoryTopicsForDetail({
+    articleIds: rows.map((row) => row.id),
+    userId: options.userId,
+  })
 
   logEditorialUiEvent('info', 'story_detail_raw_fallback', {
     clusterKey: safeClusterKey,
@@ -2775,6 +2965,7 @@ export async function getCuratedStoryDetail(
     publishedAt: clusterRow.last_generated_at ?? new Date().toISOString(),
     heroImageUrl: filteredStoryImages.heroImageUrl,
     sourceLinks,
+    topics: storyTopics,
     ...curation,
     feedBlocks: pagedFeed.slice,
     totalFeedBlocks: pagedFeed.total,

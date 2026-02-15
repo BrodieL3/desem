@@ -10,6 +10,9 @@ export type EnrichmentArticleRow = {
   title: string
   summary: string | null
   full_text: string | null
+  source_id: string | null
+  source_name: string | null
+  source_category: string | null
   content_fetch_status?: string | null
   published_at: string | null
   fetched_at: string
@@ -24,7 +27,11 @@ export type ContentEnrichmentResult = {
 export type TopicEnrichmentResult = {
   processed: number
   withTopics: number
+  failed: number
 }
+
+const ENRICHMENT_ARTICLE_SELECT =
+  'id, article_url, title, summary, full_text, source_id, source_name, source_category, content_fetch_status, published_at, fetched_at'
 
 async function runWithConcurrency<T>(
   items: T[],
@@ -53,7 +60,7 @@ export async function getArticlesByFetchedAt(
 ): Promise<EnrichmentArticleRow[]> {
   const {data, error} = await supabase
     .from('ingested_articles')
-    .select('id, article_url, title, summary, full_text, content_fetch_status, published_at, fetched_at')
+    .select(ENRICHMENT_ARTICLE_SELECT)
     .eq('fetched_at', fetchedAt)
     .order('published_at', {ascending: false, nullsFirst: false})
     .limit(limit)
@@ -72,7 +79,7 @@ export async function getArticlesNeedingContent(
 ): Promise<EnrichmentArticleRow[]> {
   const {data, error} = await supabase
     .from('ingested_articles')
-    .select('id, article_url, title, summary, full_text, content_fetch_status, published_at, fetched_at')
+    .select(ENRICHMENT_ARTICLE_SELECT)
     .or('content_fetch_status.is.null,content_fetch_status.neq.fetched')
     .order('published_at', {ascending: false, nullsFirst: false})
     .limit(limit)
@@ -85,21 +92,41 @@ export async function getArticlesNeedingContent(
   return data
 }
 
+export async function getFetchedArticlesPage(
+  supabase: SupabaseClient,
+  options?: {
+    offset?: number
+    limit?: number
+  }
+): Promise<EnrichmentArticleRow[]> {
+  const offset = Math.max(0, Number(options?.offset ?? 0))
+  const limit = Math.max(1, Number(options?.limit ?? 800))
+  const end = offset + limit - 1
+
+  const {data, error} = await supabase
+    .from('ingested_articles')
+    .select(ENRICHMENT_ARTICLE_SELECT)
+    .eq('content_fetch_status', 'fetched')
+    .order('published_at', {ascending: false, nullsFirst: false})
+    .order('fetched_at', {ascending: false})
+    .range(offset, end)
+    .returns<EnrichmentArticleRow[]>()
+
+  if (error || !data) {
+    throw new Error(`Unable to fetch enriched articles page for topic refresh: ${error?.message ?? 'No data returned.'}`)
+  }
+
+  return data
+}
+
 export async function getArticlesMissingTopics(
   supabase: SupabaseClient,
   limit = 1500
 ): Promise<EnrichmentArticleRow[]> {
-  const {data: articles, error: articlesError} = await supabase
-    .from('ingested_articles')
-    .select('id, article_url, title, summary, full_text, content_fetch_status, published_at, fetched_at')
-    .eq('content_fetch_status', 'fetched')
-    .order('published_at', {ascending: false, nullsFirst: false})
-    .limit(limit)
-    .returns<EnrichmentArticleRow[]>()
-
-  if (articlesError || !articles) {
-    throw new Error(`Unable to fetch enriched articles for topic backfill: ${articlesError?.message ?? 'No data returned.'}`)
-  }
+  const articles = await getFetchedArticlesPage(supabase, {
+    offset: 0,
+    limit,
+  })
 
   if (articles.length === 0) {
     return []
@@ -180,18 +207,26 @@ export async function enrichArticleTopicsBatch(
   const result: TopicEnrichmentResult = {
     processed: articles.length,
     withTopics: 0,
+    failed: 0,
   }
 
   await runWithConcurrency(articles, options?.concurrency ?? 5, async (article) => {
-    const persisted = await persistExtractedTopicsForArticle(supabase, {
-      id: article.id,
-      title: article.title,
-      summary: article.summary,
-      full_text: article.full_text,
-    })
+    try {
+      const persisted = await persistExtractedTopicsForArticle(supabase, {
+        id: article.id,
+        title: article.title,
+        summary: article.summary,
+        full_text: article.full_text,
+        source_id: article.source_id,
+        source_name: article.source_name,
+        source_category: article.source_category,
+      })
 
-    if (persisted.topicCount > 0) {
-      result.withTopics += 1
+      if (persisted.topicCount > 0) {
+        result.withTopics += 1
+      }
+    } catch {
+      result.failed += 1
     }
   })
 

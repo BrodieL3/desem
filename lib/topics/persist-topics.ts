@@ -1,13 +1,16 @@
 import type {SupabaseClient} from '@supabase/supabase-js'
 
 import {extractTopicsFromArticle} from './extract-topics'
-import type {TopicType} from './taxonomy'
+import {curatedTopicTaxonomy, type TopicType} from './taxonomy'
 
 type PersistableArticle = {
   id: string
   title: string
   summary: string | null
   full_text: string | null
+  source_id?: string | null
+  source_name?: string | null
+  source_category?: string | null
 }
 
 type TopicLookupRow = {
@@ -23,6 +26,8 @@ const retryableDatabaseErrorPatterns = [
   /canceling statement due to lock timeout/i,
   /lock not available/i,
 ]
+
+const taxonomyTopicSlugs = new Set(curatedTopicTaxonomy.map((topic) => topic.slug))
 
 function roundConfidence(value: number) {
   return Math.min(0.999, Math.max(0, Number(value.toFixed(3))))
@@ -71,7 +76,11 @@ export async function persistExtractedTopicsForArticle(
     title: article.title,
     summary: article.summary,
     fullText: article.full_text,
+    sourceId: article.source_id,
+    sourceName: article.source_name,
+    sourceCategory: article.source_category,
   })
+  const persistableTopics = extracted.filter((topic) => taxonomyTopicSlugs.has(topic.slug))
 
   await withDatabaseRetry('Unable to clear existing article topics', async () => {
     const {error} = await supabase.from('article_topics').delete().eq('article_id', article.id)
@@ -81,13 +90,13 @@ export async function persistExtractedTopicsForArticle(
     }
   })
 
-  if (extracted.length === 0) {
+  if (persistableTopics.length === 0) {
     return {topicCount: 0}
   }
 
   const uniqueBySlug = new Map<string, {slug: string; label: string; topic_type: TopicType}>()
 
-  for (const topic of extracted) {
+  for (const topic of persistableTopics) {
     uniqueBySlug.set(topic.slug, {
       slug: topic.slug,
       label: topic.label,
@@ -124,7 +133,7 @@ export async function persistExtractedTopicsForArticle(
 
   const topicIdBySlug = new Map(topicRows.map((row) => [row.slug, row.id]))
 
-  const articleTopicRows = extracted
+  const articleTopicRows = persistableTopics
     .map((topic) => {
       const topicId = topicIdBySlug.get(topic.slug)
 

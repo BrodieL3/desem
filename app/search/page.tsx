@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {Badge} from '@/components/ui/badge'
 import {Button} from '@/components/ui/button'
 import {getArticleListForApi} from '@/lib/articles/server'
@@ -49,7 +50,7 @@ function SearchResultRow({article}: {article: ArticleCard}) {
   return (
     <article className="news-divider-item px-1">
       <Link
-        href={`/articles/${article.id}`}
+        href={`/stories/article/${article.id}`}
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
@@ -91,17 +92,15 @@ export default async function SearchPage({searchParams}: SearchPageProps) {
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
       <div className="editorial-shell mx-auto max-w-[1120px] p-5 md:p-8">
-        <header className="mb-6 space-y-4 border-b border-border pb-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="space-y-1">
-              <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Search</p>
-              <h1 className="font-display text-[2.4rem] leading-tight md:text-[3rem]">Coverage lookup</h1>
-              <p className="text-muted-foreground text-base">Search across ingested defense reporting and open article details.</p>
-            </div>
+        <div className="mb-5">
+          <BackToFrontPageButton />
+        </div>
 
-            <Button asChild variant="ghost" size="sm" className="min-h-11 px-4">
-              <Link href="/">Back to front page</Link>
-            </Button>
+        <header className="mb-6 space-y-4 border-b border-border pb-6">
+          <div className="space-y-1">
+            <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Search</p>
+            <h1 className="font-display text-[2.4rem] leading-tight md:text-[3rem]">Coverage lookup</h1>
+            <p className="text-muted-foreground text-base">Search across ingested defense reporting and open article details.</p>
           </div>
 
           <form action="/search" className="flex flex-col gap-2 sm:flex-row">

@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server'
 
 import {getCuratedStoryDetail} from '@/lib/editorial/ui-server'
+import {getUserSession} from '@/lib/user/session'
 
 type RouteContext = {
   params: Promise<{clusterKey: string}>
@@ -53,6 +54,7 @@ function resolvePreviewParam(value: string | null) {
 export async function GET(request: Request, context: RouteContext) {
   const {clusterKey} = await context.params
   const url = new URL(request.url)
+  const session = await getUserSession()
 
   const offset = parseIntParam(url.searchParams.get('offset'), 0, 0, 2000)
   const limit = parseBatchLimit(url.searchParams.get('limit'))
@@ -62,6 +64,7 @@ export async function GET(request: Request, context: RouteContext) {
     offset,
     limit,
     preview,
+    userId: session.userId,
   })
 
   if (!data) {

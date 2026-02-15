@@ -83,6 +83,13 @@ const primeRegistry: PrimeRegistryEntry[] = [
     colorToken: 'chart-5',
     displayOrder: 5,
   },
+  {
+    ticker: 'LHX',
+    name: 'L3Harris',
+    cik: '0000202058',
+    colorToken: 'chart-6',
+    displayOrder: 6,
+  },
 ]
 
 function asBoolean(value: string | undefined, fallback = false) {

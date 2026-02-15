@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'bun:test'
 
-import {buildHomeStoryStream, paginateEvidenceBlocks} from './ui-server'
+import {buildHomeStoryStream, mapStoryTopicsForDetail, paginateEvidenceBlocks} from './ui-server'
 
 import type {CuratedStoryCard, EvidenceBlock} from './ui-types'
 import type {EditorialFocusBucket} from './focus'
@@ -140,5 +140,51 @@ describe('paginateEvidenceBlocks', () => {
 
     expect(paged.limit).toBe(8)
     expect(paged.slice.length).toBe(8)
+  })
+})
+
+describe('mapStoryTopicsForDetail', () => {
+  it('filters low-value/non-canonical topics and only keeps canonical story topics', () => {
+    const topics = mapStoryTopicsForDetail({
+      topicRows: [
+        {articleId: 'a1', id: 'monday', slug: 'monday', label: 'Monday'},
+        {articleId: 'a2', id: 'monday', slug: 'monday', label: 'Monday'},
+        {
+          articleId: 'a1',
+          id: 'dod',
+          slug: 'department-of-defense',
+          label: 'Department of Defense',
+        },
+        {
+          articleId: 'a1',
+          id: 'non-tax-single',
+          slug: 'operation-trident-shield',
+          label: 'Operation Trident Shield',
+        },
+        {
+          articleId: 'a1',
+          id: 'followed-single',
+          slug: 'task-force-ember',
+          label: 'Task Force Ember',
+        },
+        {
+          articleId: 'a2',
+          id: 'iran',
+          slug: 'iran',
+          label: 'Iran',
+        },
+      ],
+      followedTopicIds: new Set(['dod', 'followed-single']),
+      limit: 8,
+    })
+
+    const ids = new Set(topics.map((topic) => topic.id))
+
+    expect(ids.has('monday')).toBe(false)
+    expect(ids.has('dod')).toBe(true)
+    expect(topics.find((topic) => topic.id === 'dod')?.followed).toBe(true)
+    expect(ids.has('non-tax-single')).toBe(false)
+    expect(ids.has('followed-single')).toBe(false)
+    expect(ids.has('iran')).toBe(true)
   })
 })

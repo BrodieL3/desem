@@ -151,7 +151,7 @@ export function CommentThread({articleId, isAuthenticated, initialComments}: Com
           <div className="border-t border-border pt-4 text-sm">
             <p className="text-muted-foreground">Sign in to comment and follow discussion threads.</p>
             <Button asChild size="sm" className="mt-3">
-              <Link href={`/auth/sign-in?next=${encodeURIComponent(`/articles/${articleId}`)}`}>Sign in</Link>
+              <Link href={`/auth/sign-in?next=${encodeURIComponent(`/stories/article/${articleId}`)}`}>Sign in</Link>
             </Button>
           </div>
         )}

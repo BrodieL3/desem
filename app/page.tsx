@@ -3,12 +3,14 @@ import type { ReactNode } from "react";
 
 import { buildHomeEditionLayout } from "@/lib/editorial/home-layout";
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
+import { getDefenseMoneySignalData } from "@/lib/data/signals/server";
 import type {
   CuratedHomeForYouRail,
   CuratedStoryCard,
 } from "@/lib/editorial/ui-types";
 import { getCuratedHomeData } from "@/lib/editorial/ui-server";
 import { getUserSession } from "@/lib/user/session";
+import { HomeMoneyTiles } from "@/components/money";
 import { RightRailTopics } from "@/components/editorial/right-rail-topics";
 import { SectionLabel } from "@/components/editorial/section-label";
 
@@ -321,6 +323,7 @@ export default async function HomePage() {
     fallbackRaw: true,
     userId: session.userId,
   });
+  const moneySignals = await getDefenseMoneySignalData();
 
   const now = dateFormatter.format(new Date());
   const layout = buildHomeEditionLayout(home.stories);
@@ -363,6 +366,11 @@ export default async function HomePage() {
                 </div>
               </section>
 
+              <HomeMoneyTiles
+                dailySpendPulse={moneySignals.dailySpendPulse}
+                primeMoves={moneySignals.primeMoves}
+              />
+
               <section
                 aria-labelledby="edition-columns-heading"
                 className="space-y-4"
@@ -401,7 +409,7 @@ export default async function HomePage() {
               </section>
             </div>
 
-            <aside className="news-column-rule space-y-4 lg:sticky lg:top-4 lg:self-start">
+            <aside className="news-column-rule right-rail-scroll space-y-4">
               <ForYouRail
                 rail={home.forYou}
                 isAuthenticated={session.isAuthenticated}

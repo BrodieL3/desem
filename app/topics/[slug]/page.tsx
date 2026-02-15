@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import {notFound} from 'next/navigation'
 
+import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {FollowTopicButton} from '@/components/aggregator/follow-topic-button'
 import {Badge} from '@/components/ui/badge'
-import {Button} from '@/components/ui/button'
 import {getTopicPageData} from '@/lib/articles/server'
 import {getUserSession} from '@/lib/user/session'
 
@@ -43,6 +43,10 @@ export default async function TopicPage({params}: TopicPageProps) {
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
       <div className="editorial-shell mx-auto max-w-[1320px] p-5 md:p-8">
+        <div className="mb-5">
+          <BackToFrontPageButton />
+        </div>
+
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-6">
           <div className="space-y-1">
             <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Topic explorer</p>
@@ -50,16 +54,7 @@ export default async function TopicPage({params}: TopicPageProps) {
             <p className="text-muted-foreground text-base">Defense coverage and related entities in this cluster.</p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/">Back to front page</Link>
-            </Button>
-            <FollowTopicButton
-              topicId={data.topic.id}
-              initialFollowed={data.isFollowed}
-              isAuthenticated={session.isAuthenticated}
-            />
-          </div>
+          <FollowTopicButton topicId={data.topic.id} initialFollowed={data.isFollowed} isAuthenticated={session.isAuthenticated} />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_330px]">
@@ -71,7 +66,7 @@ export default async function TopicPage({params}: TopicPageProps) {
                 {data.articles.map((article) => (
                   <article key={article.id} className="news-divider-item px-1">
                     <Link
-                      href={`/articles/${article.id}`}
+                      href={`/stories/article/${article.id}`}
                       className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
@@ -102,7 +97,7 @@ export default async function TopicPage({params}: TopicPageProps) {
             )}
           </section>
 
-          <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
+          <aside className="right-rail-scroll space-y-4">
             <section className="space-y-3 border-t border-border pt-5">
               <h2 className="font-display text-3xl leading-tight">Co-occurring topics</h2>
               {data.cooccurringTopics.length === 0 ? (

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {FollowTopicButton} from '@/components/aggregator/follow-topic-button'
 import {Button} from '@/components/ui/button'
 import {getHomeFeedData} from '@/lib/articles/server'
@@ -26,20 +27,21 @@ export default async function TopicsPage() {
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
       <div className="editorial-shell mx-auto max-w-[980px] p-5 md:p-8">
+        <div className="mb-5">
+          <BackToFrontPageButton />
+        </div>
+
         <header className="mb-6 space-y-3 border-b border-border pb-6 text-center">
           <p className="text-muted-foreground text-xs tracking-[0.15em] uppercase">Topic settings</p>
           <h1 className="font-display text-[2.4rem] leading-tight md:text-[3rem]">Edit followed topics</h1>
           <p className="text-muted-foreground text-base">Control the topics that shape your For You rail.</p>
-          <div className="flex items-center justify-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="min-h-11 px-4">
-              <Link href="/">Back to front page</Link>
-            </Button>
-            {!session.isAuthenticated ? (
+          {!session.isAuthenticated ? (
+            <div className="flex items-center justify-center gap-2">
               <Button asChild size="sm" className="min-h-11 px-4">
                 <Link href="/auth/sign-in?next=/topics">Sign in</Link>
               </Button>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </header>
 
         {mergedTopics.length === 0 ? (

@@ -41,7 +41,7 @@ export function resolveInternalStoryHref(input: {
   }
 
   if (articleId && isUuidLike(articleId)) {
-    return `/articles/${encodeURIComponent(articleId)}`
+    return `/stories/article/${encodeURIComponent(articleId)}`
   }
 
   const fallbackKey = clusterKey || articleId

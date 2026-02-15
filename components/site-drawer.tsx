@@ -46,9 +46,6 @@ export function SiteDrawer({isAuthenticated, email}: SiteDrawerProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/topics">Edit topics</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
             <Link href="/">Front page</Link>
           </DropdownMenuItem>
         </DropdownMenuContent>

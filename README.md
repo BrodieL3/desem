@@ -21,9 +21,9 @@ Core behavior:
 ## Routes
 
 - `/` - newspaper-style front page with lead story, headline river, trending topics, followed topics, and most discussed
-- `/articles/[id]` - full article reading view + topic chips + comments
+- `/stories/article/[id]` - full-source reading view + topic chips + comments
 - `/topics/[slug]` - topic explorer with related coverage and co-occurring topics
-- `/data` - prime backlog + book-to-bill dashboard with alerts, charts, and source-linked table
+- `/data` - defense-tech money signals (spend pulse, prime moves, awards, structural shifts, macro context) plus prime backlog/book-to-bill module
 - `/auth/sign-in` - magic-link sign-in
 - `/auth/callback` - auth callback handler
 - `/auth/sign-out` - sign-out redirect route
@@ -40,6 +40,7 @@ Core behavior:
 - `/api/editorial/feed` - curated Sanity-backed editorial feed
 - `/api/editorial/clusters` - curated story-cluster digests from Sanity
 - `/api/data/primes` - prime backlog/book-to-bill dashboard payload
+- `/api/data/signals` - defense-tech money signals payload for home/data surfaces
 
 ## Database migrations
 
@@ -53,6 +54,7 @@ Apply these in Supabase SQL editor:
 6. `db/migrations/202602130007_editorial_pipeline.sql`
 7. `db/migrations/202602130008_source_curation_metadata.sql`
 8. `db/migrations/202602130009_prime_metrics.sql`
+9. `db/migrations/202602160001_defense_money_signals.sql`
 
 Notes:
 - Migration `202602120003_article_tagging.sql` is legacy and no longer required for V2 behavior.
@@ -92,6 +94,25 @@ EDITORIAL_SEMAPHOR_TIMEOUT_MS="20000"
 OPENAI_API_KEY="..." # optional for embedding similarity in clustering
 DATA_PRIMES_ENABLED="false" # enable /data and /api/data/primes
 SEC_USER_AGENT="FieldBrief/1.0 (email@example.com)" # recommended for SEC data endpoints
+
+# Defense-money signals
+DATA_MONEY_SIGNALS_ENABLED="true"
+USASPENDING_API_BASE_URL="https://api.usaspending.gov"
+DATA_MONEY_MIN_TRANSACTION_USD="10000000"
+DATA_MONEY_MAX_TRANSACTION_PAGES="25"
+DATA_MONEY_ALLOWED_AWARDING_AGENCIES="Department of Defense"
+DATA_MONEY_BUCKET_RULESET_VERSION="v1"
+FINNHUB_API_KEY="..."
+DATA_MONEY_MARKET_TICKERS="LMT,RTX,NOC,GD,BA,LHX"
+DATA_MONEY_MARKET_BACKFILL_DAYS="31"
+DATA_MONEY_LLM_ENABLED="true"
+DATA_MONEY_LLM_MODEL="gpt-4.1-mini"
+DATA_MONEY_MACRO_SNAPSHOT_PATH="/Users/brodielee/desem/scripts/data/macro-budget-context.yaml"
+
+# Optional incident escalation
+GITHUB_TOKEN="..."
+GITHUB_REPO="owner/repo"
+GITHUB_ISSUE_LABEL="money-signals"
 ```
 
 ## Run locally
@@ -152,6 +173,36 @@ Sync latest prime metrics from SEC filings:
 bun run data:sync-primes --filings-per-company=1
 ```
 
+Sync daily defense money signals (DoD spend + market + cards):
+
+```bash
+bun run data:sync-money
+```
+
+Backfill 24 months of business-day money signals with resume checkpoint:
+
+```bash
+bun run data:backfill-money
+```
+
+Rebuild weekly/monthly structural rollups:
+
+```bash
+bun run data:rebuild-money-rollups
+```
+
+Backfill one month of market history:
+
+```bash
+bun run data:backfill-market --days=31
+```
+
+Sync curated macro context YAML into Supabase:
+
+```bash
+bun run data:sync-macro
+```
+
 ## Cron ingestion
 
 `/api/cron/pull-articles` runs:
@@ -164,6 +215,8 @@ bun run data:sync-primes --filings-per-company=1
 - deterministic digest fallback if Transform fails/unavailable
 - draft-first Sanity sync for `newsItem` and `storyDigest`
 - Semafor Security sync into Sanity `newsItem` docs with full body text for continuous-scroll reads
+- prime metrics sync (including LHX) from SEC submissions
+- defense money signals sync (DoD spend pulse, prime moves, awards cards, structural rollups, macro context)
 - Supabase ops persistence in `editorial_generation_runs`, `story_clusters`, and `cluster_members`
 
 Example local invocation:
