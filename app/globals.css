@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -133,7 +133,7 @@ body {
 
 body {
   @apply bg-background text-foreground;
-  font-family: var(--font-public-sans), 'Avenir Next', 'Segoe UI', sans-serif;
+  font-family: var(--font-public-sans), "Avenir Next", "Segoe UI", sans-serif;
   background-image: none;
 }
 
@@ -143,7 +143,8 @@ p {
 }
 
 .font-display {
-  font-family: var(--font-newsreader), 'Iowan Old Style', 'Times New Roman', serif;
+  font-family:
+    var(--font-newsreader), "Iowan Old Style", "Times New Roman", serif;
   letter-spacing: -0.015em;
 }
 
@@ -155,10 +156,12 @@ p {
 }
 
 a {
-  transition: color 140ms ease, opacity 140ms ease;
+  transition:
+    color 140ms ease,
+    opacity 140ms ease;
 }
 
-:where(a, button, input, textarea, select, [role='button']):focus-visible {
+:where(a, button, input, textarea, select, [role="button"]):focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
@@ -177,7 +180,8 @@ a {
 }
 
 .news-divider-item {
-  border-bottom: 1px solid color-mix(in oklch, var(--foreground), transparent 84%);
+  border-bottom: 1px solid
+    color-mix(in oklch, var(--foreground), transparent 84%);
   padding-block: 0.95rem;
 }
 
@@ -187,7 +191,8 @@ a {
 
 @media (min-width: 1024px) {
   .news-column-rule {
-    border-left: 1px solid color-mix(in oklch, var(--foreground), transparent 84%);
+    border-left: 1px solid
+      color-mix(in oklch, var(--foreground), transparent 84%);
     padding-left: 1.5rem;
   }
 }
@@ -227,7 +232,8 @@ a {
   max-height: 320px;
   border-radius: calc(var(--radius) + 0.03rem);
   object-fit: cover;
-  box-shadow: 0 20px 44px -36px color-mix(in oklch, var(--foreground), transparent 58%);
+  box-shadow: 0 20px 44px -36px
+    color-mix(in oklch, var(--foreground), transparent 58%);
 }
 
 @media (max-width: 640px) {

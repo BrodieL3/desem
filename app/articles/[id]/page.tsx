@@ -393,7 +393,14 @@ export default async function ArticlePage({params}: ArticlePageProps) {
               )}
             </section>
 
-            <RightRailTopics topics={recommendedTopics} title="Recommended topics" />
+            <RightRailTopics
+              topics={recommendedTopics}
+              title="Recommended topics"
+              headingId="article-recommended-topics-heading"
+              maxTopics={6}
+              showFollowActions
+              isAuthenticated={session.isAuthenticated}
+            />
           </aside>
         </div>
       </div>

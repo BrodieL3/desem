@@ -644,7 +644,7 @@ export async function getArticleListForApi(options?: {
     queryBuilder = queryBuilder.in('id', articleIds)
   }
 
-  const fetchSize = Math.max(offset + limit, 180)
+  const fetchSize = query || topicSlug ? offset + limit : Math.max(offset + limit, 180)
 
   const {data: rows} = await queryBuilder
     .order('published_at', {ascending: false, nullsFirst: false})

@@ -48,7 +48,7 @@ export function ThemeToggle({className, showLabel = true}: ThemeToggleProps) {
     <Button
       type="button"
       variant={showLabel ? 'secondary' : 'ghost'}
-      size="sm"
+      size={showLabel ? 'sm' : 'icon'}
       className={cn(showLabel ? 'justify-start' : 'justify-center', className)}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
