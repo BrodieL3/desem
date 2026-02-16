@@ -25,7 +25,7 @@ function ConcentrationMiniChart({
     <div className="space-y-2">
       <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">{title}</p>
       {data.length < 2 ? (
-        <p className="text-muted-foreground text-sm">Need at least two points.</p>
+        <p className="text-muted-foreground text-sm">Not enough data yet to show a trend.</p>
       ) : (
         <div className="h-[170px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -70,7 +70,7 @@ export function ConcentrationTrendChart({module, stale}: ConcentrationTrendChart
         <CardTitle className="font-display text-[1.45rem] leading-tight">Concentration trend</CardTitle>
         <p className="text-muted-foreground text-sm">
           Top-5 recipient concentration across weekly and monthly windows.
-          {stale ? ' Data is stale.' : ''}
+          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

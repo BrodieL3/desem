@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import type {DefenseMoneyCard, DefenseMoneyThisWeekSignal} from '@/lib/data/signals/types'
+import {actionLensLabel, type DefenseMoneyActionLens, type DefenseMoneyCard, type DefenseMoneyThisWeekSignal} from '@/lib/data/signals/types'
 
 import {CitationLinks} from './citation-links'
 
@@ -11,7 +11,7 @@ type HomeMoneyTilesProps = {
 }
 
 function tileLabel(value: string) {
-  return value.replace('_', ' ').toUpperCase()
+  return actionLensLabel(value as DefenseMoneyActionLens)
 }
 
 function Tile({card}: {card: DefenseMoneyCard}) {

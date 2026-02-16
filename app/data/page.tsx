@@ -65,22 +65,25 @@ export default async function DataPage() {
               Mission-linked defense money signals plus prime backlog and book-to-bill context.
             </p>
             <p className="text-muted-foreground mt-1 text-xs">
-              Generated {new Date(dashboard.generatedAt).toLocaleString()} · {dashboard.tableRows.length} records
+              Last updated {new Date(dashboard.generatedAt).toLocaleString('en-US', {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'})}
+              {dashboard.tableRows.length > 0 ? ` · ${dashboard.tableRows.length} quarterly records` : ''}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {primeEnabled && dashboard.staleData ? (
               <p className="rounded-md bg-warning/15 px-3 py-2 text-xs text-warning-foreground">
-                Data may be stale. Ingestion check required.
+                Prime data last updated {new Date(dashboard.generatedAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}. Next refresh at 11:00 AM UTC.
               </p>
             ) : null}
             {!primeEnabled ? (
               <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
-                Prime metrics disabled. Set <code>DATA_PRIMES_ENABLED=true</code> to enable.
+                Prime metrics (backlog &amp; book-to-bill) are not active in this environment.
               </p>
             ) : null}
             {moneySignals.staleData.daily ? (
-              <p className="rounded-md bg-warning/15 px-3 py-2 text-xs text-warning-foreground">Money signals may be stale.</p>
+              <p className="rounded-md bg-warning/15 px-3 py-2 text-xs text-warning-foreground">
+                Money signals last updated {new Date(moneySignals.generatedAt).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})}. Next refresh at 11:00 AM UTC.
+              </p>
             ) : null}
           </div>
         </header>
@@ -280,13 +283,13 @@ export default async function DataPage() {
           <ModuleShell
             header={{
               eyebrow: 'Prime module',
-              title: 'Prime metrics disabled',
-              description: 'Enable DATA_PRIMES_ENABLED to render backlog and book-to-bill components.',
+              title: 'Prime metrics',
+              description: 'Backlog and book-to-bill data for major defense primes.',
             }}
           >
             <Card className="rounded-lg border border-border bg-card">
               <CardContent className="py-5 text-base text-muted-foreground">
-                Prime metrics are disabled in this environment. Money-signal sections above remain active.
+                Prime metrics are not active in this environment. Money-signal sections above remain active.
               </CardContent>
             </Card>
           </ModuleShell>

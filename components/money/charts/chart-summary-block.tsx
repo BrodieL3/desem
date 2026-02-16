@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 
-import type {DefenseMoneyChartSummary} from '@/lib/data/signals/types'
+import {actionLensLabel, type DefenseMoneyChartSummary} from '@/lib/data/signals/types'
 
 type ChartSummaryBlockProps = {
   summary: DefenseMoneyChartSummary
@@ -16,10 +16,10 @@ function claimCitations(summary: DefenseMoneyChartSummary, citationIds: string[]
 export function ChartSummaryBlock({summary}: ChartSummaryBlockProps) {
   return (
     <div className="space-y-3 border-t border-border pt-3">
-      <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">{summary.actionLens.toUpperCase()}</p>
+      <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">{actionLensLabel(summary.actionLens)}</p>
 
       {summary.claims.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{summary.sourceGapNote ?? 'Source gap: no citation-grounded claims available.'}</p>
+        <p className="text-sm text-muted-foreground">{summary.sourceGapNote ?? 'Insufficient data to generate grounded claims for this period.'}</p>
       ) : (
         <div className="space-y-3">
           {summary.claims.map((claim) => {

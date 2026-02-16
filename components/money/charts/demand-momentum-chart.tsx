@@ -43,12 +43,12 @@ export function DemandMomentumChart({module, stale}: DemandMomentumChartProps) {
         <CardTitle className="font-display text-[1.45rem] leading-tight">Demand momentum</CardTitle>
         <p className="text-muted-foreground text-sm">
           Trailing 20 business-day DoD obligations with daily award count context.
-          {stale ? ' Data is stale.' : ''}
+          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {module.points.length < 2 ? (
-          <p className="text-muted-foreground text-sm">Insufficient trend data. Need at least two business-day points.</p>
+          <p className="text-muted-foreground text-sm">Not enough data yet — this chart appears after two business days of obligations data.</p>
         ) : (
           <div className="h-[260px] w-full" role="img" aria-label="Demand momentum chart">
             <ResponsiveContainer width="100%" height="100%">

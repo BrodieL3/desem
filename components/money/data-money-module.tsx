@@ -1,4 +1,4 @@
-import type {DefenseMoneyCard} from '@/lib/data/signals/types'
+import {actionLensLabel, type DefenseMoneyCard} from '@/lib/data/signals/types'
 
 import {CitationLinks} from './citation-links'
 
@@ -22,7 +22,7 @@ export function DataMoneyModule({heading, card, emptyLabel}: DataMoneyModuleProp
       ) : (
         <article className="news-divider-list news-divider-list-no-top">
           <div className="news-divider-item px-1">
-            <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">{card.actionLens.toUpperCase()}</p>
+            <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">{actionLensLabel(card.actionLens)}</p>
             <p className="text-[1.05rem] leading-relaxed text-foreground">{card.summary}</p>
             <p className="text-muted-foreground mt-2 text-sm">{card.soWhat}</p>
             <CitationLinks citations={card.citations} max={5} />

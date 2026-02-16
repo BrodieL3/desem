@@ -104,7 +104,7 @@ export function buildDeterministicChartSummary(input: BuildDeterministicChartSum
       soWhat: input.soWhat,
       claims: [],
       citations: [],
-      sourceGapNote: input.sourceGapNote ?? 'Source gap: insufficient citation-resolvable evidence for claims.',
+      sourceGapNote: input.sourceGapNote ?? 'Insufficient data to generate grounded claims for this period.',
     }
   }
 

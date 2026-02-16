@@ -79,6 +79,6 @@ describe('buildDeterministicChartSummary', () => {
 
     expect(summary.claims.length).toBe(0)
     expect(summary.citations.length).toBe(0)
-    expect(summary.sourceGapNote).toContain('Source gap')
+    expect(summary.sourceGapNote).toContain('Insufficient data')
   })
 })

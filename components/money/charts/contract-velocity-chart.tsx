@@ -49,12 +49,12 @@ export function ContractVelocityChart({points, stale, gapAnnotation}: ContractVe
         <CardTitle className="font-display text-[1.45rem] leading-tight">Contract velocity</CardTitle>
         <p className="text-muted-foreground text-sm">
           Dual-source contract obligations: USAspending (historical) + Defense.gov (recent).
-          {stale ? ' Data is stale.' : ''}
+          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {!hasData ? (
-          <p className="text-muted-foreground text-sm">Insufficient data. Need at least two data points.</p>
+          <p className="text-muted-foreground text-sm">Not enough data yet — this chart appears after contracts from multiple days are ingested.</p>
         ) : (
           <div className="h-[260px] w-full" role="img" aria-label="Contract velocity chart">
             <ResponsiveContainer width="100%" height="100%">

@@ -31,7 +31,7 @@ function SparklineRow({
       </div>
 
       {points.length < 2 ? (
-        <p className="text-xs text-muted-foreground">Insufficient series</p>
+        <p className="text-xs text-muted-foreground">Awaiting data</p>
       ) : (
         <div className="h-[58px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -76,7 +76,7 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
         <CardTitle className="font-display text-[1.45rem] leading-tight">Prime sparklines</CardTitle>
         <p className="text-muted-foreground text-sm">
           Trailing month quote context for LMT, RTX, NOC, GD, BA, and LHX.
-          {stale ? ' Data is stale.' : ''}
+          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

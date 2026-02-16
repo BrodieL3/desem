@@ -35,7 +35,7 @@ export function WeeklyCategoryShareChart({module, stale}: WeeklyCategoryShareCha
       </CardHeader>
       <CardContent className="space-y-4">
         {rows.length < 2 ? (
-          <p className="text-muted-foreground text-sm">Insufficient trend data. Need at least two weekly points.</p>
+          <p className="text-muted-foreground text-sm">Not enough weekly rollup data yet — this chart appears after two weeks of data.</p>
         ) : (
           <div className="h-[280px] w-full" role="img" aria-label="Weekly category share chart">
             <ResponsiveContainer width="100%" height="100%">

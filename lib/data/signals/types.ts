@@ -6,6 +6,16 @@ export const defenseMoneyActionLensValues = ['build', 'sell', 'partner'] as cons
 
 export type DefenseMoneyActionLens = (typeof defenseMoneyActionLensValues)[number]
 
+const actionLensDisplayLabels: Record<DefenseMoneyActionLens, string> = {
+  build: 'Expanding',
+  sell: 'Maturing',
+  partner: 'Steady',
+}
+
+export function actionLensLabel(lens: DefenseMoneyActionLens): string {
+  return actionLensDisplayLabels[lens] ?? lens
+}
+
 export const defenseMoneyBriefTimeframeValues = ['daily', 'weekly', 'monthly'] as const
 
 export type DefenseMoneyBriefTimeframe = (typeof defenseMoneyBriefTimeframeValues)[number]

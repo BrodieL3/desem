@@ -46,12 +46,12 @@ export function RecipientLeaderboardChart({module, stale}: RecipientLeaderboardC
         <CardTitle className="font-display text-[1.45rem] leading-tight">Recipient leaderboard</CardTitle>
         <p className="text-muted-foreground text-sm">
           Top recipients over the trailing 30-day obligation window.
-          {stale ? ' Data is stale.' : ''}
+          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {chartRows.length < 2 ? (
-          <p className="text-muted-foreground text-sm">Insufficient trend data. Need at least two recipients.</p>
+          <p className="text-muted-foreground text-sm">Not enough recipient data yet to display a leaderboard.</p>
         ) : (
           <div className="h-[280px] w-full" role="img" aria-label="Recipient leaderboard chart">
             <ResponsiveContainer width="100%" height="100%">
