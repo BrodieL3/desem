@@ -7,7 +7,9 @@ import {createSupabaseAdminClientFromEnv} from '@/lib/supabase/admin'
 import {getDefenseMoneySignalsConfig} from './config'
 import {generateGuardrailedImplication} from './implications'
 import {loadMacroContextFromYaml, resolveActiveMacroContext, upsertMacroContextEntries} from './macro'
+import {fetchDefenseGovDailyContracts} from './providers/defense-gov'
 import {fetchFinnhubDailyQuotes, fetchFinnhubHistoricalCandles} from './providers/finnhub'
+import {fetchAllSamGovOpportunities} from './providers/sam-gov'
 import {fetchUsaspendingTransactions} from './providers/usaspending'
 import {buildDefenseMoneyRollups, upsertDefenseMoneyRollups} from './rollups'
 import {priorBusinessDayEt, shiftIsoDate} from './time'
@@ -846,5 +848,161 @@ export async function rebuildDefenseMoneyRollups(targetDate = priorBusinessDayEt
     count,
     weeklyCount: rollups.weekly.length,
     monthlyCount: rollups.monthly.length,
+  }
+}
+
+export type DefenseGovSyncResult = {
+  status: 'succeeded' | 'partial_failed' | 'failed'
+  contractCount: number
+  warnings: string[]
+  error: string | null
+}
+
+export async function syncDefenseGovContracts(): Promise<DefenseGovSyncResult> {
+  const config = getDefenseMoneySignalsConfig()
+
+  if (!config.defenseGovEnabled) {
+    return {status: 'succeeded', contractCount: 0, warnings: ['Defense.gov sync disabled.'], error: null}
+  }
+
+  try {
+    const {contracts, warnings} = await fetchDefenseGovDailyContracts({
+      rssUrl: config.defenseGovRssUrl,
+      lookbackDays: config.defenseGovLookbackDays,
+    })
+
+    if (contracts.length === 0) {
+      return {status: warnings.length > 0 ? 'partial_failed' : 'succeeded', contractCount: 0, warnings, error: null}
+    }
+
+    const supabase = createSupabaseAdminClientFromEnv()
+
+    const payload = contracts.map((contract) => ({
+      announcement_date: contract.announcementDate,
+      contract_number: contract.contractNumber,
+      contractor_name: contract.contractorName,
+      awarding_agency: contract.awardingAgency,
+      award_amount: contract.awardAmount,
+      location: contract.location,
+      description: contract.description,
+      bucket_primary: contract.bucketPrimary,
+      bucket_tags: contract.bucketTags,
+      source_url: contract.sourceUrl,
+      raw_html: contract.rawHtml,
+    }))
+
+    const {error} = await supabase.from('defense_dot_gov_daily_contracts').upsert(payload, {
+      onConflict: 'announcement_date,contract_number,contractor_name',
+    })
+
+    if (error) {
+      warnings.push(`Defense.gov upsert failed: ${error.message}`)
+      return {status: 'partial_failed', contractCount: 0, warnings, error: error.message}
+    }
+
+    return {
+      status: warnings.length > 0 ? 'partial_failed' : 'succeeded',
+      contractCount: contracts.length,
+      warnings,
+      error: null,
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown Defense.gov sync failure.'
+    return {status: 'failed', contractCount: 0, warnings: [], error: message}
+  }
+}
+
+export type SamGovSyncResult = {
+  status: 'succeeded' | 'partial_failed' | 'failed'
+  opportunityCount: number
+  warnings: string[]
+  error: string | null
+}
+
+export async function syncSamGovOpportunities(): Promise<SamGovSyncResult> {
+  const config = getDefenseMoneySignalsConfig()
+
+  if (!config.samGovEnabled || !config.samGovApiKey) {
+    return {
+      status: 'succeeded',
+      opportunityCount: 0,
+      warnings: [config.samGovApiKey ? 'SAM.gov sync disabled.' : 'SAM_GOV_API_KEY missing; SAM.gov sync skipped.'],
+      error: null,
+    }
+  }
+
+  try {
+    const postedTo = new Date().toISOString().slice(0, 10)
+    const postedFromDate = new Date()
+    postedFromDate.setDate(postedFromDate.getDate() - Math.min(config.samGovLookbackDays, 7))
+    const postedFrom = postedFromDate.toISOString().slice(0, 10)
+
+    const formatSamDate = (iso: string) => {
+      const [year, month, day] = iso.split('-')
+      return `${month}/${day}/${year}`
+    }
+
+    const {opportunities, warnings} = await fetchAllSamGovOpportunities({
+      apiKey: config.samGovApiKey,
+      postedFrom: formatSamDate(postedFrom),
+      postedTo: formatSamDate(postedTo),
+      departments: ['DEPT OF DEFENSE'],
+      maxPages: 10,
+    })
+
+    if (opportunities.length === 0) {
+      return {
+        status: warnings.length > 0 ? 'partial_failed' : 'succeeded',
+        opportunityCount: 0,
+        warnings,
+        error: null,
+      }
+    }
+
+    const supabase = createSupabaseAdminClientFromEnv()
+
+    const payload = opportunities.map((opp) => ({
+      opportunity_id: opp.opportunityId,
+      notice_type: opp.noticeType,
+      title: opp.title,
+      solicitation_number: opp.solicitationNumber,
+      department: opp.department,
+      sub_tier: opp.subTier,
+      office: opp.office,
+      posted_date: opp.postedDate,
+      response_deadline: opp.responseDeadline,
+      archive_date: opp.archiveDate,
+      naics_code: opp.naicsCode,
+      classification_code: opp.classificationCode,
+      set_aside: opp.setAside,
+      description: opp.description,
+      estimated_value_low: opp.estimatedValueLow,
+      estimated_value_high: opp.estimatedValueHigh,
+      bucket_primary: opp.bucketPrimary,
+      bucket_tags: opp.bucketTags,
+      source_url: opp.sourceUrl,
+      raw_payload: opp.rawPayload,
+    }))
+
+    for (let i = 0; i < payload.length; i += 200) {
+      const batch = payload.slice(i, i + 200)
+      const {error} = await supabase.from('sam_gov_opportunities').upsert(batch, {
+        onConflict: 'opportunity_id',
+      })
+
+      if (error) {
+        warnings.push(`SAM.gov upsert failed at batch ${i}: ${error.message}`)
+      }
+    }
+
+    return {
+      status: warnings.length > 0 ? 'partial_failed' : 'succeeded',
+      opportunityCount: opportunities.length,
+      warnings,
+      error: null,
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown SAM.gov sync failure.'
+    return {status: 'failed', opportunityCount: 0, warnings: [], error: message}
   }
 }

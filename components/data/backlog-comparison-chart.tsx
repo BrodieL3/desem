@@ -36,6 +36,10 @@ function formatValue(value: number | null) {
   return `${value.toFixed(1)}B`
 }
 
+function normalizeChartValue(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
 function buildRows(input: PrimeBacklogComparisonChartProps): BacklogRow[] {
   const byTicker = new Map<string, typeof input.points>()
 
@@ -76,7 +80,10 @@ function buildRows(input: PrimeBacklogComparisonChartProps): BacklogRow[] {
       return token.quarter === latestQuarter.quarter && token.year === latestQuarter.year - 1
     })
 
-    const yoyDelta = latest.value !== null && yearAgo?.value !== null ? Number((latest.value - yearAgo.value).toFixed(2)) : null
+    const yoyDelta =
+      latest.value !== null && yearAgo && yearAgo.value !== null
+        ? Number((latest.value - yearAgo.value).toFixed(2))
+        : null
 
     return {
       ticker: company.ticker,
@@ -109,7 +116,7 @@ export function BacklogComparisonChart({companies, points}: PrimeBacklogComparis
                   <XAxis dataKey="ticker" tick={{fill: 'var(--muted-foreground)', fontSize: 12}} />
                   <YAxis tick={{fill: 'var(--muted-foreground)', fontSize: 12}} tickFormatter={(value) => `${value}B`} width={58} />
                   <Tooltip
-                    formatter={(value: number | null) => [formatValue(value), 'Backlog']}
+                    formatter={(value) => [formatValue(normalizeChartValue(value)), 'Backlog']}
                     contentStyle={{
                       background: 'var(--card)',
                       border: '1px solid var(--border)',

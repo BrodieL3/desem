@@ -74,11 +74,28 @@ export function getDefenseMoneySignalsConfig() {
     bucketRulesetVersion: process.env.DATA_MONEY_BUCKET_RULESET_VERSION?.trim() || 'v1',
     marketTickers: asList(process.env.DATA_MONEY_MARKET_TICKERS, DEFAULT_MARKET_TICKERS).map((entry) => entry.toUpperCase()),
     marketBackfillDays: asPositiveInt(process.env.DATA_MONEY_MARKET_BACKFILL_DAYS, 31, 1, 365),
-    finnhubApiKey: process.env.FINNHUB_API_KEY?.trim() || '',
+    finnhubApiKey: process.env.NEXT_PUBLIC_FINNHUB_API_KEY?.trim() || process.env.FINNHUB_API_KEY?.trim() || '',
     llmEnabled: asBoolean(process.env.DATA_MONEY_LLM_ENABLED, true),
     llmModel: process.env.DATA_MONEY_LLM_MODEL?.trim() || 'gpt-4.1-mini',
     macroSnapshotPath:
       process.env.DATA_MONEY_MACRO_SNAPSHOT_PATH?.trim() ||
       `${process.cwd()}/scripts/data/macro-budget-context.yaml`,
+
+    // Defense.gov RSS
+    defenseGovEnabled: asBoolean(process.env.DEFENSE_GOV_ENABLED, true),
+    defenseGovRssUrl:
+      process.env.DEFENSE_GOV_RSS_URL?.trim() ||
+      'https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=9&Site=945',
+    defenseGovLookbackDays: asPositiveInt(process.env.DEFENSE_GOV_LOOKBACK_DAYS, 7, 1, 30),
+
+    // Tiingo
+    tiingoApiKey: process.env.TIINGO_API_KEY?.trim() || '',
+    tiingoEnabled: asBoolean(process.env.TIINGO_ENABLED, true),
+    tiingoBackfillYears: asPositiveInt(process.env.TIINGO_BACKFILL_YEARS, 3, 1, 10),
+
+    // SAM.gov
+    samGovApiKey: process.env.SAM_GOV_API_KEY?.trim() || process.env.SAM_KEY?.trim() || '',
+    samGovEnabled: asBoolean(process.env.SAM_GOV_ENABLED, true),
+    samGovLookbackDays: asPositiveInt(process.env.SAM_GOV_LOOKBACK_DAYS, 90, 1, 365),
   }
 }

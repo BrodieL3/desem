@@ -1,10 +1,12 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
+import type {UserConfig} from 'vite'
 
 import {defaultDocumentNode, structure} from './sanity/lib/structure'
 import {schemaTypes} from './sanity/schemaTypes'
 
-const processEnv = typeof process !== 'undefined' ? process.env : {}
+const processEnv: Record<string, string | undefined> =
+  typeof process !== 'undefined' ? (process.env as Record<string, string | undefined>) : {}
 const studioEnv = (import.meta as {env?: Record<string, string | undefined>}).env ?? {}
 
 const projectId =
@@ -40,7 +42,7 @@ export default defineConfig({
       defaultDocumentNode,
     }),
   ],
-  vite: (viteConfig) => {
+  vite: (viteConfig: UserConfig) => {
     const currentEnvPrefix = viteConfig.envPrefix ?? 'VITE_'
     const envPrefixes = Array.isArray(currentEnvPrefix) ? currentEnvPrefix : [currentEnvPrefix]
 

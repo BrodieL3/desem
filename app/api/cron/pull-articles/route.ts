@@ -5,7 +5,9 @@ import {defaultCongestionRules} from '@/lib/editorial/congestion'
 import {isEditorialFocusMatch} from '@/lib/editorial/focus'
 import {syncSemaphorSecurityNewsItemsToSanity} from '@/lib/editorial/semaphor-sync'
 import type {EditorialArticle, EditorialTopic, StoryCluster} from '@/lib/editorial/types'
-import {syncDefenseMoneySignals} from '@/lib/data/signals/sync'
+import {linkArticlesToContracts} from '@/lib/data/signals/cross-reference'
+import {syncDefenseMoneySignals, syncDefenseGovContracts, syncSamGovOpportunities} from '@/lib/data/signals/sync'
+import type {DefenseGovSyncResult, SamGovSyncResult} from '@/lib/data/signals/sync'
 import {syncPrimeMetricsFromSec} from '@/lib/data/primes/sync'
 import {
   enrichArticleContentBatch,
@@ -879,23 +881,65 @@ async function runIngestEditorialSegment(): Promise<IngestEditorialSegment> {
   return segment
 }
 
+async function runDefenseGovSegment(): Promise<DefenseGovSyncResult> {
+  try {
+    return await syncDefenseGovContracts()
+  } catch (error) {
+    return {
+      status: 'failed',
+      contractCount: 0,
+      warnings: [],
+      error: error instanceof Error ? error.message : 'Unknown Defense.gov sync failure.',
+    }
+  }
+}
+
+async function runSamGovSegment(): Promise<SamGovSyncResult> {
+  try {
+    return await syncSamGovOpportunities()
+  } catch (error) {
+    return {
+      status: 'failed',
+      opportunityCount: 0,
+      warnings: [],
+      error: error instanceof Error ? error.message : 'Unknown SAM.gov sync failure.',
+    }
+  }
+}
+
 async function runIngestion(request: Request) {
   if (!authorizeCronRequest(request)) {
     return NextResponse.json({error: 'Unauthorized'}, {status: 401})
   }
 
-  const [ingestEditorial, semaphor, primeMetrics, moneySignals] = await Promise.all([
+  const [ingestEditorial, semaphor, primeMetrics, moneySignals, defenseGov, samGov] = await Promise.all([
     runIngestEditorialSegment(),
     runSemaphorSegment(),
     runPrimeMetricsSegment(),
     runMoneySignalsSegment(),
+    runDefenseGovSegment(),
+    runSamGovSegment(),
   ])
+
+  let crossRefLinked = 0
+  const crossRefWarnings: string[] = []
+
+  try {
+    const supabase = createSupabaseAdminClientFromEnv()
+    const crossRef = await linkArticlesToContracts({supabase})
+    crossRefLinked = crossRef.linkedCount
+    crossRefWarnings.push(...crossRef.warnings)
+  } catch (error) {
+    crossRefWarnings.push(`Cross-reference failed: ${error instanceof Error ? error.message : 'unknown'}`)
+  }
 
   const overallStatus = resolveOverallStatus([
     ingestEditorial.status,
     semaphor.status,
     primeMetrics.status,
     moneySignals.status,
+    defenseGov.status,
+    samGov.status,
   ])
 
   const body = {
@@ -906,6 +950,8 @@ async function runIngestion(request: Request) {
       semaphor: semaphor.status,
       primeMetrics: primeMetrics.status,
       moneySignals: moneySignals.status,
+      defenseGov: defenseGov.status,
+      samGov: samGov.status,
     },
     fetchedAt: ingestEditorial.fetchedAt,
     sourceCount: ingestEditorial.sourceCount,
@@ -918,6 +964,12 @@ async function runIngestion(request: Request) {
     semaphor,
     primeMetrics,
     moneySignals,
+    defenseGov,
+    samGov,
+    crossReference: {
+      linkedCount: crossRefLinked,
+      warnings: crossRefWarnings,
+    },
     sourceErrors: ingestEditorial.sourceErrors,
     ingestEditorial,
   }

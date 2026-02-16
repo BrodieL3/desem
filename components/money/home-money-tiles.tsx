@@ -1,12 +1,13 @@
 import Link from 'next/link'
 
-import type {DefenseMoneyCard} from '@/lib/data/signals/types'
+import type {DefenseMoneyCard, DefenseMoneyThisWeekSignal} from '@/lib/data/signals/types'
 
 import {CitationLinks} from './citation-links'
 
 type HomeMoneyTilesProps = {
   dailySpendPulse: DefenseMoneyCard | null
   primeMoves: DefenseMoneyCard | null
+  thisWeekSignal?: DefenseMoneyThisWeekSignal | null
 }
 
 function tileLabel(value: string) {
@@ -26,7 +27,7 @@ function Tile({card}: {card: DefenseMoneyCard}) {
   )
 }
 
-export function HomeMoneyTiles({dailySpendPulse, primeMoves}: HomeMoneyTilesProps) {
+export function HomeMoneyTiles({dailySpendPulse, primeMoves, thisWeekSignal}: HomeMoneyTilesProps) {
   if (!dailySpendPulse && !primeMoves) {
     return null
   }
@@ -50,6 +51,19 @@ export function HomeMoneyTiles({dailySpendPulse, primeMoves}: HomeMoneyTilesProp
           {primeMoves ? <Tile card={primeMoves} /> : <p className="news-divider-item px-1 text-sm text-muted-foreground">No prime moves yet.</p>}
         </div>
       </div>
+
+      {thisWeekSignal ? (
+        <div className="news-divider-list news-divider-list-no-top">
+          <article className="news-divider-item px-1">
+            <p className="text-muted-foreground text-xs tracking-[0.12em] uppercase">
+              This week&apos;s signal · {tileLabel(thisWeekSignal.actionLens)}
+            </p>
+            <p className="text-foreground text-[1rem] leading-relaxed">{thisWeekSignal.summary}</p>
+            <p className="text-muted-foreground mt-2 text-sm">{thisWeekSignal.soWhat}</p>
+            <CitationLinks citations={thisWeekSignal.citations} max={2} />
+          </article>
+        </div>
+      ) : null}
     </section>
   )
 }

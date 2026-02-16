@@ -121,16 +121,30 @@ export async function fetchUsaspendingTransactions(options: FetchUsaspendingTran
       },
     }
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+    let response: Response | null = null
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        })
+        if (response.ok || response.status < 500) {
+          break
+        }
+      } catch {
+        // transient network error — retry
+      }
+      if (attempt < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 3000 * (attempt + 1)))
+        response = null
+      }
+    }
 
-    if (!response.ok) {
-      throw new Error(`USAspending transaction request failed (${response.status}).`)
+    if (!response || !response.ok) {
+      throw new Error(`USAspending transaction request failed (${response?.status ?? 'network error'}).`)
     }
 
     const result = (await response.json()) as UsaspendingResponse

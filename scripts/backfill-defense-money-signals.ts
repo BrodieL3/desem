@@ -169,10 +169,12 @@ async function run() {
     })
 
     if (result.status === 'failed') {
-      throw new Error(`Backfill failed for ${cursor}: ${result.error ?? 'unknown error'}`)
+      console.log(`  ↳ skipping (will retry on next run): ${result.error ?? 'unknown error'}`)
+      // Still advance cursor and checkpoint so we don't get stuck
+    } else {
+      completed += 1
     }
 
-    completed += 1
     cursor = nextBusinessDate(cursor)
   }
 

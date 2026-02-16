@@ -1,6 +1,7 @@
 'use client'
 
 import {memo, useMemo} from 'react'
+import type {ReactNode} from 'react'
 import {CartesianGrid, Label, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
@@ -12,6 +13,8 @@ type ChartRow = {
   periodEnd: string
   [ticker: string]: number | string | null
 }
+
+type TooltipValue = number | string | ReadonlyArray<string | number> | null | undefined
 
 function defaultFormatter(value: number | null) {
   if (value === null || Number.isNaN(value)) {
@@ -40,15 +43,19 @@ function buildChartRows(points: PrimeMetricChartCardProps['points']) {
   return [...byPeriod.values()].sort((left, right) => Date.parse(String(left.periodEnd)) - Date.parse(String(right.periodEnd)))
 }
 
-function tooltipLabel(value: number | string | Array<string | number>) {
-  if (Array.isArray(value)) {
-    return String(value[0] ?? '')
+function tooltipLabel(label: ReactNode, _payload?: ReadonlyArray<unknown>) {
+  if (Array.isArray(label)) {
+    return String(label[0] ?? '')
   }
 
-  return String(value)
+  if (typeof label === 'string' || typeof label === 'number') {
+    return String(label)
+  }
+
+  return ''
 }
 
-function formatTooltipValue(value: number | string | Array<string | number> | null | undefined) {
+function formatTooltipValue(value: TooltipValue) {
   if (value === null || typeof value === 'undefined') {
     return 'Not disclosed'
   }

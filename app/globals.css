@@ -34,6 +34,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
   --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
   --radius: var(--radius);
 }
 
@@ -80,6 +82,8 @@
   --chart-4: oklch(0.48 0.14 304);
   --chart-5: oklch(0.82 0.01 0);
   --chart-6: oklch(0.56 0.13 210);
+  --chart-7: oklch(0.62 0.15 176);
+  --chart-8: oklch(0.69 0.14 64);
 }
 
 .dark {
@@ -123,6 +127,8 @@
   --chart-4: oklch(0.56 0.16 304);
   --chart-5: oklch(0.45 0 0);
   --chart-6: oklch(0.72 0.12 210);
+  --chart-7: oklch(0.76 0.11 177);
+  --chart-8: oklch(0.78 0.1 66);
 }
 
 * {

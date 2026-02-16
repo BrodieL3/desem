@@ -1,5 +1,3 @@
-import {JSDOM} from 'jsdom'
-
 import {sanitizePlainText} from '@/lib/utils'
 
 const SEMAPHOR_SECURITY_URL = 'https://www.semafor.com/vertical/security'
@@ -192,26 +190,45 @@ async function fetchStoriesFromSemaphorContentApi(limit: number) {
     .slice(0, limit)
 }
 
-function resolveStoryImageUrlFromLink(link: HTMLAnchorElement) {
-  const image = link.querySelector<HTMLImageElement>('img')
-  const imageSrc = image?.getAttribute('src')?.trim()
+function toHeadlineFromArticlePath(articlePath: string) {
+  const slug = articlePath.split('/').filter(Boolean).at(-1) ?? ''
 
-  if (imageSrc) {
-    return toAbsoluteUrl(imageSrc)
+  if (!slug) {
+    return 'Security update'
   }
 
-  const srcSet = image?.getAttribute('srcset')?.trim()
+  return slug
+    .split('-')
+    .filter((segment) => segment.length > 0)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ')
+}
 
-  if (!srcSet) {
-    return null
+function extractArticlePathsFromHtml(html: string) {
+  const articlePaths = new Set<string>()
+  const hrefPattern = /href=['"]([^'"]+)['"]/gi
+
+  for (const match of html.matchAll(hrefPattern)) {
+    const href = match[1]?.trim()
+
+    if (!href) {
+      continue
+    }
+
+    const absolute = toAbsoluteUrl(href)
+
+    if (!absolute) {
+      continue
+    }
+
+    const path = new URL(absolute).pathname
+
+    if (ARTICLE_PATH_PATTERN.test(path)) {
+      articlePaths.add(path)
+    }
   }
 
-  const firstCandidate = srcSet
-    .split(',')
-    .map((candidate) => candidate.trim().split(/\s+/)[0] ?? '')
-    .find((candidate) => candidate.length > 0)
-
-  return toAbsoluteUrl(firstCandidate)
+  return [...articlePaths]
 }
 
 async function fetchStoriesFromSemaphorSecurityPage(limit: number) {
@@ -228,27 +245,15 @@ async function fetchStoriesFromSemaphorSecurityPage(limit: number) {
   }
 
   const html = await response.text()
-  const dom = new JSDOM(html)
-  const document = dom.window.document
-  const links = [...document.querySelectorAll<HTMLAnchorElement>('a[href^="/article/"]')]
   const storiesByUrl = new Map<string, SemaphorSecurityStory>()
 
-  for (const link of links) {
-    const href = link.getAttribute('href')
-
-    if (!href || !ARTICLE_PATH_PATTERN.test(href)) {
-      continue
-    }
-
+  for (const articlePath of extractArticlePathsFromHtml(html)) {
     const story = normalizeSemaphorStory({
-      id: toStoryId(href),
-      slug: href,
-      headline: link.querySelector('h1, h2, h3')?.textContent ?? null,
-      subtitle:
-        link.querySelector<HTMLElement>('[class*="_intro_"]')?.textContent ??
-        link.querySelector('p')?.textContent ??
-        null,
-      imageUrl: resolveStoryImageUrlFromLink(link),
+      id: toStoryId(articlePath),
+      slug: articlePath,
+      headline: toHeadlineFromArticlePath(articlePath),
+      subtitle: null,
+      imageUrl: null,
       publishedAt: null,
     })
 

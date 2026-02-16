@@ -145,3 +145,121 @@ export type DefenseMoneyTickerMove = {
   ticker: string
   quote: DefenseMoneyMarketQuote
 }
+
+export type DefenseMoneySummaryClaim = {
+  id: string
+  text: string
+  citationIds: string[]
+}
+
+export type DefenseMoneyChartSummary = {
+  headline: string
+  actionLens: DefenseMoneyActionLens
+  soWhat: string
+  claims: DefenseMoneySummaryClaim[]
+  citations: DefenseMoneyCitation[]
+  sourceGapNote?: string
+}
+
+export type DefenseMoneyDemandMomentumPoint = {
+  date: string
+  totalObligations: number
+  awardCount: number
+  largestAwardAmount: number
+}
+
+export type DefenseMoneyWeeklyCategorySharePoint = {
+  periodStart: string
+  periodEnd: string
+  totalObligations: number
+  categoryShare: Record<DefenseMoneyBucket, number>
+}
+
+export type DefenseMoneyConcentrationPoint = {
+  periodStart: string
+  periodEnd: string
+  totalObligations: number
+  top5Concentration: number
+}
+
+export type DefenseMoneyRecipientLeaderboardItem = {
+  recipientName: string
+  totalObligations: number
+  share: number
+  awardCount: number
+}
+
+export type DefenseMoneySparklinePoint = {
+  tradeDate: string
+  price: number
+}
+
+export type DefenseMoneyPrimeSparkline = {
+  ticker: string
+  coverage: 'full' | 'partial'
+  latestChangePercent: number | null
+  points: DefenseMoneySparklinePoint[]
+  citation: DefenseMoneyCitation | null
+}
+
+export type DefenseMoneyChartStaleFlags = {
+  awards: boolean
+  rollups: boolean
+  market: boolean
+  macro: boolean
+}
+
+export type DefenseMoneyThisWeekSignal = {
+  summary: string
+  soWhat: string
+  actionLens: DefenseMoneyActionLens
+  citations: DefenseMoneyCitation[]
+  topBucket: DefenseMoneyBucket | null
+  topBucketDelta: number | null
+  concentrationDelta: number | null
+}
+
+export type DefenseMoneyChartData = {
+  generatedAt: string
+  targetDate: string
+  demandMomentum: {
+    points: DefenseMoneyDemandMomentumPoint[]
+    fiveDayDelta: number | null
+    summary: DefenseMoneyChartSummary
+    insufficientData: boolean
+  }
+  weeklyCategoryShare: {
+    points: DefenseMoneyWeeklyCategorySharePoint[]
+    summary: DefenseMoneyChartSummary
+    insufficientData: boolean
+  }
+  concentrationTrend: {
+    weekly: DefenseMoneyConcentrationPoint[]
+    monthly: DefenseMoneyConcentrationPoint[]
+    weeklyDelta: number | null
+    monthlyDelta: number | null
+    summary: DefenseMoneyChartSummary
+    insufficientData: boolean
+  }
+  recipientLeaderboard: {
+    items: DefenseMoneyRecipientLeaderboardItem[]
+    summary: DefenseMoneyChartSummary
+    insufficientData: boolean
+  }
+  primeSparklines: {
+    tickers: DefenseMoneyPrimeSparkline[]
+    summary: DefenseMoneyChartSummary
+    insufficientData: boolean
+  }
+  macroContext: DefenseMoneyMacroContext | null
+  thisWeekSignal: DefenseMoneyThisWeekSignal | null
+  staleData: DefenseMoneyChartStaleFlags
+}
+
+export type DefenseMoneyChartsResponse = {
+  data: DefenseMoneyChartData
+  meta: {
+    date: string | null
+    stale: DefenseMoneyChartStaleFlags
+  }
+}

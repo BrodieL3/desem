@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { buildHomeEditionLayout } from "@/lib/editorial/home-layout";
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
+import { getDefenseMoneyChartsData } from "@/lib/data/signals/charts-server";
 import { getDefenseMoneySignalData } from "@/lib/data/signals/server";
 import type {
   CuratedHomeForYouRail,
@@ -324,6 +325,7 @@ export default async function HomePage() {
     userId: session.userId,
   });
   const moneySignals = await getDefenseMoneySignalData();
+  const moneyCharts = await getDefenseMoneyChartsData();
 
   const now = dateFormatter.format(new Date());
   const layout = buildHomeEditionLayout(home.stories);
@@ -369,6 +371,7 @@ export default async function HomePage() {
               <HomeMoneyTiles
                 dailySpendPulse={moneySignals.dailySpendPulse}
                 primeMoves={moneySignals.primeMoves}
+                thisWeekSignal={moneyCharts.thisWeekSignal}
               />
 
               <section

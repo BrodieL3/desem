@@ -8,8 +8,20 @@ import {
   RelationshipPlaceholder,
   SourcesDrawer,
 } from '@/components/data'
-import {DataMoneyModule} from '@/components/money'
+import {
+  ConcentrationTrendChart,
+  ContractVelocityChart,
+  DataMoneyModule,
+  DemandMomentumChart,
+  NewsMoneyHeatmap,
+  PipelineFunnelChart,
+  PrimeSparklinesChart,
+  RecipientLeaderboardChart,
+  WeeklyCategoryShareChart,
+} from '@/components/money'
 import {Card, CardContent} from '@/components/ui/card'
+import {getContractVelocityData, getDefenseMoneyChartsData, getNewsMoneyHeatmapData} from '@/lib/data/signals/charts-server'
+import {getSamGovPipelineData} from '@/lib/data/signals/sam-gov-server'
 import {getDefenseMoneySignalData} from '@/lib/data/signals/server'
 import {getPrimeDashboardData, isPrimeDataEnabled} from '@/lib/data/primes/server'
 
@@ -30,6 +42,10 @@ export default async function DataPage() {
     windowQuarters: 20,
   })
   const moneySignals = await getDefenseMoneySignalData()
+  const moneyCharts = await getDefenseMoneyChartsData()
+  const contractVelocity = await getContractVelocityData()
+  const pipelineData = await getSamGovPipelineData()
+  const heatmapData = await getNewsMoneyHeatmapData()
   const bookToBillSeries = dashboard.series.find((series) => series.metricKey === 'book_to_bill')?.points ?? []
   const backlogSeries = dashboard.series.find((series) => series.metricKey === 'backlog_total_b')?.points ?? []
   const severityCounts = countSeverities(dashboard.alerts)
@@ -114,6 +130,66 @@ export default async function DataPage() {
               card={moneySignals.monthlyStructural}
               emptyLabel="No monthly structural shift card is available yet."
             />
+          </div>
+        </ModuleShell>
+
+        <ModuleShell
+          header={{
+            eyebrow: 'Pipeline',
+            title: 'Pipeline intelligence',
+            description: 'Forward-looking DoD opportunity pipeline from SAM.gov — pre-solicitations, active solicitations, and bucket distribution.',
+          }}
+        >
+          <div className="grid gap-6 xl:grid-cols-2">
+            <PipelineFunnelChart
+              solicitations={pipelineData.activeSolicitations.length}
+              presolicitations={pipelineData.recentPresolicitations.length}
+              pipelineByBucket={pipelineData.pipelineByBucket}
+              totalActive={pipelineData.totalActive}
+            />
+            <Card className="rounded-lg border border-border bg-card">
+              <CardContent className="space-y-3 py-5">
+                <p className="text-xs tracking-[0.12em] uppercase text-muted-foreground">Approaching deadlines</p>
+                {pipelineData.activeSolicitations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No active solicitations with approaching deadlines.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {pipelineData.activeSolicitations.slice(0, 5).map((opp) => (
+                      <li key={opp.opportunityId} className="text-sm">
+                        <a href={opp.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          {opp.title.slice(0, 80)}{opp.title.length > 80 ? '...' : ''}
+                        </a>
+                        <p className="text-xs text-muted-foreground">
+                          {opp.department ?? 'DoD'} · Deadline: {opp.responseDeadline ?? 'TBD'}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </ModuleShell>
+
+        <ModuleShell
+          header={{
+            eyebrow: 'Charts',
+            title: 'Money signal charts',
+            description: 'Curated trend views for demand momentum, category share, concentration, recipients, and prime moves.',
+          }}
+        >
+          <div className="grid gap-6 xl:grid-cols-2">
+            <DemandMomentumChart module={moneyCharts.demandMomentum} stale={moneyCharts.staleData.awards} />
+            <ContractVelocityChart
+              points={contractVelocity.points}
+              stale={moneyCharts.staleData.awards}
+              gapAnnotation={contractVelocity.gapAnnotation}
+            />
+            <WeeklyCategoryShareChart module={moneyCharts.weeklyCategoryShare} stale={moneyCharts.staleData.rollups} />
+            <ConcentrationTrendChart module={moneyCharts.concentrationTrend} stale={moneyCharts.staleData.rollups} />
+            <RecipientLeaderboardChart module={moneyCharts.recipientLeaderboard} stale={moneyCharts.staleData.awards} />
+            <PrimeSparklinesChart module={moneyCharts.primeSparklines} stale={moneyCharts.staleData.market} />
+            <NewsMoneyHeatmap cells={heatmapData.cells} topicLabels={heatmapData.topicLabels} bucketLabels={heatmapData.bucketLabels} />
           </div>
         </ModuleShell>
 
