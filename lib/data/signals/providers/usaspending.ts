@@ -26,6 +26,10 @@ type UsaspendingResponse = {
 export type FetchUsaspendingTransactionsOptions = {
   apiBaseUrl?: string
   actionDate: string
+  /** Override range start (defaults to actionDate) */
+  startDate?: string
+  /** Override range end (defaults to actionDate) */
+  endDate?: string
   awardingAgencies: string[]
   minTransactionUsd: number
   maxPages: number
@@ -108,8 +112,8 @@ export async function fetchUsaspendingTransactions(options: FetchUsaspendingTran
         award_type_codes: DEFAULT_AWARD_TYPE_CODES,
         time_period: [
           {
-            start_date: options.actionDate,
-            end_date: options.actionDate,
+            start_date: options.startDate ?? options.actionDate,
+            end_date: options.endDate ?? options.actionDate,
             date_type: 'action_date',
           },
         ],

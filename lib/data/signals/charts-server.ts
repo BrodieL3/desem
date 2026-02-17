@@ -1,7 +1,7 @@
 import {createOptionalSupabaseServerClient} from '@/lib/supabase/server'
 
 import {getDefenseMoneySignalsConfig, isDefenseMoneySignalsEnabled} from './config'
-import {formatDefenseMoneyBucketLabel} from './chart-colors'
+import {defenseMoneyBucketColorMap, formatDefenseMoneyBucketLabel} from './chart-colors'
 import {buildDeterministicChartSummary, resolveActionLensFromBucket, resolveActionLensFromMomentum} from './chart-summaries'
 import {currentEtDate, isStaleDate, isoFromDate, priorBusinessDayEt, shiftIsoDate} from './time'
 import {defenseMoneyBucketValues, type DefenseMoneyActionLens, type DefenseMoneyAwardTransaction, type DefenseMoneyBucket, type DefenseMoneyChartData, type DefenseMoneyCitation, type DefenseMoneyConcentrationPoint, type DefenseMoneyDemandMomentumPoint, type DefenseMoneyMacroContext, type DefenseMoneyMarketQuote, type DefenseMoneyPrimeSparkline, type DefenseMoneyRecipientLeaderboardItem, type DefenseMoneyRollup, type DefenseMoneySparklinePoint, type DefenseMoneyWeeklyCategorySharePoint} from './types'
@@ -1243,6 +1243,266 @@ export async function getNewsMoneyHeatmapData(): Promise<NewsMoneyHeatmapData> {
   return {cells, topicLabels, bucketLabels}
 }
 
+export type MomentumCell = {
+  weekLabel: string
+  periodStart: string
+  bucket: DefenseMoneyBucket
+  bucketLabel: string
+  amount: number
+  awardCount: number
+  acceleration: number
+  direction: 'growing' | 'declining' | 'flat'
+}
+
+export type CategoryMomentumData = {
+  cells: MomentumCell[]
+  weeks: string[]
+  buckets: DefenseMoneyBucket[]
+  insufficientData: boolean
+}
+
+function formatWeekLabel(isoDate: string) {
+  const d = new Date(`${isoDate}T00:00:00Z`)
+  return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric', timeZone: 'UTC'})
+}
+
+export async function getCategoryMomentumData(options?: {date?: string}): Promise<CategoryMomentumData> {
+  const empty: CategoryMomentumData = {cells: [], weeks: [], buckets: [...defenseMoneyBucketValues], insufficientData: true}
+
+  const config = getDefenseMoneySignalsConfig()
+  const targetDate = compact(options?.date) || priorBusinessDayEt()
+
+  if (!config.enabled) {
+    return empty
+  }
+
+  const supabase = await createOptionalSupabaseServerClient()
+
+  if (!supabase) {
+    return empty
+  }
+
+  const {data: rollupRows} = await supabase
+    .from('defense_money_rollups')
+    .select('period_start, period_end, total_obligations, award_count, top5_concentration, category_share, top_recipients')
+    .eq('period_type', 'week')
+    .lte('period_start', targetDate)
+    .order('period_start', {ascending: false})
+    .limit(13)
+    .returns<RollupRow[]>()
+
+  const rollups = normalizeRollups(rollupRows ?? [], 'week')
+    .sort((a, b) => a.periodStart.localeCompare(b.periodStart))
+
+  if (rollups.length < 2) {
+    return empty
+  }
+
+  const cells: MomentumCell[] = []
+  const weeks: string[] = []
+
+  // We need 13 weeks to compute 12 deltas, or just show what we have
+  for (let i = 1; i < rollups.length; i++) {
+    const current = rollups[i]
+    const prior = rollups[i - 1]
+    weeks.push(formatWeekLabel(current.periodStart))
+
+    for (const bucket of defenseMoneyBucketValues) {
+      const amount = current.categoryShare[bucket] * current.totalObligations
+      const priorAmount = prior.categoryShare[bucket] * prior.totalObligations
+      const acceleration = priorAmount > 0 ? (amount - priorAmount) / priorAmount : 0
+      const direction: MomentumCell['direction'] =
+        acceleration > 0.05 ? 'growing' : acceleration < -0.05 ? 'declining' : 'flat'
+
+      cells.push({
+        weekLabel: formatWeekLabel(current.periodStart),
+        periodStart: current.periodStart,
+        bucket,
+        bucketLabel: formatDefenseMoneyBucketLabel(bucket),
+        amount,
+        awardCount: current.awardCount,
+        acceleration,
+        direction,
+      })
+    }
+  }
+
+  return {
+    cells,
+    weeks,
+    buckets: [...defenseMoneyBucketValues],
+    insufficientData: weeks.length < 4,
+  }
+}
+
+export type PrimeFlowNode = {
+  name: string
+  colorToken?: string
+}
+
+export type PrimeFlowLink = {
+  source: number
+  target: number
+  value: number
+}
+
+export type PrimeFlowData = {
+  nodes: PrimeFlowNode[]
+  links: PrimeFlowLink[]
+  insufficientData: boolean
+}
+
+export async function getPrimeFlowData(options?: {date?: string}): Promise<PrimeFlowData> {
+  const empty: PrimeFlowData = {nodes: [], links: [], insufficientData: true}
+
+  const config = getDefenseMoneySignalsConfig()
+  const targetDate = compact(options?.date) || priorBusinessDayEt()
+
+  if (!config.enabled) {
+    return empty
+  }
+
+  const supabase = await createOptionalSupabaseServerClient()
+
+  if (!supabase) {
+    return empty
+  }
+
+  const startDate = shiftIsoDate(targetDate, -45)
+
+  const {data: rows} = await supabase
+    .from('defense_money_award_transactions')
+    .select('recipient_name, bucket_primary, transaction_amount')
+    .gte('action_date', startDate)
+    .lte('action_date', targetDate)
+    .returns<Array<{recipient_name: string; bucket_primary: DefenseMoneyBucket; transaction_amount: number | string}>>()
+
+  const txns = (rows ?? []).filter(
+    (r) => r.recipient_name?.trim() && defenseMoneyBucketValues.includes(r.bucket_primary)
+  )
+
+  // Group by recipient, take top 10
+  const recipientTotals = new Map<string, number>()
+
+  for (const txn of txns) {
+    const name = txn.recipient_name.trim()
+    recipientTotals.set(name, (recipientTotals.get(name) ?? 0) + toNumber(txn.transaction_amount))
+  }
+
+  const topPrimes = [...recipientTotals.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([name]) => name)
+
+  if (topPrimes.length < 5) {
+    return empty
+  }
+
+  const topPrimeSet = new Set(topPrimes)
+  const filteredTxns = txns.filter((t) => topPrimeSet.has(t.recipient_name.trim()))
+
+  // Determine active buckets and size buckets
+  const activeBuckets = new Set<DefenseMoneyBucket>()
+  const sizeBucketLabel = (amount: number) => {
+    if (amount < 1_000_000) return '<$1M'
+    if (amount < 5_000_000) return '$1M–$5M'
+    if (amount < 20_000_000) return '$5M–$20M'
+    return '$20M+'
+  }
+
+  // Build aggregation: prime→bucket→sizeBucket
+  const primeBucket = new Map<string, Map<string, number>>()
+  const bucketSize = new Map<string, Map<string, number>>()
+
+  for (const txn of filteredTxns) {
+    const name = txn.recipient_name.trim()
+    const amount = toNumber(txn.transaction_amount)
+    const bucket = txn.bucket_primary
+    const size = sizeBucketLabel(amount)
+
+    activeBuckets.add(bucket)
+
+    // prime→bucket
+    if (!primeBucket.has(name)) primeBucket.set(name, new Map())
+    const pb = primeBucket.get(name)!
+    pb.set(bucket, (pb.get(bucket) ?? 0) + amount)
+
+    // bucket→size
+    if (!bucketSize.has(bucket)) bucketSize.set(bucket, new Map())
+    const bs = bucketSize.get(bucket)!
+    bs.set(size, (bs.get(size) ?? 0) + amount)
+  }
+
+  // Build nodes: primes, then categories, then sizes
+  const nodes: PrimeFlowNode[] = []
+  const nodeIndex = new Map<string, number>()
+
+  for (const prime of topPrimes) {
+    nodeIndex.set(`prime:${prime}`, nodes.length)
+    nodes.push({name: prime})
+  }
+
+  const activeBucketList = defenseMoneyBucketValues.filter((b) => activeBuckets.has(b))
+
+  for (const bucket of activeBucketList) {
+    nodeIndex.set(`bucket:${bucket}`, nodes.length)
+    nodes.push({
+      name: formatDefenseMoneyBucketLabel(bucket),
+      colorToken: `var(--${defenseMoneyBucketColorMap[bucket]})`,
+    })
+  }
+
+  const activeSizes = new Set<string>()
+
+  for (const sizeMap of bucketSize.values()) {
+    for (const size of sizeMap.keys()) {
+      activeSizes.add(size)
+    }
+  }
+
+  const sizeOrder = ['<$1M', '$1M–$5M', '$5M–$20M', '$20M+']
+  const activeSizeList = sizeOrder.filter((s) => activeSizes.has(s))
+
+  for (const size of activeSizeList) {
+    nodeIndex.set(`size:${size}`, nodes.length)
+    nodes.push({name: size})
+  }
+
+  // Build links
+  const totalValue = filteredTxns.reduce((sum, t) => sum + toNumber(t.transaction_amount), 0)
+  const noiseThreshold = totalValue * 0.01
+  const links: PrimeFlowLink[] = []
+
+  for (const prime of topPrimes) {
+    const buckets = primeBucket.get(prime) ?? new Map()
+    for (const [bucket, value] of buckets) {
+      if (value < noiseThreshold) continue
+      const source = nodeIndex.get(`prime:${prime}`)
+      const target = nodeIndex.get(`bucket:${bucket}`)
+      if (source !== undefined && target !== undefined) {
+        links.push({source, target, value: Math.round(value)})
+      }
+    }
+  }
+
+  for (const [bucket, sizes] of bucketSize) {
+    for (const [size, value] of sizes) {
+      if (value < noiseThreshold) continue
+      const source = nodeIndex.get(`bucket:${bucket}`)
+      const target = nodeIndex.get(`size:${size}`)
+      if (source !== undefined && target !== undefined) {
+        links.push({source, target, value: Math.round(value)})
+      }
+    }
+  }
+
+  return {
+    nodes,
+    links,
+    insufficientData: topPrimes.length < 5,
+  }
+}
+
 export async function getDefenseMoneyChartsData(options?: {date?: string}): Promise<DefenseMoneyChartData> {
   const config = getDefenseMoneySignalsConfig()
   const targetDate = compact(options?.date) || priorBusinessDayEt()
@@ -1268,6 +1528,7 @@ export async function getDefenseMoneyChartsData(options?: {date?: string}): Prom
         .gte('action_date', awardsStart)
         .lte('action_date', targetDate)
         .order('action_date', {ascending: false})
+        .limit(2000)
         .returns<AwardRow[]>(),
       supabase
         .from('defense_money_rollups')
@@ -1291,6 +1552,7 @@ export async function getDefenseMoneyChartsData(options?: {date?: string}): Prom
         .gte('trade_date', marketStart)
         .lte('trade_date', targetDate)
         .order('trade_date', {ascending: true})
+        .limit(1000)
         .returns<MarketQuoteRow[]>(),
       supabase
         .from('defense_money_macro_context')

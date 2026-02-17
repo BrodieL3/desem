@@ -182,7 +182,7 @@ function classifyTransactions(rows: DefenseMoneyUsaspendingTransaction[]): Defen
 
 async function upsertTransactions(input: {
   supabase: SupabaseClient
-  runId: string
+  runId: string | null
   rows: DefenseMoneyAwardTransaction[]
 }) {
   if (input.rows.length === 0) {
@@ -1005,4 +1005,85 @@ export async function syncSamGovOpportunities(): Promise<SamGovSyncResult> {
     const message = error instanceof Error ? error.message : 'Unknown SAM.gov sync failure.'
     return {status: 'failed', opportunityCount: 0, warnings: [], error: message}
   }
+}
+
+export type BackfillUsaspendingResult = {
+  totalTransactions: number
+  chunks: number
+  warnings: string[]
+}
+
+export async function backfillUsaspendingTransactions(options: {
+  startDate: string
+  endDate: string
+  chunkDays?: number
+  maxPagesPerChunk?: number
+  onChunk?: (chunk: {startDate: string; endDate: string; transactions: number; elapsed: number; error: string | null}) => void
+}): Promise<BackfillUsaspendingResult> {
+  const config = getDefenseMoneySignalsConfig()
+  const supabase = createSupabaseAdminClientFromEnv()
+  const chunkDays = options.chunkDays ?? 30
+  const maxPagesPerChunk = options.maxPagesPerChunk ?? 200
+  const warnings: string[] = []
+
+  let totalTransactions = 0
+  let chunks = 0
+  let chunkStart = options.startDate
+
+  while (chunkStart <= options.endDate) {
+    const chunkEnd = shiftIsoDate(chunkStart, chunkDays - 1) > options.endDate
+      ? options.endDate
+      : shiftIsoDate(chunkStart, chunkDays - 1)
+
+    const t0 = Date.now()
+
+    try {
+      const {transactions: fetched, warnings: fetchWarnings} = await fetchUsaspendingTransactions({
+        apiBaseUrl: config.usaspendingApiBaseUrl,
+        actionDate: chunkStart,
+        startDate: chunkStart,
+        endDate: chunkEnd,
+        awardingAgencies: config.allowedAwardingAgencies,
+        minTransactionUsd: config.minTransactionUsd,
+        maxPages: maxPagesPerChunk,
+      })
+
+      warnings.push(...fetchWarnings)
+
+      const classified = classifyTransactions(fetched)
+
+      if (classified.length > 0) {
+        for (let i = 0; i < classified.length; i += 500) {
+          const batch = classified.slice(i, i + 500)
+          await upsertTransactions({supabase, runId: null, rows: batch})
+        }
+      }
+
+      totalTransactions += classified.length
+      chunks += 1
+
+      options.onChunk?.({
+        startDate: chunkStart,
+        endDate: chunkEnd,
+        transactions: classified.length,
+        elapsed: Date.now() - t0,
+        error: null,
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'unknown error'
+      warnings.push(`${chunkStart}..${chunkEnd}: ${message}`)
+
+      options.onChunk?.({
+        startDate: chunkStart,
+        endDate: chunkEnd,
+        transactions: 0,
+        elapsed: Date.now() - t0,
+        error: message,
+      })
+    }
+
+    chunkStart = shiftIsoDate(chunkEnd, 1)
+  }
+
+  return {totalTransactions, chunks, warnings}
 }

@@ -1,6 +1,7 @@
 import type {SanityClient} from '@sanity/client'
 
 import {extractArticleContentFromUrl} from '@/lib/ingest/extract-article-content'
+import {extractTopicsFromArticle} from '@/lib/topics/extract-topics'
 import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
 import {fetchSemaphorSecurityStories} from './semaphor-security'
@@ -94,6 +95,36 @@ export async function syncSemaphorSecurityNewsItemsToSanity(
       const title = sanitizeHeadlineText(story.headline)
       const summary = compact(story.subtitle) || null
 
+      const extractedTopics = extractTopicsFromArticle({
+        title,
+        summary,
+        fullText: extraction.fullText,
+        sourceId: SEMAPHOR_SOURCE_ID,
+        sourceName: SEMAPHOR_SOURCE_NAME,
+        sourceCategory: 'journalism',
+      })
+
+      const topics =
+        extractedTopics.length > 0
+          ? extractedTopics.map((topic, index) => ({
+              _key: `${topic.slug}-${index}`,
+              topicId: topic.slug,
+              slug: topic.slug,
+              label: topic.label,
+              topicType: topic.topicType,
+              isPrimary: topic.isPrimary,
+            }))
+          : [
+              {
+                _key: 'semafor-security',
+                topicId: 'semafor-security',
+                slug: 'security',
+                label: 'Security',
+                topicType: 'organization' as const,
+                isPrimary: true,
+              },
+            ]
+
       await options.client.createOrReplace({
         _id: semaphorNewsItemId(story.id),
         _type: 'newsItem',
@@ -114,16 +145,7 @@ export async function syncSemaphorSecurityNewsItemsToSanity(
         readingMinutes: extraction.readingMinutes,
         contentFetchStatus: extraction.contentFetchStatus,
         isCongestedCluster: false,
-        topics: [
-          {
-            _key: 'semafor-security',
-            topicId: 'semafor-security',
-            slug: 'security',
-            label: 'Security',
-            topicType: 'organization',
-            isPrimary: true,
-          },
-        ],
+        topics,
         leadImageUrl: extraction.leadImageUrl ?? story.imageUrl,
         canonicalImageUrl: extraction.canonicalImageUrl ?? story.imageUrl,
         syncedAt: nowIso,

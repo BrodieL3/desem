@@ -3,15 +3,18 @@ import type { ReactNode } from "react";
 
 import { buildHomeEditionLayout } from "@/lib/editorial/home-layout";
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
+import { getGprData } from "@/lib/data/signals/gpr-server";
+import { getAwardMatrixData } from "@/lib/data/signals/usaspending-server";
 import { getDefenseMoneyChartsData } from "@/lib/data/signals/charts-server";
-import { getDefenseMoneySignalData } from "@/lib/data/signals/server";
 import type {
   CuratedHomeForYouRail,
   CuratedStoryCard,
 } from "@/lib/editorial/ui-types";
 import { getCuratedHomeData } from "@/lib/editorial/ui-server";
 import { getUserSession } from "@/lib/user/session";
-import { HomeMoneyTiles } from "@/components/money";
+import { HomeAwardMatrixChart } from "@/components/money/charts/home-award-matrix-chart";
+import { PrimeSparklinesChart } from "@/components/money/charts/prime-sparklines-chart";
+import { MacroRiskCard } from "@/components/money/macro-risk-card";
 import { RightRailTopics } from "@/components/editorial/right-rail-topics";
 import { SectionLabel } from "@/components/editorial/section-label";
 
@@ -217,7 +220,7 @@ function HomeColumnSection({
     >
       {stories.length === 0 ? (
         <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">
-          No stories.
+          Stories for this section are still being curated.
         </p>
       ) : (
         <div className="news-divider-list news-divider-list-no-top">
@@ -270,17 +273,13 @@ function ForYouStoryRow({
   );
 }
 
-function ForYouRail({
+function ForYouTopics({
   rail,
   isAuthenticated,
 }: {
-  rail: CuratedHomeForYouRail | null;
+  rail: CuratedHomeForYouRail;
   isAuthenticated: boolean;
 }) {
-  if (!rail) {
-    return null;
-  }
-
   return (
     <section className="space-y-4" aria-labelledby="for-you-heading">
       <SectionLabel id="for-you-heading">{rail.title}</SectionLabel>
@@ -293,39 +292,60 @@ function ForYouRail({
         topics={rail.topics}
         title="Topic actions"
         headingId="for-you-topic-actions-heading"
-        maxTopics={6}
+        collapsedMax={3}
         showFollowActions
         isAuthenticated={isAuthenticated}
       />
-
-      {rail.stories.length === 0 ? (
-        <p className="news-divider-list news-divider-list-no-top news-divider-item px-1 text-sm text-muted-foreground">
-          No stories in this rail yet.
-        </p>
-      ) : (
-        <div className="news-divider-list news-divider-list-no-top">
-          {rail.stories.map((story, index) => (
-            <ForYouStoryRow
-              key={story.clusterKey}
-              story={story}
-              showImage={index === 0}
-            />
-          ))}
-        </div>
-      )}
     </section>
+  );
+}
+
+function ForYouStories({
+  stories,
+}: {
+  stories: CuratedStoryCard[];
+}) {
+  if (stories.length === 0) {
+    return (
+      <p className="news-divider-list news-divider-list-no-top news-divider-item px-1 text-sm text-muted-foreground">
+        Personalized stories will appear here as you follow topics.
+      </p>
+    );
+  }
+
+  return (
+    <div className="news-divider-list news-divider-list-no-top">
+      {stories.map((story, index) => (
+        <ForYouStoryRow
+          key={story.clusterKey}
+          story={story}
+          showImage={index === 0}
+        />
+      ))}
+    </div>
   );
 }
 
 export default async function HomePage() {
   const session = await getUserSession();
-  const home = await getCuratedHomeData({
-    limit: 84,
-    fallbackRaw: true,
-    userId: session.userId,
-  });
-  const moneySignals = await getDefenseMoneySignalData();
-  const moneyCharts = await getDefenseMoneyChartsData();
+  const [home, gprSummary, awardMatrixData, moneyCharts] = await Promise.all([
+    getCuratedHomeData({
+      limit: 84,
+      fallbackRaw: true,
+      userId: session.userId,
+    }),
+    getGprData(),
+    (() => {
+      const end = new Date();
+      const start = new Date(end);
+      start.setUTCMonth(start.getUTCMonth() - 6);
+      return getAwardMatrixData({
+        startDate: start.toISOString().slice(0, 10),
+        endDate: end.toISOString().slice(0, 10),
+      });
+    })(),
+    getDefenseMoneyChartsData(),
+  ]);
 
   const now = dateFormatter.format(new Date());
   const layout = buildHomeEditionLayout(home.stories);
@@ -356,8 +376,7 @@ export default async function HomePage() {
 
         {!layout.lead ? (
           <p className="news-divider-list news-divider-item px-1 text-base text-muted-foreground">
-            No international-event or U.S. defense-company stories are available
-            yet.
+            Today&apos;s briefing is being prepared. Check back shortly.
           </p>
         ) : (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -368,11 +387,7 @@ export default async function HomePage() {
                 </div>
               </section>
 
-              <HomeMoneyTiles
-                dailySpendPulse={moneySignals.dailySpendPulse}
-                primeMoves={moneySignals.primeMoves}
-                thisWeekSignal={moneyCharts.thisWeekSignal}
-              />
+              <HomeAwardMatrixChart data={awardMatrixData} />
 
               <section
                 aria-labelledby="edition-columns-heading"
@@ -396,6 +411,12 @@ export default async function HomePage() {
                 </div>
               </section>
 
+              {gprSummary.latest ? (
+                <div className="news-divider-list news-divider-list-no-top">
+                  <MacroRiskCard summary={gprSummary} />
+                </div>
+              ) : null}
+
               <section aria-labelledby="wire-heading" className="space-y-4">
                 <div className="grid gap-6 lg:grid-cols-2">
                   <div className="news-divider-list news-divider-list-no-top">
@@ -413,10 +434,21 @@ export default async function HomePage() {
             </div>
 
             <aside className="news-column-rule right-rail-scroll space-y-4">
-              <ForYouRail
-                rail={home.forYou}
-                isAuthenticated={session.isAuthenticated}
+              {home.forYou ? (
+                <ForYouTopics
+                  rail={home.forYou}
+                  isAuthenticated={session.isAuthenticated}
+                />
+              ) : null}
+
+              <PrimeSparklinesChart
+                module={moneyCharts.primeSparklines}
+                stale={moneyCharts.staleData.market}
               />
+
+              {home.forYou ? (
+                <ForYouStories stories={home.forYou.stories} />
+              ) : null}
             </aside>
           </div>
         )}

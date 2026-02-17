@@ -4,6 +4,7 @@ import {notFound} from 'next/navigation'
 import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {FollowTopicButton} from '@/components/aggregator/follow-topic-button'
 import {Badge} from '@/components/ui/badge'
+import {resolveInternalStoryHref} from '@/lib/editorial/linking'
 import {getTopicPageData} from '@/lib/articles/server'
 import {getUserSession} from '@/lib/user/session'
 
@@ -66,7 +67,7 @@ export default async function TopicPage({params}: TopicPageProps) {
                 {data.articles.map((article) => (
                   <article key={article.id} className="news-divider-item px-1">
                     <Link
-                      href={`/stories/article/${article.id}`}
+                      href={resolveInternalStoryHref({articleId: article.id})}
                       className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">

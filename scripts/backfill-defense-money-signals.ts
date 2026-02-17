@@ -1,12 +1,14 @@
 import {createSupabaseAdminClientFromEnv} from '../lib/supabase/admin'
 import {priorBusinessDayEt, shiftIsoDate} from '../lib/data/signals/time'
-import {syncDefenseMoneySignals} from '../lib/data/signals/sync'
+import {backfillUsaspendingTransactions, rebuildDefenseMoneyRollups} from '../lib/data/signals/sync'
 
 type CliOptions = {
   startDate?: string
   endDate?: string
   months: number
+  chunkDays: number
   checkpointKey: string
+  skipRollups: boolean
 }
 
 type CheckpointRow = {
@@ -21,7 +23,9 @@ function compact(value: string | null | undefined) {
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
     months: 24,
-    checkpointKey: 'defense-money-awards-24m',
+    chunkDays: 30,
+    checkpointKey: 'defense-money-awards-bulk',
+    skipRollups: false,
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -46,39 +50,31 @@ function parseArgs(argv: string[]): CliOptions {
       continue
     }
 
+    if (arg === '--chunk-days' && argv[index + 1]) {
+      const parsed = Number.parseInt(argv[index + 1] ?? '', 10)
+      options.chunkDays = Number.isFinite(parsed) ? Math.max(1, Math.min(parsed, 90)) : 30
+      index += 1
+      continue
+    }
+
     if (arg === '--checkpoint-key' && argv[index + 1]) {
       options.checkpointKey = compact(argv[index + 1]) || options.checkpointKey
       index += 1
       continue
     }
 
+    if (arg === '--skip-rollups') {
+      options.skipRollups = true
+      continue
+    }
+
     if (arg === '--help') {
-      console.log(`\nBackfill defense money signals from USAspending by business day.\n\nUsage:\n  bun run scripts/backfill-defense-money-signals.ts [flags]\n\nFlags:\n  --start <YYYY-MM-DD>          Optional explicit start date\n  --end <YYYY-MM-DD>            Optional explicit end date\n  --months <n>                  Backfill window when --start omitted (default: 24)\n  --checkpoint-key <key>        Resume key in defense_money_backfill_checkpoints\n  --help                        Show this help\n`)
+      console.log(`\nBackfill defense money transactions from USAspending in bulk date-range chunks.\n\nUsage:\n  bun run scripts/backfill-defense-money-signals.ts [flags]\n\nFlags:\n  --start <YYYY-MM-DD>          Optional explicit start date\n  --end <YYYY-MM-DD>            Optional explicit end date (default: prior business day)\n  --months <n>                  Backfill window when --start omitted (default: 24)\n  --chunk-days <n>              Days per API chunk (default: 30, max: 90)\n  --checkpoint-key <key>        Resume key in defense_money_backfill_checkpoints\n  --skip-rollups                Skip rollup rebuild after backfill\n  --help                        Show this help\n`)
       process.exit(0)
     }
   }
 
   return options
-}
-
-function isWeekend(value: string) {
-  const parsed = new Date(`${value}T00:00:00Z`)
-  const day = parsed.getUTCDay()
-  return day === 0 || day === 6
-}
-
-function nextBusinessDate(value: string) {
-  let cursor = shiftIsoDate(value, 1)
-
-  while (isWeekend(cursor)) {
-    cursor = shiftIsoDate(cursor, 1)
-  }
-
-  return cursor
-}
-
-function compareIsoDate(left: string, right: string) {
-  return Date.parse(`${left}T00:00:00Z`) - Date.parse(`${right}T00:00:00Z`)
 }
 
 async function readCheckpoint(input: {checkpointKey: string}) {
@@ -126,59 +122,52 @@ async function run() {
   const endDate = options.endDate || priorBusinessDayEt()
   let startDate = options.startDate || shiftIsoDate(endDate, -(options.months * 30))
 
-  while (isWeekend(startDate)) {
-    startDate = nextBusinessDate(startDate)
+  const checkpoint = await readCheckpoint({checkpointKey: options.checkpointKey})
+
+  if (checkpoint && checkpoint >= startDate && checkpoint < endDate) {
+    startDate = shiftIsoDate(checkpoint, 1)
+    console.log(`Resuming from checkpoint: ${checkpoint}`)
   }
 
-  const checkpoint = await readCheckpoint({
-    checkpointKey: options.checkpointKey,
-  })
-
-  if (checkpoint && compareIsoDate(checkpoint, startDate) >= 0 && compareIsoDate(checkpoint, endDate) < 0) {
-    startDate = nextBusinessDate(checkpoint)
-  }
-
-  console.log(`Backfill range: ${startDate} -> ${endDate}`)
+  console.log(`Backfill range: ${startDate} -> ${endDate} (${options.chunkDays}-day chunks)`)
   console.log(`Checkpoint key: ${options.checkpointKey}`)
 
-  let cursor = startDate
-  let completed = 0
+  const result = await backfillUsaspendingTransactions({
+    startDate,
+    endDate,
+    chunkDays: options.chunkDays,
+    maxPagesPerChunk: 200,
+    onChunk: async (chunk) => {
+      const rate = chunk.elapsed > 0 ? ((chunk.transactions / chunk.elapsed) * 1000).toFixed(0) : '?'
 
-  while (compareIsoDate(cursor, endDate) <= 0) {
-    if (isWeekend(cursor)) {
-      cursor = nextBusinessDate(cursor)
-      continue
+      if (chunk.error) {
+        console.error(`  ${chunk.startDate}..${chunk.endDate}: ERROR ${chunk.error}`)
+      } else {
+        console.log(`  ${chunk.startDate}..${chunk.endDate}: ${chunk.transactions} tx (${(chunk.elapsed / 1000).toFixed(1)}s, ${rate} tx/s)`)
+      }
+
+      await writeCheckpoint({
+        checkpointKey: options.checkpointKey,
+        cursorDate: chunk.endDate,
+        payload: {transactions: chunk.transactions, error: chunk.error},
+      })
+    },
+  })
+
+  console.log(`\nBackfill complete: ${result.totalTransactions} transactions across ${result.chunks} chunks`)
+
+  if (result.warnings.length > 0) {
+    console.log(`Warnings (${result.warnings.length}):`)
+    for (const warning of result.warnings.slice(0, 10)) {
+      console.log(`  - ${warning}`)
     }
-
-    const result = await syncDefenseMoneySignals({
-      targetDate: cursor,
-      triggerSource: 'script:backfill-defense-money-signals',
-      includeMarket: false,
-      includeLlm: false,
-    })
-
-    console.log(`${cursor}: ${result.status} · tx=${result.processedTransactions} briefs=${result.processedBriefs}`)
-
-    await writeCheckpoint({
-      checkpointKey: options.checkpointKey,
-      cursorDate: cursor,
-      payload: {
-        status: result.status,
-        warnings: result.warnings,
-      },
-    })
-
-    if (result.status === 'failed') {
-      console.log(`  ↳ skipping (will retry on next run): ${result.error ?? 'unknown error'}`)
-      // Still advance cursor and checkpoint so we don't get stuck
-    } else {
-      completed += 1
-    }
-
-    cursor = nextBusinessDate(cursor)
   }
 
-  console.log(`Backfill complete. Business days processed: ${completed}`)
+  if (!options.skipRollups) {
+    console.log('\nRebuilding rollups...')
+    const rollupResult = await rebuildDefenseMoneyRollups(endDate)
+    console.log(`Rollups rebuilt: ${rollupResult.weeklyCount} weekly, ${rollupResult.monthlyCount} monthly`)
+  }
 }
 
 run().catch((error) => {

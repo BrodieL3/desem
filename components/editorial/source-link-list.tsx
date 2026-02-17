@@ -6,6 +6,9 @@ import type {CuratedSourceLink} from '@/lib/editorial/ui-types'
 type SourceLinkListProps = {
   clusterKey: string
   links: CuratedSourceLink[]
+  headingId?: string
+  title?: string
+  className?: string
 }
 
 function sourceRoleLabel(role: CuratedSourceLink['sourceRole']) {
@@ -24,11 +27,20 @@ function sourceRoleLabel(role: CuratedSourceLink['sourceRole']) {
   return 'Reporting'
 }
 
-export function SourceLinkList({clusterKey, links}: SourceLinkListProps) {
+export function SourceLinkList({
+  clusterKey,
+  links,
+  headingId = 'story-sources-heading',
+  title = 'Sources',
+  className,
+}: SourceLinkListProps) {
   return (
-    <section className="space-y-4 border-t border-border pt-6" aria-labelledby="story-sources-heading">
-      <h2 id="story-sources-heading" className="font-display text-[1.9rem] leading-tight">
-        Sources
+    <section
+      className={className ? `space-y-4 border-t border-border pt-6 ${className}` : 'space-y-4 border-t border-border pt-6'}
+      aria-labelledby={headingId}
+    >
+      <h2 id={headingId} className="font-display text-[1.9rem] leading-tight">
+        {title}
       </h2>
 
       {links.length === 0 ? (

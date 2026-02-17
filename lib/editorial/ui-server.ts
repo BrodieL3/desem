@@ -78,6 +78,8 @@ type SemaphorNewsItemDoc = {
   syncedAt: string | null
   topics:
     | Array<{
+        topicId: string | null
+        slug: string | null
         label: string
         isPrimary: boolean | null
       }>
@@ -208,7 +210,7 @@ const SANITY_SEMAPHOR_NEWS_ITEM_PROJECTION = `{
   leadImageUrl,
   canonicalImageUrl,
   syncedAt,
-  topics[]{label, isPrimary}
+  topics[]{topicId, slug, label, isPrimary}
 }`
 
 type HomeCardCandidate = CuratedStoryCard & {
@@ -1502,8 +1504,8 @@ function mapSemaphorNewsItemCard(newsItem: SemaphorNewsItemDoc): HomeCardCandida
     return null
   }
 
-  const sourceName = compact(newsItem.sourceName) || 'Semafor Security'
-  const title = sanitizeHeadlineText(compact(newsItem.title) || 'Semafor Security update')
+  const sourceName = compact(newsItem.sourceName) || 'Field Brief'
+  const title = sanitizeHeadlineText(compact(newsItem.title) || 'Defense briefing update')
   const summaryCandidate = compact(newsItem.summary ?? newsItem.fullTextExcerpt)
   const bodyCandidate = compact(newsItem.fullText)
   const dek = shortText(summaryCandidate || firstSentence(bodyCandidate || title, 220), 220)
@@ -1910,7 +1912,7 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
       stories,
       source: 'raw-fallback',
       generatedAt,
-      notice: `Showing Semafor Security coverage (${stories.length} stories).`,
+      notice: `${stories.length} stories in today's briefing.`,
       userId: options.userId,
     })
   }
@@ -1932,7 +1934,7 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
         stories: filteredStories,
         source: 'sanity',
         generatedAt,
-        notice: 'Semafor Security stream is unavailable. Falling back to published editorial digests.',
+        notice: 'Showing published editorial coverage.',
         userId: options.userId,
       })
     }
@@ -1943,7 +1945,7 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
       stories: [],
       source: 'raw-fallback',
       generatedAt,
-      notice: 'No Semafor Security stories are available right now.',
+      notice: 'No stories are available right now. Check back soon.',
       userId: options.userId,
     })
   }
@@ -1963,8 +1965,8 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
     generatedAt,
     notice:
       filteredFallbackStories.length > 0
-        ? 'Semafor Security stream is unavailable. Showing fallback coverage while the stream recovers.'
-        : 'No Semafor Security stories are available right now.',
+        ? 'Showing fallback coverage while the primary feed recovers.'
+        : 'No stories are available right now. Check back soon.',
     userId: options.userId,
   })
 }
@@ -2345,10 +2347,11 @@ async function buildSemaphorStoryDetailFromRow(input: {
   evidenceLimit: number
   feedLimit: number
   userId?: string | null
+  topicsOverride?: CuratedStoryDetail['topics']
 }): Promise<CuratedStoryDetail> {
   const evidence = buildEvidenceFromRows({rows: [input.row]})
   const paged = paginateEvidenceBlocks(evidence, input.offset, input.evidenceLimit)
-  const storyTopics = await buildStoryTopicsForDetail({
+  const storyTopics = input.topicsOverride ?? await buildStoryTopicsForDetail({
     articleIds: [input.row.id],
     userId: input.userId,
   })
@@ -2449,6 +2452,18 @@ async function buildSemaphorStoryDetailFromSanity(input: {
     input.newsItem.topics?.find((topic) => topic.isPrimary)?.label ?? input.newsItem.topics?.[0]?.label ?? 'Security'
   )
 
+  const sanityTopics = (input.newsItem.topics ?? [])
+    .filter((t) => t.slug && t.label)
+    .map((t) => ({
+      id: t.topicId ?? t.slug!,
+      slug: t.slug!,
+      label: normalizeTopicLabel(t.label),
+      articleCount: 1,
+      followed: false,
+    }))
+    .filter((t) => isDisplayEligibleStoryTopic(t))
+    .slice(0, STORY_TOPIC_LIMIT)
+
   return buildSemaphorStoryDetailFromRow({
     clusterKey: compact(input.newsItem.clusterKey ?? input.clusterKey) || input.clusterKey,
     row,
@@ -2458,6 +2473,7 @@ async function buildSemaphorStoryDetailFromSanity(input: {
     evidenceLimit: input.evidenceLimit,
     feedLimit: input.feedLimit,
     userId: input.userId,
+    topicsOverride: sanityTopics.length > 0 ? sanityTopics : undefined,
   })
 }
 

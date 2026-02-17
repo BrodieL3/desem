@@ -44,7 +44,7 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
   if (blocks.length === 0) {
     return (
       <section className="space-y-3" aria-labelledby="story-feed-heading">
-        <h2 id="story-feed-heading" className="font-display text-[2.2rem] leading-tight text-foreground">
+        <h2 id="story-feed-heading" className="text-xs tracking-[0.12em] uppercase text-muted-foreground">
           Briefing summary
         </h2>
         <p className="text-muted-foreground text-base">No narrative content is available for this story yet.</p>
@@ -56,7 +56,7 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
 
   return (
     <section className="space-y-5" aria-labelledby="story-feed-heading">
-      <h2 id="story-feed-heading" className="border-b border-border pb-4 font-display text-[2.2rem] leading-tight text-foreground">
+      <h2 id="story-feed-heading" className="border-b border-border pb-4 text-xs tracking-[0.12em] uppercase text-muted-foreground">
         Briefing summary
       </h2>
 

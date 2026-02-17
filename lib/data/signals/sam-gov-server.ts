@@ -99,6 +99,109 @@ function emptyPipelineData(): SamGovPipelineData {
   }
 }
 
+export type OpportunityMatrixPoint = {
+  id: string
+  title: string
+  noticeType: string
+  department: string | null
+  daysUntilDeadline: number
+  estimatedValue: number | null
+  bucket: DefenseMoneyBucket | null
+  bucketLabel: string
+  competitionLevel: number
+  sourceUrl: string
+}
+
+export type OpportunityMatrixData = {
+  points: OpportunityMatrixPoint[]
+  solicitationCount: number
+  presolicitationCount: number
+  totalEstimatedValue: number
+  insufficientData: boolean
+}
+
+function daysBetween(from: string, to: string) {
+  const a = new Date(`${from}T00:00:00Z`)
+  const b = new Date(`${to}T00:00:00Z`)
+  return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export async function getOpportunityMatrixData(options?: {date?: string}): Promise<OpportunityMatrixData> {
+  const empty: OpportunityMatrixData = {
+    points: [],
+    solicitationCount: 0,
+    presolicitationCount: 0,
+    totalEstimatedValue: 0,
+    insufficientData: true,
+  }
+
+  const supabase = await createOptionalSupabaseServerClient()
+
+  if (!supabase) {
+    return empty
+  }
+
+  const today = options?.date ?? new Date().toISOString().slice(0, 10)
+
+  const {data: rows} = await supabase
+    .from('sam_gov_opportunities')
+    .select(
+      'opportunity_id, notice_type, title, department, response_deadline, estimated_value_low, estimated_value_high, bucket_primary, source_url'
+    )
+    .in('notice_type', ['solicitation', 'presolicitation'])
+    .gte('response_deadline', today)
+    .order('response_deadline', {ascending: true})
+    .limit(100)
+    .returns<SamGovOpportunityRow[]>()
+
+  const opps = rows ?? []
+
+  if (opps.length === 0) {
+    return empty
+  }
+
+  // Count opps per bucket for competition level
+  const bucketCounts = new Map<string, number>()
+
+  for (const opp of opps) {
+    if (opp.bucket_primary) {
+      bucketCounts.set(opp.bucket_primary, (bucketCounts.get(opp.bucket_primary) ?? 0) + 1)
+    }
+  }
+
+  let totalEstimatedValue = 0
+  let solicitationCount = 0
+  let presolicitationCount = 0
+
+  const points: OpportunityMatrixPoint[] = opps.map((opp) => {
+    const estimatedValue = toNumber(opp.estimated_value_high) ?? toNumber(opp.estimated_value_low) ?? null
+    if (estimatedValue) totalEstimatedValue += estimatedValue
+    if (opp.notice_type === 'solicitation') solicitationCount += 1
+    if (opp.notice_type === 'presolicitation') presolicitationCount += 1
+
+    return {
+      id: compact(opp.opportunity_id),
+      title: compact(opp.title),
+      noticeType: compact(opp.notice_type),
+      department: compact(opp.department) || null,
+      daysUntilDeadline: opp.response_deadline ? daysBetween(today, opp.response_deadline) : 0,
+      estimatedValue,
+      bucket: opp.bucket_primary ?? null,
+      bucketLabel: opp.bucket_primary ? formatDefenseMoneyBucketLabel(opp.bucket_primary) : 'Uncategorized',
+      competitionLevel: opp.bucket_primary ? (bucketCounts.get(opp.bucket_primary) ?? 1) : 1,
+      sourceUrl: compact(opp.source_url),
+    }
+  })
+
+  return {
+    points,
+    solicitationCount,
+    presolicitationCount,
+    totalEstimatedValue,
+    insufficientData: points.length === 0,
+  }
+}
+
 export async function getSamGovPipelineData(options?: {date?: string}): Promise<SamGovPipelineData> {
   const supabase = await createOptionalSupabaseServerClient()
 

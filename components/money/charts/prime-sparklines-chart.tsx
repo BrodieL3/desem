@@ -1,11 +1,10 @@
 'use client'
 
+import Link from 'next/link'
 import {Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import type {DefenseMoneyChartData} from '@/lib/data/signals/types'
-
-import {ChartSummaryBlock} from './chart-summary-block'
 
 type PrimeSparklinesChartProps = {
   module: DefenseMoneyChartData['primeSparklines']
@@ -16,19 +15,14 @@ function SparklineRow({
   ticker,
   points,
   latestChangePercent,
-  coverage,
 }: {
   ticker: string
   points: Array<{tradeDate: string; price: number}>
   latestChangePercent: number | null
-  coverage: 'full' | 'partial'
 }) {
   return (
-    <div className="grid grid-cols-[78px_minmax(0,1fr)_84px] items-center gap-3 border-b border-border/70 pb-2 last:border-b-0">
-      <div>
-        <p className="text-sm font-medium text-foreground">{ticker}</p>
-        <p className="text-xs text-muted-foreground">{coverage === 'full' ? 'full' : 'partial'} coverage</p>
-      </div>
+    <div className="grid grid-cols-[48px_minmax(0,1fr)_84px] items-center gap-3 border-b border-border/70 pb-2 last:border-b-0">
+      <p className="text-sm font-medium text-foreground">{ticker}</p>
 
       {points.length < 2 ? (
         <p className="text-xs text-muted-foreground">Awaiting data</p>
@@ -48,7 +42,14 @@ function SparklineRow({
                 formatter={(value) => [Number(value).toFixed(2), 'Price']}
                 labelFormatter={(label) => String(label)}
               />
-              <Line type="monotone" dataKey="price" stroke="var(--chart-3)" strokeWidth={2} dot={false} isAnimationActive={false} />
+              <Line
+                type="monotone"
+                dataKey="price"
+                stroke="var(--primary)"
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -75,8 +76,7 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
       <CardHeader className="space-y-1">
         <CardTitle className="font-display text-[1.45rem] leading-tight">Prime sparklines</CardTitle>
         <p className="text-muted-foreground text-sm">
-          Trailing month quote context for LMT, RTX, NOC, GD, BA, and LHX.
-          {stale ? ' Update pending — next refresh at 11:00 AM UTC.' : ''}
+          30-day defense prime quotes{stale ? ' · Refresh at 11 AM UTC' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -90,13 +90,22 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
                 ticker={ticker.ticker}
                 points={ticker.points}
                 latestChangePercent={ticker.latestChangePercent}
-                coverage={ticker.coverage}
               />
             ))}
           </div>
         )}
 
-        <ChartSummaryBlock summary={module.summary} />
+        <p className="text-muted-foreground text-xs">
+          Data by{' '}
+          <Link
+            href="https://finnhub.io"
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Finnhub
+          </Link>
+        </p>
       </CardContent>
     </Card>
   )
