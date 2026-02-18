@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BackToFrontPageButton } from "@/components/back-to-front-page-button";
 import { RightRailTopics } from "@/components/editorial/right-rail-topics";
 import { SectionLabel } from "@/components/editorial/section-label";
+import { StoryCommentThread } from "@/components/editorial/story-comment-thread";
 import {
   StoryAudioPlayer,
   type AudioStory,
@@ -22,6 +23,8 @@ import {
   getCuratedHomeData,
   getCuratedStoryDetail,
 } from "@/lib/editorial/ui-server";
+import { getCommentsForStory } from "@/lib/comments/server";
+import type { ArticleComment } from "@/lib/articles/types";
 import { getUserSession } from "@/lib/user/session";
 
 function storyToAudioEntry(detail: CuratedStoryDetail): AudioStory {
@@ -183,7 +186,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
   const { clusterKey } = await params;
   const session = await getUserSession();
 
-  const [detail, briefing, moneyCharts] = await Promise.all([
+  const [detail, briefing, moneyCharts, comments] = await Promise.all([
     getCuratedStoryDetail(clusterKey, {
       offset: 0,
       limit: 12,
@@ -194,6 +197,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
       userId: session.userId,
     }),
     getDefenseMoneyChartsData(),
+    getCommentsForStory(clusterKey, session.userId),
   ]);
 
   if (!detail) {
@@ -215,6 +219,16 @@ export default async function StoryPage({ params }: StoryPageProps) {
   const relatedStories = relatedStoryResults.filter(
     (story): story is CuratedStoryDetail => Boolean(story),
   );
+
+  const relatedCommentsMap = new Map<string, ArticleComment[]>();
+  const relatedCommentResults = await Promise.all(
+    relatedStories.map((story) =>
+      getCommentsForStory(story.clusterKey, session.userId),
+    ),
+  );
+  relatedStories.forEach((story, i) => {
+    relatedCommentsMap.set(story.clusterKey, relatedCommentResults[i]);
+  });
   const sortedRelatedStories = relatedStories
     .map((story, index) => ({
       story,
@@ -243,7 +257,16 @@ export default async function StoryPage({ params }: StoryPageProps) {
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-16">
-            <StoryDetailSection detail={detail} />
+            <div>
+              <StoryDetailSection detail={detail} />
+              <div className="story-prose mt-6">
+                <StoryCommentThread
+                  storyKey={clusterKey}
+                  isAuthenticated={session.isAuthenticated}
+                  initialComments={comments}
+                />
+              </div>
+            </div>
 
             {sortedRelatedStories.length > 0 ? (
               <section
@@ -278,10 +301,18 @@ export default async function StoryPage({ params }: StoryPageProps) {
 
                 <div className="space-y-16">
                   {sortedRelatedStories.map((related) => (
-                    <StoryDetailSection
-                      key={related.clusterKey}
-                      detail={related}
-                    />
+                    <div key={related.clusterKey}>
+                      <StoryDetailSection detail={related} />
+                      <div className="story-prose mt-6">
+                        <StoryCommentThread
+                          storyKey={related.clusterKey}
+                          isAuthenticated={session.isAuthenticated}
+                          initialComments={
+                            relatedCommentsMap.get(related.clusterKey) ?? []
+                          }
+                        />
+                      </div>
+                    </div>
                   ))}
                 </div>
               </section>

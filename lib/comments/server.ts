@@ -17,7 +17,7 @@ function normalizeReason(value: string) {
   return value.trim().slice(0, 400)
 }
 
-export async function getCommentsForArticle(articleId: string, viewerUserId?: string | null): Promise<ArticleComment[]> {
+export async function getCommentsForStory(storyKey: string, viewerUserId?: string | null): Promise<ArticleComment[]> {
   const admin = createOptionalSupabaseAdminClientFromEnv()
   const client = admin ?? (await createSupabaseServerClient())
 
@@ -28,7 +28,7 @@ export async function getCommentsForArticle(articleId: string, viewerUserId?: st
   const {data, error} = await client
     .from('article_comments')
     .select('id, article_id, user_id, body, status, created_at, updated_at')
-    .eq('article_id', articleId)
+    .eq('article_id', storyKey)
     .order('created_at', {ascending: true})
     .returns<CommentRow[]>()
 
@@ -50,7 +50,7 @@ export async function getCommentsForArticle(articleId: string, viewerUserId?: st
 
   return data.map((comment) => ({
     id: comment.id,
-    articleId: comment.article_id,
+    storyKey: comment.article_id,
     userId: comment.user_id,
     body: comment.status === 'active' ? comment.body : null,
     status: comment.status,
@@ -61,8 +61,8 @@ export async function getCommentsForArticle(articleId: string, viewerUserId?: st
   }))
 }
 
-export async function createCommentForArticle(input: {
-  articleId: string
+export async function createCommentForStory(input: {
+  storyKey: string
   userId: string
   body: string
 }): Promise<{comment: ArticleComment | null; error: string | null}> {
@@ -87,7 +87,7 @@ export async function createCommentForArticle(input: {
   const {data, error} = await supabase
     .from('article_comments')
     .insert({
-      article_id: input.articleId,
+      article_id: input.storyKey,
       user_id: input.userId,
       body,
       status: 'active',
@@ -105,7 +105,7 @@ export async function createCommentForArticle(input: {
   return {
     comment: {
       id: data.id,
-      articleId: data.article_id,
+      storyKey: data.article_id,
       userId: data.user_id,
       body: data.body,
       status: data.status,

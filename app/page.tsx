@@ -70,7 +70,7 @@ function resolveStoryHref(story: CuratedStoryCard) {
   });
 }
 
-function splitForWireColumns(stories: CuratedStoryCard[]) {
+function splitWireColumns(stories: CuratedStoryCard[]) {
   const left: CuratedStoryCard[] = [];
   const right: CuratedStoryCard[] = [];
 
@@ -110,8 +110,7 @@ function LeadStory({ story }: { story: CuratedStoryCard }) {
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <p className="text-muted-foreground mb-3 text-xs tracking-[0.12em] uppercase">
-          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)} ·{" "}
-          {story.citationCount} sources
+          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
         </p>
 
         <h2 className="font-display text-[2.55rem] leading-[1.01] text-foreground transition-colors group-hover:text-primary md:text-[3.35rem]">
@@ -349,7 +348,7 @@ export default async function HomePage() {
 
   const now = dateFormatter.format(new Date());
   const layout = buildHomeEditionLayout(home.stories);
-  const [wireLeft, wireRight] = splitForWireColumns(layout.wire);
+  const [wireLeft, wireRight] = splitWireColumns(layout.wire);
 
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">

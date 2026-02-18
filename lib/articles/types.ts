@@ -43,7 +43,7 @@ export type TopicSummary = {
 
 export type ArticleComment = {
   id: string
-  articleId: string
+  storyKey: string
   userId: string
   body: string | null
   status: 'active' | 'hidden'
