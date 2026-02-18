@@ -43,10 +43,7 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
 
   if (blocks.length === 0) {
     return (
-      <section className="space-y-3" aria-labelledby="story-feed-heading">
-        <h2 id="story-feed-heading" className="text-xs tracking-[0.12em] uppercase text-muted-foreground">
-          Briefing summary
-        </h2>
+      <section className="space-y-3">
         <p className="text-muted-foreground text-base">No narrative content is available for this story yet.</p>
       </section>
     )
@@ -55,11 +52,7 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
   const visibleBlocks = expanded ? blocks : blocks.slice(0, 1)
 
   return (
-    <section className="space-y-5" aria-labelledby="story-feed-heading">
-      <h2 id="story-feed-heading" className="border-b border-border pb-4 text-xs tracking-[0.12em] uppercase text-muted-foreground">
-        Briefing summary
-      </h2>
-
+    <section className="space-y-5">
       <div className="story-prose">
         {visibleBlocks.map((block) => {
           const paragraphs = paragraphize(block.body)
@@ -86,15 +79,10 @@ export function StoryNewsFeed({blocks}: StoryNewsFeedProps) {
         })}
       </div>
 
-      {blocks.length > 1 ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
-          <p className="text-muted-foreground text-sm">
-            {expanded ? `Showing all ${blocks.length} briefing sections.` : `Showing 1 of ${blocks.length} briefing sections.`}
-          </p>
-          <Button type="button" variant="secondary" onClick={() => setExpanded((current) => !current)}>
-            {expanded ? 'Show less' : 'Read full briefing'}
-          </Button>
-        </div>
+      {blocks.length > 1 && !expanded ? (
+        <Button type="button" variant="secondary" onClick={() => setExpanded(true)}>
+          Read more
+        </Button>
       ) : null}
     </section>
   )

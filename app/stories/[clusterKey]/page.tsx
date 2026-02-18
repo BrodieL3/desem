@@ -82,15 +82,14 @@ function StoryDetailSection({ detail }: { detail: CuratedStoryDetail }) {
               {detail.sourceLinks.map((link, i) => (
                 <span key={`${link.articleId}-${link.url}`}>
                   {i > 0 ? " · " : ""}
-                  <Link
-                    href={resolveInternalStoryHref({
-                      articleId: link.articleId,
-                      clusterKey: detail.clusterKey,
-                    })}
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="hover:text-foreground transition-colors"
                   >
                     {link.sourceName}
-                  </Link>
+                  </a>
                 </span>
               ))}
             </nav>

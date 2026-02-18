@@ -23,7 +23,7 @@ export function StoryBriefingHeader({detail}: StoryBriefingHeaderProps) {
   const whyItMatters = shouldShowWhyItMatters ? compactText(detail.whyItMatters, 170) : null
 
   return (
-    <header className="space-y-4 border-b border-border pb-8">
+    <header className="space-y-4 pb-4">
       <p className="text-muted-foreground text-xs tracking-[0.08em] uppercase">
         {new Date(detail.publishedAt).toLocaleString(undefined, {
           year: "numeric",
@@ -40,12 +40,6 @@ export function StoryBriefingHeader({detail}: StoryBriefingHeaderProps) {
       {dek ? (
         <p className="text-muted-foreground text-[1.08rem] leading-relaxed">
           {dek}
-        </p>
-      ) : null}
-      {whyItMatters ? (
-        <p className="text-muted-foreground text-[1.05rem] leading-relaxed">
-          <span className="text-foreground font-semibold">Why it matters:</span>{" "}
-          {whyItMatters}
         </p>
       ) : null}
     </header>

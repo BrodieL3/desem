@@ -651,7 +651,7 @@ export async function getArticleListForApi(options?: {
     return [] as ArticleCard[]
   }
 
-  const limit = Math.max(1, Math.min(options?.limit ?? 30, 100))
+  const limit = Math.max(1, Math.min(options?.limit ?? 30, 500))
   const offset = Math.max(0, options?.offset ?? 0)
   const query = options?.query?.trim()
   const topicSlug = options?.topicSlug?.trim()
@@ -663,10 +663,10 @@ export async function getArticleListForApi(options?: {
     )
 
   if (query) {
-    queryBuilder = queryBuilder.textSearch('search_document', query, {
-      config: 'english',
-      type: 'websearch',
-    })
+    const pattern = `%${query}%`
+    queryBuilder = queryBuilder.or(
+      `title.ilike.${pattern},summary.ilike.${pattern},source_name.ilike.${pattern}`
+    )
   }
 
   if (topicSlug) {
@@ -692,7 +692,7 @@ export async function getArticleListForApi(options?: {
     queryBuilder = queryBuilder.in('id', articleIds)
   }
 
-  const fetchSize = query || topicSlug ? offset + limit : Math.max(offset + limit, 180)
+  const fetchSize = offset + limit
 
   const {data: rows} = await queryBuilder
     .order('published_at', {ascending: false, nullsFirst: false})

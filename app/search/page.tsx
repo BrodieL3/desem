@@ -85,7 +85,7 @@ export default async function SearchPage({searchParams}: SearchPageProps) {
   const results = query
     ? await getArticleListForApi({
         query,
-        limit: 80,
+        limit: 500,
         userId: session.userId,
       })
     : []

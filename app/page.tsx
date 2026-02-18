@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+export const revalidate = 60;
+
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
 import { getAwardMatrixData } from "@/lib/data/signals/usaspending-server";
 import type { CuratedStoryCard } from "@/lib/editorial/ui-types";
@@ -33,6 +35,14 @@ function formatStoryTimestamp(value: string) {
   return storyTimeFormatter.format(parsed);
 }
 
+const SOURCE_DISPLAY_NAMES: Record<string, string> = {
+  "Semafor Security": "Semafor",
+};
+
+function displaySourceName(name: string) {
+  return SOURCE_DISPLAY_NAMES[name] ?? name;
+}
+
 function compactText(value: string, maxChars: number) {
   const normalized = value.trim().replace(/\s+/g, " ");
 
@@ -49,9 +59,25 @@ function compactText(value: string, maxChars: number) {
   return `${bounded.trimEnd()}...`;
 }
 
+const LOW_QUALITY_PATTERNS = [
+  /coverage update available/i,
+  /read full text/i,
+  /defense coverage from source reporting/i,
+  /no summary provided/i,
+  /general defense update/i,
+  /update from\s+\w+/i,
+];
+
+function isLowQualitySummary(value: string) {
+  const clean = value.trim();
+  if (!clean || clean.length < 60) return true;
+  return LOW_QUALITY_PATTERNS.some((p) => p.test(clean));
+}
+
 function compactStorySummary(story: CuratedStoryCard, maxChars = 180) {
   const raw = story.whyItMatters.trim() || story.dek.trim() || "";
-  return raw ? compactText(raw, maxChars) : "";
+  if (!raw || isLowQualitySummary(raw)) return "";
+  return compactText(raw, maxChars);
 }
 
 function resolveStoryHref(story: CuratedStoryCard) {
@@ -84,8 +110,8 @@ function LeadStory({ story }: { story: CuratedStoryCard }) {
         story={story}
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <p className="text-muted-foreground mb-3 text-xs tracking-[0.12em] uppercase">
-          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+        <p className="text-muted-foreground mb-3 text-[0.32rem] leading-normal uppercase">
+          {displaySourceName(story.sourceName)} · {formatStoryTimestamp(story.publishedAt)}
         </p>
 
         <h2 className="font-display text-[2.55rem] leading-[1.01] text-foreground transition-colors group-hover:text-primary md:text-[3.35rem]">
@@ -103,7 +129,7 @@ function LeadStory({ story }: { story: CuratedStoryCard }) {
           <img
             src={story.imageUrl}
             alt={story.headline}
-            className="mt-5 h-[25rem] w-full object-cover"
+            className="mt-5 w-full"
             loading="lazy"
           />
         ) : null}
@@ -138,13 +164,13 @@ function FeedStoryRow({
   const summary = compactStorySummary(story, 170);
 
   return (
-    <article className="news-divider-item px-1">
+    <article className="news-divider-item break-inside-avoid px-1">
       <StoryTitleLink
         story={story}
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <p className="text-muted-foreground mb-2 text-xs tracking-[0.12em] uppercase">
-          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+        <p className="text-muted-foreground mb-2 text-[0.32rem] leading-normal uppercase">
+          {displaySourceName(story.sourceName)} · {formatStoryTimestamp(story.publishedAt)}
         </p>
 
         <h3 className="font-display text-[1.92rem] leading-[1.08] text-foreground transition-colors group-hover:text-primary">
@@ -156,7 +182,7 @@ function FeedStoryRow({
           <img
             src={story.imageUrl}
             alt={story.headline}
-            className="mt-3 h-44 w-full object-cover"
+            className="mt-3 w-full"
             loading="lazy"
           />
         ) : null}
@@ -183,41 +209,6 @@ function FeedStoryRow({
           ))}
         </nav>
       ) : null}
-    </article>
-  );
-}
-
-function SemaforRailRow({
-  story,
-  showImage,
-}: {
-  story: CuratedStoryCard;
-  showImage: boolean;
-}) {
-  return (
-    <article className="news-divider-item news-divider-item-compact px-1">
-      <StoryTitleLink
-        story={story}
-        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <p className="text-muted-foreground mb-1 text-[0.65rem] tracking-[0.06em] uppercase">
-          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
-        </p>
-
-        <h3 className="font-display text-[1.45rem] leading-tight text-foreground transition-colors group-hover:text-primary">
-          {story.headline}
-        </h3>
-
-        {showImage && story.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={story.imageUrl}
-            alt={story.headline}
-            className="mt-3 h-36 w-full object-cover"
-            loading="lazy"
-          />
-        ) : null}
-      </StoryTitleLink>
     </article>
   );
 }
@@ -281,31 +272,42 @@ export default async function HomePage() {
 
               <HomeAwardMatrixChart data={awardMatrixData} />
 
-              <div className="news-divider-list news-divider-list-no-top">
-                {home.stories.slice(1).map((story, index) => (
-                  <FeedStoryRow
-                    key={story.clusterKey}
-                    story={story}
-                    showImage={index < 3}
-                  />
-                ))}
-              </div>
+              {(() => {
+                const rest = home.stories.slice(1);
+                const allWithImages = rest.filter((s) => s.imageUrl);
+                const withImages = allWithImages.slice(0, 2);
+                const withoutImages = [...allWithImages.slice(3), ...rest.filter((s) => !s.imageUrl)];
+                return (
+                  <>
+                    {withImages.length > 0 ? (
+                      <div className="news-divider-list news-divider-list-no-top">
+                        {withImages.map((story) => (
+                          <FeedStoryRow
+                            key={story.clusterKey}
+                            story={story}
+                            showImage
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {withoutImages.length > 0 ? (
+                      <div className="md:columns-2 md:gap-8">
+                        {withoutImages.map((story) => (
+                          <FeedStoryRow
+                            key={story.clusterKey}
+                            story={story}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
 
             </div>
 
-            <StandardRightRail>
-              {home.semaforRail.length > 0 ? (
-                <div className="news-divider-list news-divider-list-no-top">
-                  {home.semaforRail.map((story, index) => (
-                    <SemaforRailRow
-                      key={story.clusterKey}
-                      story={story}
-                      showImage={index === 0}
-                    />
-                  ))}
-                </div>
-              ) : null}
-            </StandardRightRail>
+            <StandardRightRail />
           </div>
         )}
       </div>

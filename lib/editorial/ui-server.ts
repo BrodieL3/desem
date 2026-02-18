@@ -1656,6 +1656,11 @@ async function fetchSemaphorSecurityCards(limit: number, options?: {preview?: bo
   }
 }
 
+export async function getSemaforRailStories(limit = 10): Promise<CuratedStoryCard[]> {
+  const cards = await fetchSemaphorSecurityCards(limit)
+  return cards.slice(0, limit)
+}
+
 async function buildHomeStreamWithSupplementalStories(input: {
   cards: HomeCardCandidate[]
   limit: number
