@@ -9,13 +9,7 @@ import {linkArticlesToContracts} from '@/lib/data/signals/cross-reference'
 import {syncDefenseMoneySignals, syncDefenseGovContracts, syncSamGovOpportunities} from '@/lib/data/signals/sync'
 import type {DefenseGovSyncResult, SamGovSyncResult} from '@/lib/data/signals/sync'
 import {syncPrimeMetricsFromSec} from '@/lib/data/primes/sync'
-import {
-  enrichArticleContentBatch,
-  enrichArticleTopicsBatch,
-  getArticlesByFetchedAt,
-} from '@/lib/ingest/enrich-articles'
-import {pullDefenseArticles} from '@/lib/ingest/pull-defense-articles'
-import {createSupabaseAdminClientFromEnv, upsertPullResultToSupabase} from '@/lib/ingest/persist'
+import {createSupabaseAdminClientFromEnv} from '@/lib/ingest/persist'
 import {createSanityTokenWriteClientFromEnv, createSanityWriteClientFromEnv} from '@/lib/sanity/client'
 import {syncEditorialDrafts} from '@/lib/sanity/sync'
 import type {TopicType} from '@/lib/topics/taxonomy'
@@ -560,41 +554,20 @@ type PrimeMetricsSegment = {
   error: string | null
 }
 
-type IngestEditorialSegment = {
+type EditorialSegment = {
   status: 'succeeded' | 'partial_failed' | 'failed'
-  fetchedAt: string | null
-  sourceCount: number
+  enabled: boolean
+  runId: string | null
   articleCount: number
-  upsertedSourceCount: number
-  upsertedArticleCount: number
-  usedLegacySourceSchema: boolean
-  sourceErrors: Array<{
-    sourceId: string
-    sourceName: string
-    message: string
-  }>
-  enrichment: {
-    contentProcessed: number
-    contentFetched: number
-    contentFailed: number
-    topicProcessed: number
-    topicWithMatches: number
-  }
-  editorial: {
-    enabled: boolean
-    runId: string | null
-    articleCount: number
-    clusterCount: number
-    newsItemCount: number
-    digestCount: number
-    transformAttemptedCount: number
-    transformSucceededCount: number
-    transformFailedCount: number
-    focusFilterEnabled: boolean
-    focusedArticleCount: number
-    excludedArticleCount: number
-    error: string | null
-  }
+  clusterCount: number
+  newsItemCount: number
+  digestCount: number
+  transformAttemptedCount: number
+  transformSucceededCount: number
+  transformFailedCount: number
+  focusFilterEnabled: boolean
+  focusedArticleCount: number
+  excludedArticleCount: number
   error: string | null
 }
 
@@ -714,168 +687,110 @@ async function runMoneySignalsSegment(): Promise<MoneySignalsSegment> {
   }
 }
 
-async function runIngestEditorialSegment(): Promise<IngestEditorialSegment> {
-  const pullSinceHours = parsePositiveInt(process.env.INGEST_PULL_SINCE_HOURS, 72, 12, 168)
-  const pullMaxPerSource = parsePositiveInt(process.env.INGEST_PULL_MAX_PER_SOURCE, 80, 10, 200)
-  const pullLimit = parsePositiveInt(process.env.INGEST_PULL_LIMIT, 1600, 100, 4000)
+async function runEditorialSegment(): Promise<EditorialSegment> {
   const editorialWindowHours = parsePositiveInt(process.env.EDITORIAL_WINDOW_HOURS, 96, 24, 336)
   const editorialArticleLimit = parsePositiveInt(process.env.EDITORIAL_ARTICLE_LIMIT, 2500, 200, 5000)
   const focusFilterEnabled = asBoolean(process.env.EDITORIAL_FOCUS_FILTER_ENABLED, true)
   const editorialEnabled = asBoolean(process.env.EDITORIAL_PIPELINE_ENABLED, true)
 
-  const segment: IngestEditorialSegment = {
+  const segment: EditorialSegment = {
     status: 'succeeded',
-    fetchedAt: null,
-    sourceCount: 0,
+    enabled: editorialEnabled,
+    runId: null,
     articleCount: 0,
-    upsertedSourceCount: 0,
-    upsertedArticleCount: 0,
-    usedLegacySourceSchema: false,
-    sourceErrors: [],
-    enrichment: {
-      contentProcessed: 0,
-      contentFetched: 0,
-      contentFailed: 0,
-      topicProcessed: 0,
-      topicWithMatches: 0,
-    },
-    editorial: {
-      enabled: editorialEnabled,
-      runId: null,
-      articleCount: 0,
-      clusterCount: 0,
-      newsItemCount: 0,
-      digestCount: 0,
-      transformAttemptedCount: 0,
-      transformSucceededCount: 0,
-      transformFailedCount: 0,
-      focusFilterEnabled,
-      focusedArticleCount: 0,
-      excludedArticleCount: 0,
-      error: null,
-    },
+    clusterCount: 0,
+    newsItemCount: 0,
+    digestCount: 0,
+    transformAttemptedCount: 0,
+    transformSucceededCount: 0,
+    transformFailedCount: 0,
+    focusFilterEnabled,
+    focusedArticleCount: 0,
+    excludedArticleCount: 0,
     error: null,
   }
 
+  if (!editorialEnabled) {
+    return segment
+  }
+
+  const supabase = createSupabaseAdminClientFromEnv()
+  const generatedAt = new Date()
+  const runId = await beginEditorialRun(supabase, generatedAt.toISOString())
+  segment.runId = runId
+
   try {
-    const pullResult = await pullDefenseArticles({
-      sinceHours: pullSinceHours,
-      maxPerSource: pullMaxPerSource,
-      limit: pullLimit,
-      timeoutMs: 20000,
+    const allEditorialArticles = await fetchRecentEditorialArticles(supabase, {
+      windowHours: editorialWindowHours,
+      limit: editorialArticleLimit,
     })
-    segment.fetchedAt = pullResult.fetchedAt
-    segment.sourceCount = pullResult.sourceCount
-    segment.articleCount = pullResult.articleCount
-    segment.sourceErrors = pullResult.errors
 
-    const supabase = createSupabaseAdminClientFromEnv()
-    const persisted = await upsertPullResultToSupabase(supabase, pullResult)
-    segment.upsertedSourceCount = persisted.upsertedSourceCount
-    segment.upsertedArticleCount = persisted.upsertedArticleCount
-    segment.usedLegacySourceSchema = persisted.usedLegacySchema
+    const focusFiltered = filterFocusedEditorialArticles(allEditorialArticles)
+    const editorialArticles =
+      focusFilterEnabled && focusFiltered.focusedCount > 0 ? focusFiltered.focused : allEditorialArticles
 
-    const recentlyIngested = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+    segment.articleCount = editorialArticles.length
+    segment.focusedArticleCount = focusFiltered.focusedCount
+    segment.excludedArticleCount = focusFiltered.nonFocusedCount
 
-    const contentResult = await enrichArticleContentBatch(supabase, recentlyIngested, {
-      concurrency: 5,
-      timeoutMs: 15000,
+    const clusters = await buildStoryClusters(editorialArticles, {
+      threshold: Number(process.env.EDITORIAL_CLUSTER_THRESHOLD ?? '0.72'),
+      windowHours: editorialWindowHours,
+      openAIApiKey: asBoolean(process.env.EDITORIAL_EMBEDDINGS_ENABLED, true)
+        ? process.env.OPENAI_API_KEY
+        : undefined,
+      embeddingModel: process.env.EDITORIAL_EMBEDDING_MODEL ?? 'text-embedding-3-small',
+      maxEmbeddingArticles: parsePositiveInt(process.env.EDITORIAL_MAX_EMBEDDING_ARTICLES, 240, 24, 1200),
     })
-    segment.enrichment.contentProcessed = contentResult.processed
-    segment.enrichment.contentFetched = contentResult.fetched
-    segment.enrichment.contentFailed = contentResult.failed
 
-    const refreshedRows = await getArticlesByFetchedAt(supabase, pullResult.fetchedAt)
+    segment.clusterCount = clusters.length
 
-    const topicResult = await enrichArticleTopicsBatch(supabase, refreshedRows, {
-      concurrency: 2,
+    const sanity = createSanityWriteClientFromEnv()
+    const synced = await syncEditorialDrafts({
+      client: sanity.client,
+      schemaId: sanity.schemaId,
+      clusters,
+      transformEnabled: asBoolean(process.env.EDITORIAL_TRANSFORM_ENABLED, true),
+      now: generatedAt,
+      congestionRules: defaultCongestionRules,
     })
-    segment.enrichment.topicProcessed = topicResult.processed
-    segment.enrichment.topicWithMatches = topicResult.withTopics
 
-    if (editorialEnabled) {
-      const generatedAt = new Date()
-      const runId = await beginEditorialRun(supabase, pullResult.fetchedAt)
-      segment.editorial.runId = runId
+    segment.newsItemCount = synced.newsItemCount
+    segment.digestCount = synced.digestCount
+    segment.transformAttemptedCount = synced.transformAttemptedCount
+    segment.transformSucceededCount = synced.transformSucceededCount
+    segment.transformFailedCount = synced.transformFailedCount
 
-      try {
-        const allEditorialArticles = await fetchRecentEditorialArticles(supabase, {
-          windowHours: editorialWindowHours,
-          limit: editorialArticleLimit,
-        })
+    await persistStoryClusters({
+      supabase,
+      runId,
+      generatedAt,
+      clusters,
+      syncedClusters: synced.clusters,
+    })
 
-        const focusFiltered = filterFocusedEditorialArticles(allEditorialArticles)
-        const editorialArticles =
-          focusFilterEnabled && focusFiltered.focusedCount > 0 ? focusFiltered.focused : allEditorialArticles
-
-        segment.editorial.articleCount = editorialArticles.length
-        segment.editorial.focusedArticleCount = focusFiltered.focusedCount
-        segment.editorial.excludedArticleCount = focusFiltered.nonFocusedCount
-
-        const clusters = await buildStoryClusters(editorialArticles, {
-          threshold: Number(process.env.EDITORIAL_CLUSTER_THRESHOLD ?? '0.72'),
-          windowHours: editorialWindowHours,
-          openAIApiKey: asBoolean(process.env.EDITORIAL_EMBEDDINGS_ENABLED, true)
-            ? process.env.OPENAI_API_KEY
-            : undefined,
-          embeddingModel: process.env.EDITORIAL_EMBEDDING_MODEL ?? 'text-embedding-3-small',
-          maxEmbeddingArticles: parsePositiveInt(process.env.EDITORIAL_MAX_EMBEDDING_ARTICLES, 240, 24, 1200),
-        })
-
-        segment.editorial.clusterCount = clusters.length
-
-        const sanity = createSanityWriteClientFromEnv()
-        const synced = await syncEditorialDrafts({
-          client: sanity.client,
-          schemaId: sanity.schemaId,
-          clusters,
-          transformEnabled: asBoolean(process.env.EDITORIAL_TRANSFORM_ENABLED, true),
-          now: generatedAt,
-          congestionRules: defaultCongestionRules,
-        })
-
-        segment.editorial.newsItemCount = synced.newsItemCount
-        segment.editorial.digestCount = synced.digestCount
-        segment.editorial.transformAttemptedCount = synced.transformAttemptedCount
-        segment.editorial.transformSucceededCount = synced.transformSucceededCount
-        segment.editorial.transformFailedCount = synced.transformFailedCount
-
-        await persistStoryClusters({
-          supabase,
-          runId,
-          generatedAt,
-          clusters,
-          syncedClusters: synced.clusters,
-        })
-
-        await completeEditorialRun(supabase, runId, {
-          status: 'succeeded',
-          articleCount: segment.editorial.articleCount,
-          clusterCount: segment.editorial.clusterCount,
-          transformAttemptedCount: segment.editorial.transformAttemptedCount,
-          transformSuccessCount: segment.editorial.transformSucceededCount,
-          transformFailedCount: segment.editorial.transformFailedCount,
-        })
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown editorial pipeline failure.'
-        segment.editorial.error = message
-
-        await completeEditorialRun(supabase, runId, {
-          status: 'failed',
-          articleCount: segment.editorial.articleCount,
-          clusterCount: segment.editorial.clusterCount,
-          transformAttemptedCount: segment.editorial.transformAttemptedCount,
-          transformSuccessCount: segment.editorial.transformSucceededCount,
-          transformFailedCount: segment.editorial.transformFailedCount,
-          errorMessage: message,
-        })
-      }
-    }
-
-    segment.status = segment.editorial.error ? 'partial_failed' : 'succeeded'
+    await completeEditorialRun(supabase, runId, {
+      status: 'succeeded',
+      articleCount: segment.articleCount,
+      clusterCount: segment.clusterCount,
+      transformAttemptedCount: segment.transformAttemptedCount,
+      transformSuccessCount: segment.transformSucceededCount,
+      transformFailedCount: segment.transformFailedCount,
+    })
   } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown editorial pipeline failure.'
+    segment.error = message
     segment.status = 'failed'
-    segment.error = error instanceof Error ? error.message : 'Unknown ingest/editorial segment failure.'
+
+    await completeEditorialRun(supabase, runId, {
+      status: 'failed',
+      articleCount: segment.articleCount,
+      clusterCount: segment.clusterCount,
+      transformAttemptedCount: segment.transformAttemptedCount,
+      transformSuccessCount: segment.transformSucceededCount,
+      transformFailedCount: segment.transformFailedCount,
+      errorMessage: message,
+    })
   }
 
   return segment
@@ -912,8 +827,8 @@ async function runIngestion(request: Request) {
     return NextResponse.json({error: 'Unauthorized'}, {status: 401})
   }
 
-  const [ingestEditorial, semaphor, primeMetrics, moneySignals, defenseGov, samGov] = await Promise.all([
-    runIngestEditorialSegment(),
+  const [editorial, semaphor, primeMetrics, moneySignals, defenseGov, samGov] = await Promise.all([
+    runEditorialSegment(),
     runSemaphorSegment(),
     runPrimeMetricsSegment(),
     runMoneySignalsSegment(),
@@ -934,7 +849,7 @@ async function runIngestion(request: Request) {
   }
 
   const overallStatus = resolveOverallStatus([
-    ingestEditorial.status,
+    editorial.status,
     semaphor.status,
     primeMetrics.status,
     moneySignals.status,
@@ -946,21 +861,14 @@ async function runIngestion(request: Request) {
     ok: overallStatus === 'succeeded',
     overallStatus,
     segmentStatus: {
-      ingestEditorial: ingestEditorial.status,
+      editorial: editorial.status,
       semaphor: semaphor.status,
       primeMetrics: primeMetrics.status,
       moneySignals: moneySignals.status,
       defenseGov: defenseGov.status,
       samGov: samGov.status,
     },
-    fetchedAt: ingestEditorial.fetchedAt,
-    sourceCount: ingestEditorial.sourceCount,
-    articleCount: ingestEditorial.articleCount,
-    upsertedSourceCount: ingestEditorial.upsertedSourceCount,
-    upsertedArticleCount: ingestEditorial.upsertedArticleCount,
-    usedLegacySourceSchema: ingestEditorial.usedLegacySourceSchema,
-    enrichment: ingestEditorial.enrichment,
-    editorial: ingestEditorial.editorial,
+    editorial,
     semaphor,
     primeMetrics,
     moneySignals,
@@ -970,8 +878,6 @@ async function runIngestion(request: Request) {
       linkedCount: crossRefLinked,
       warnings: crossRefWarnings,
     },
-    sourceErrors: ingestEditorial.sourceErrors,
-    ingestEditorial,
   }
 
   const statusCode = overallStatus === 'succeeded' ? 200 : overallStatus === 'partial_failed' ? 207 : 500
