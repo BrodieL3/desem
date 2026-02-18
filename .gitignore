@@ -42,3 +42,8 @@ next-env.d.ts
 
 # local editor metadata
 /.cursor/
+
+# large data files
+*.csv
+/FY2025_All_Contracts_Full_20260206/
+/data/

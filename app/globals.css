@@ -190,6 +190,10 @@ a {
   outline-offset: 2px;
 }
 
+.no-focus-ring:focus-visible {
+  outline: none;
+}
+
 ::selection {
   background: color-mix(in oklch, var(--primary), white 78%);
   color: var(--foreground);

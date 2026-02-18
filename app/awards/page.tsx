@@ -1,12 +1,8 @@
 import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
-import {MacroRiskCard, PrimeSparklinesChart} from '@/components/money'
 import {AwardMatrixChart} from '@/components/money/charts/award-matrix-chart'
-import {getDefenseMoneyChartsData} from '@/lib/data/signals/charts-server'
-import {getGprData} from '@/lib/data/signals/gpr-server'
+import {StandardRightRail} from '@/components/standard-right-rail'
 
 export default async function DataPage() {
-  const moneyCharts = await getDefenseMoneyChartsData()
-  const gprSummary = await getGprData()
 
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
@@ -25,19 +21,7 @@ export default async function DataPage() {
             <AwardMatrixChart />
           </div>
 
-          <aside className="news-column-rule right-rail-scroll space-y-1">
-            {gprSummary.latest ? (
-              <div className="news-divider-list news-divider-list-no-top">
-                <MacroRiskCard summary={gprSummary} />
-              </div>
-            ) : null}
-
-            <div className="news-divider-list news-divider-list-no-top">
-              <div className="news-divider-item px-1">
-                <PrimeSparklinesChart module={moneyCharts.primeSparklines} stale={moneyCharts.staleData.market} />
-              </div>
-            </div>
-          </aside>
+          <StandardRightRail />
         </div>
       </div>
     </main>

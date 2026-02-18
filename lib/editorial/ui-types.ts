@@ -26,10 +26,16 @@ type CuratedCurationSummary = {
   sourceDiversity: number
 }
 
+export type CuratedStoryCardTopic = {
+  slug: string
+  label: string
+}
+
 export type CuratedStoryCard = {
   clusterKey: string
   headline: string
   dek: string
+  expandedDek?: string | null
   whyItMatters: string
   riskLevel: CuratedRiskLevel
   citationCount: number
@@ -40,6 +46,7 @@ export type CuratedStoryCard = {
   sourceName: string
   imageUrl?: string | null
   sourceLinks: CuratedSourceLink[]
+  topics?: CuratedStoryCardTopic[]
   score: number
 } & CuratedCurationSummary
 
@@ -52,7 +59,7 @@ export type CuratedRail = {
 
 export type CuratedHomePayload = {
   stories: CuratedStoryCard[]
-  forYou: CuratedHomeForYouRail | null
+  semaforRail: CuratedStoryCard[]
   source: EditorialSource
   generatedAt: string
   notice: string | null

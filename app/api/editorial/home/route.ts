@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     data,
     meta: {
       stories: data.stories.length,
-      forYouStories: data.forYou?.stories.length ?? 0,
+      semaforRailStories: data.semaforRail.length,
       limit,
       fallbackRaw,
       preview,

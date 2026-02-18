@@ -1,22 +1,13 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { buildHomeEditionLayout } from "@/lib/editorial/home-layout";
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
-import { getGprData } from "@/lib/data/signals/gpr-server";
 import { getAwardMatrixData } from "@/lib/data/signals/usaspending-server";
-import { getDefenseMoneyChartsData } from "@/lib/data/signals/charts-server";
-import type {
-  CuratedHomeForYouRail,
-  CuratedStoryCard,
-} from "@/lib/editorial/ui-types";
+import type { CuratedStoryCard } from "@/lib/editorial/ui-types";
 import { getCuratedHomeData } from "@/lib/editorial/ui-server";
 import { getUserSession } from "@/lib/user/session";
 import { HomeAwardMatrixChart } from "@/components/money/charts/home-award-matrix-chart";
-import { PrimeSparklinesChart } from "@/components/money/charts/prime-sparklines-chart";
-import { MacroRiskCard } from "@/components/money/macro-risk-card";
-import { RightRailTopics } from "@/components/editorial/right-rail-topics";
-import { SectionLabel } from "@/components/editorial/section-label";
+import { StandardRightRail } from "@/components/standard-right-rail";
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
@@ -70,22 +61,6 @@ function resolveStoryHref(story: CuratedStoryCard) {
   });
 }
 
-function splitWireColumns(stories: CuratedStoryCard[]) {
-  const left: CuratedStoryCard[] = [];
-  const right: CuratedStoryCard[] = [];
-
-  stories.forEach((story, index) => {
-    if (index % 2 === 0) {
-      left.push(story);
-      return;
-    }
-
-    right.push(story);
-  });
-
-  return [left, right] as const;
-}
-
 type StoryTitleLinkProps = {
   story: CuratedStoryCard;
   className: string;
@@ -133,17 +108,31 @@ function LeadStory({ story }: { story: CuratedStoryCard }) {
           />
         ) : null}
       </StoryTitleLink>
+
+      {story.topics && story.topics.length > 0 ? (
+        <nav className="mt-2 text-sm" aria-label="Story topics">
+          {story.topics.map((topic, i) => (
+            <span key={topic.slug}>
+              {i > 0 ? " · " : ""}
+              <Link
+                href={`/topics/${topic.slug}`}
+                className="text-muted-foreground transition-colors hover:text-purple-500"
+              >
+                {topic.label}
+              </Link>
+            </span>
+          ))}
+        </nav>
+      ) : null}
     </article>
   );
 }
 
-function SectionStoryRow({
+function FeedStoryRow({
   story,
-  showSummary = true,
   showImage = false,
 }: {
   story: CuratedStoryCard;
-  showSummary?: boolean;
   showImage?: boolean;
 }) {
   const summary = compactStorySummary(story, 170);
@@ -171,73 +160,34 @@ function SectionStoryRow({
             loading="lazy"
           />
         ) : null}
-
-        {showSummary && summary ? (
-          <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">
-            {summary}
-          </p>
-        ) : null}
       </StoryTitleLink>
-    </article>
-  );
-}
 
-function WireStoryRow({ story }: { story: CuratedStoryCard }) {
-  return (
-    <article className="news-divider-item news-divider-item-compact px-1">
-      <StoryTitleLink
-        story={story}
-        className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
-          {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
+      {summary ? (
+        <p className="text-muted-foreground mt-2 text-[1.03rem] leading-relaxed">
+          {summary}
         </p>
+      ) : null}
 
-        <h3 className="font-display text-[1.6rem] leading-tight text-foreground transition-colors group-hover:text-primary">
-          {story.headline}
-        </h3>
-      </StoryTitleLink>
-    </article>
-  );
-}
-
-type HomeColumnSectionProps = {
-  heading: string;
-  stories: CuratedStoryCard[];
-  className?: string;
-};
-
-function HomeColumnSection({
-  heading,
-  stories,
-  className,
-}: HomeColumnSectionProps) {
-  return (
-    <section
-      className={className}
-      aria-labelledby={`${heading.toLowerCase()}-heading`}
-    >
-      {stories.length === 0 ? (
-        <p className="news-divider-list news-divider-item px-1 text-sm text-muted-foreground">
-          Stories for this section are still being curated.
-        </p>
-      ) : (
-        <div className="news-divider-list news-divider-list-no-top">
-          {stories.map((story, index) => (
-            <SectionStoryRow
-              key={story.clusterKey}
-              story={story}
-              showImage={index === 0}
-              showSummary={index < 2}
-            />
+      {story.topics && story.topics.length > 0 ? (
+        <nav className="mt-2 text-sm" aria-label="Story topics">
+          {story.topics.map((topic, i) => (
+            <span key={topic.slug}>
+              {i > 0 ? " · " : ""}
+              <Link
+                href={`/topics/${topic.slug}`}
+                className="text-muted-foreground transition-colors hover:text-purple-500"
+              >
+                {topic.label}
+              </Link>
+            </span>
           ))}
-        </div>
-      )}
-    </section>
+        </nav>
+      ) : null}
+    </article>
   );
 }
 
-function ForYouStoryRow({
+function SemaforRailRow({
   story,
   showImage,
 }: {
@@ -250,7 +200,7 @@ function ForYouStoryRow({
         story={story}
         className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+        <p className="text-muted-foreground mb-1 text-[0.65rem] tracking-[0.06em] uppercase">
           {story.sourceName} · {formatStoryTimestamp(story.publishedAt)}
         </p>
 
@@ -272,68 +222,14 @@ function ForYouStoryRow({
   );
 }
 
-function ForYouTopics({
-  rail,
-  isAuthenticated,
-}: {
-  rail: CuratedHomeForYouRail;
-  isAuthenticated: boolean;
-}) {
-  return (
-    <section className="space-y-4" aria-labelledby="for-you-heading">
-      <SectionLabel id="for-you-heading">{rail.title}</SectionLabel>
-
-      {rail.notice ? (
-        <p className="text-muted-foreground text-sm">{rail.notice}</p>
-      ) : null}
-
-      <RightRailTopics
-        topics={rail.topics}
-        title="Topic actions"
-        headingId="for-you-topic-actions-heading"
-        collapsedMax={3}
-        showFollowActions
-        isAuthenticated={isAuthenticated}
-      />
-    </section>
-  );
-}
-
-function ForYouStories({
-  stories,
-}: {
-  stories: CuratedStoryCard[];
-}) {
-  if (stories.length === 0) {
-    return (
-      <p className="news-divider-list news-divider-list-no-top news-divider-item px-1 text-sm text-muted-foreground">
-        Personalized stories will appear here as you follow topics.
-      </p>
-    );
-  }
-
-  return (
-    <div className="news-divider-list news-divider-list-no-top">
-      {stories.map((story, index) => (
-        <ForYouStoryRow
-          key={story.clusterKey}
-          story={story}
-          showImage={index === 0}
-        />
-      ))}
-    </div>
-  );
-}
-
 export default async function HomePage() {
   const session = await getUserSession();
-  const [home, gprSummary, awardMatrixData, moneyCharts] = await Promise.all([
+  const [home, awardMatrixData] = await Promise.all([
     getCuratedHomeData({
-      limit: 84,
+      limit: 75,
       fallbackRaw: true,
       userId: session.userId,
     }),
-    getGprData(),
     (() => {
       const end = new Date();
       const start = new Date(end);
@@ -343,12 +239,9 @@ export default async function HomePage() {
         endDate: end.toISOString().slice(0, 10),
       });
     })(),
-    getDefenseMoneyChartsData(),
   ]);
 
   const now = dateFormatter.format(new Date());
-  const layout = buildHomeEditionLayout(home.stories);
-  const [wireLeft, wireRight] = splitWireColumns(layout.wire);
 
   return (
     <main className="min-h-screen px-4 py-5 md:px-8 md:py-8">
@@ -373,7 +266,7 @@ export default async function HomePage() {
           </div>
         </header>
 
-        {!layout.lead ? (
+        {home.stories.length === 0 ? (
           <p className="news-divider-list news-divider-item px-1 text-base text-muted-foreground">
             Today&apos;s briefing is being prepared. Check back shortly.
           </p>
@@ -382,73 +275,37 @@ export default async function HomePage() {
             <div className="space-y-10">
               <section aria-labelledby="lead-heading">
                 <div className="news-divider-list news-divider-list-no-top">
-                  <LeadStory story={layout.lead} />
+                  <LeadStory story={home.stories[0]} />
                 </div>
               </section>
 
               <HomeAwardMatrixChart data={awardMatrixData} />
 
-              <section
-                aria-labelledby="edition-columns-heading"
-                className="space-y-4"
-              >
-                <div className="grid gap-6 lg:grid-cols-3">
-                  <HomeColumnSection
-                    heading="Signals"
-                    stories={layout.signals}
+              <div className="news-divider-list news-divider-list-no-top">
+                {home.stories.slice(1).map((story, index) => (
+                  <FeedStoryRow
+                    key={story.clusterKey}
+                    story={story}
+                    showImage={index < 3}
                   />
-                  <HomeColumnSection
-                    heading="World"
-                    stories={layout.world}
-                    className="news-column-rule"
-                  />
-                  <HomeColumnSection
-                    heading="Industry"
-                    stories={layout.industry}
-                    className="news-column-rule"
-                  />
-                </div>
-              </section>
+                ))}
+              </div>
 
-              {gprSummary.latest ? (
-                <div className="news-divider-list news-divider-list-no-top">
-                  <MacroRiskCard summary={gprSummary} />
-                </div>
-              ) : null}
-
-              <section aria-labelledby="wire-heading" className="space-y-4">
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="news-divider-list news-divider-list-no-top">
-                    {wireLeft.map((story) => (
-                      <WireStoryRow key={story.clusterKey} story={story} />
-                    ))}
-                  </div>
-                  <div className="news-divider-list news-divider-list-no-top news-column-rule">
-                    {wireRight.map((story) => (
-                      <WireStoryRow key={story.clusterKey} story={story} />
-                    ))}
-                  </div>
-                </div>
-              </section>
             </div>
 
-            <aside className="news-column-rule right-rail-scroll space-y-4">
-              {home.forYou ? (
-                <ForYouTopics
-                  rail={home.forYou}
-                  isAuthenticated={session.isAuthenticated}
-                />
+            <StandardRightRail>
+              {home.semaforRail.length > 0 ? (
+                <div className="news-divider-list news-divider-list-no-top">
+                  {home.semaforRail.map((story, index) => (
+                    <SemaforRailRow
+                      key={story.clusterKey}
+                      story={story}
+                      showImage={index === 0}
+                    />
+                  ))}
+                </div>
               ) : null}
-
-              <PrimeSparklinesChart
-                module={moneyCharts.primeSparklines}
-                stale={moneyCharts.staleData.market}
-              />
-
-              {home.forYou ? (
-                <ForYouStories stories={home.forYou.stories} />
-              ) : null}
-            </aside>
+            </StandardRightRail>
           </div>
         )}
       </div>

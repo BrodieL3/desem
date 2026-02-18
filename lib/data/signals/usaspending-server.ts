@@ -10,10 +10,8 @@ export type AwardMatrixPoint = {
   subAgency: string | null
   amount: number
   actionDate: string
-  bucket: DefenseMoneyBucket | null
   bucketLabel: string
   sourceUrl: string
-  isModification: boolean
 }
 
 export type AwardTransactionHistoryPoint = {
@@ -286,21 +284,16 @@ export async function getAwardMatrixData(options?: {startDate?: string; endDate?
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .slice(0, TOP_AWARDS)
 
-    const points: AwardMatrixPoint[] = newAwards.map((a) => {
-      const bucket = a.bucket
-      return {
-        id: a.awardId,
-        title: truncateDescription(a.description || a.awardId, 120),
-        recipient: a.recipient,
-        subAgency: a.subAgency,
-        amount: a.totalAmount,
-        actionDate: a.performanceStartDate!,
-        bucket,
-        bucketLabel: bucket ? formatDefenseMoneyBucketLabel(bucket) : 'Other',
-        sourceUrl: a.sourceUrl,
-        isModification: false,
-      }
-    })
+    const points: AwardMatrixPoint[] = newAwards.map((a) => ({
+      id: a.awardId,
+      title: truncateDescription(a.description || a.awardId, 120),
+      recipient: a.recipient,
+      subAgency: a.subAgency,
+      amount: a.totalAmount,
+      actionDate: a.performanceStartDate!,
+      bucketLabel: a.bucket ? formatDefenseMoneyBucketLabel(a.bucket) : 'Other',
+      sourceUrl: a.sourceUrl,
+    }))
 
     // --- Build stats ---
     const topRecipients = [...recipientMap.entries()]

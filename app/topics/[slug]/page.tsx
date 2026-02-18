@@ -3,6 +3,7 @@ import {notFound} from 'next/navigation'
 
 import {BackToFrontPageButton} from '@/components/back-to-front-page-button'
 import {FollowTopicButton} from '@/components/aggregator/follow-topic-button'
+import {StandardRightRail} from '@/components/standard-right-rail'
 import {Badge} from '@/components/ui/badge'
 import {resolveInternalStoryHref} from '@/lib/editorial/linking'
 import {getTopicPageData} from '@/lib/articles/server'
@@ -58,7 +59,7 @@ export default async function TopicPage({params}: TopicPageProps) {
           <FollowTopicButton topicId={data.topic.id} initialFollowed={data.isFollowed} isAuthenticated={session.isAuthenticated} />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_330px]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
           <section className="space-y-3">
             {data.articles.length === 0 ? (
               <p className="py-5 text-base text-muted-foreground">No articles found for this topic yet.</p>
@@ -98,7 +99,7 @@ export default async function TopicPage({params}: TopicPageProps) {
             )}
           </section>
 
-          <aside className="right-rail-scroll space-y-4">
+          <StandardRightRail>
             <section className="space-y-3 border-t border-border pt-5">
               <h2 className="font-display text-3xl leading-tight">Co-occurring topics</h2>
               {data.cooccurringTopics.length === 0 ? (
@@ -116,7 +117,7 @@ export default async function TopicPage({params}: TopicPageProps) {
                 </div>
               )}
             </section>
-          </aside>
+          </StandardRightRail>
         </div>
       </div>
     </main>

@@ -2,14 +2,13 @@
 
 import Link from 'next/link'
 import {useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState} from 'react'
-import {ScatterChart, CartesianGrid, XAxis, YAxis, ZAxis, Scatter, Tooltip, AreaChart, Area, ReferenceLine, ResponsiveContainer} from 'recharts'
+import {AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer} from 'recharts'
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 
 import type {AwardAmounts, AwardMatrixData, AwardMatrixPoint, AwardMilestones, AwardTransactionHistory} from '@/lib/data/signals/usaspending-server'
 
 const DOT_COLOR_AWARD = '#7c3aed'
-const DOT_COLOR_MODIFICATION = '#a1a1aa'
 
 function formatAxisDollars(value: number) {
   if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`
@@ -70,6 +69,14 @@ const LEFT_FLOOR = '2025-01-01'
 const MAX_EMPTY_FETCHES = 3
 const SEARCH_DEBOUNCE_MS = 150
 const SEARCH_RESULTS_LIMIT = 50
+const MAX_POINTS = 2000
+
+// SVG scatter layout
+const SVG_MARGIN_TOP = 8
+const SVG_MARGIN_RIGHT = 16
+const SVG_MARGIN_BOTTOM = 24
+const DOT_RADIUS = 5
+const HIT_RADIUS_SQ = 15 * 15
 
 type SortOrder = 'price-desc' | 'price-asc' | 'newest'
 
@@ -103,6 +110,13 @@ function mergePoints(existing: Map<string, AwardMatrixPoint>, incoming: AwardMat
   const merged = new Map(existing)
   for (const p of incoming) {
     merged.set(p.id, p)
+  }
+  if (merged.size > MAX_POINTS) {
+    const sorted = [...merged.values()].sort((a, b) => a.actionDate.localeCompare(b.actionDate))
+    const excess = merged.size - MAX_POINTS
+    for (let i = 0; i < excess; i++) {
+      merged.delete(sorted[i].id)
+    }
   }
   return merged
 }
@@ -189,36 +203,32 @@ async function fetchRange(startDate: string, endDate: string, signal?: AbortSign
   return json.data as AwardMatrixData
 }
 
-// --- Tooltip ---
 type ChartPoint = AwardMatrixPoint & {actionTimestamp: number}
 
-type TooltipPayloadEntry = {payload?: ChartPoint}
+// --- SVG helpers ---
+function generateLogTicks(min: number, max: number): number[] {
+  const ticks: number[] = []
+  const logMin = Math.floor(Math.log10(Math.max(1, min)))
+  const logMax = Math.ceil(Math.log10(max))
+  for (let exp = logMin; exp <= logMax; exp++) {
+    for (const mult of [1, 3]) {
+      const val = mult * 10 ** exp
+      if (val >= min && val <= max) ticks.push(val)
+    }
+  }
+  return ticks
+}
 
-function CustomTooltip({active, payload}: {active?: boolean; payload?: TooltipPayloadEntry[]}) {
-  if (!active || !payload || payload.length === 0) return null
-  const point = payload[0]?.payload
-  if (!point) return null
-
-  return (
-    <div className="w-64 rounded-lg border border-border bg-card px-3 py-2 text-sm shadow-md">
-      <div className="flex items-center gap-1.5 mb-0.5">
-        <span
-          className="inline-block h-2 w-2 rounded-full"
-          style={{backgroundColor: point.isModification ? DOT_COLOR_MODIFICATION : DOT_COLOR_AWARD}}
-        />
-        <span className="text-xs font-medium text-muted-foreground">
-          {point.isModification ? 'Modification' : 'New award'}
-        </span>
-      </div>
-      <p className="font-medium">{truncate(point.title, 80)}</p>
-      <p className="text-xs text-muted-foreground">{point.recipient}</p>
-      {point.subAgency ? <p className="text-xs text-muted-foreground">{point.subAgency}</p> : null}
-      <div className="mt-1 space-y-0.5 text-xs">
-        <p>{formatCurrency(point.amount)} total obligation</p>
-        <p>{point.bucketLabel} &middot; {formatFullDate(point.actionDate)}</p>
-      </div>
-    </div>
-  )
+function generateMonthTicks(startTs: number, endTs: number): number[] {
+  const ticks: number[] = []
+  const d = new Date(startTs)
+  d.setUTCDate(1)
+  d.setUTCMonth(d.getUTCMonth() + 1)
+  while (d.getTime() <= endTs) {
+    ticks.push(d.getTime())
+    d.setUTCMonth(d.getUTCMonth() + 1)
+  }
+  return ticks
 }
 
 // --- Contract search results ---
@@ -367,28 +377,52 @@ function AwardMatrixChartContent({
 }) {
   const localScrollRef = useRef<HTMLDivElement | null>(null)
   const [viewportTs, setViewportTs] = useState<[number, number] | null>(null)
+  const [hover, setHover] = useState<{point: ChartPoint; clientX: number; clientY: number} | null>(null)
 
   const setScrollEl = useCallback((el: HTMLDivElement | null) => {
     localScrollRef.current = el
     onScrollRef(el)
   }, [onScrollRef])
 
-  const chartPoints: ChartPoint[] = points.map((p) => ({
-    ...p,
-    actionTimestamp: dateToTimestamp(p.actionDate),
-  }))
+  const chartPoints = useMemo<ChartPoint[]>(
+    () => points.map((p) => ({...p, actionTimestamp: dateToTimestamp(p.actionDate)})),
+    [points],
+  )
 
   const rangeStartTs = dateToTimestamp(rangeStart)
   const rangeEndTs = dateToTimestamp(rangeEnd)
   const spanMonths = Math.max(1, (rangeEndTs - rangeStartTs) / (30 * 24 * 60 * 60 * 1000))
   const chartWidth = Math.max(800, Math.round(spanMonths * PX_PER_MONTH))
+  const plotWidth = chartWidth - SVG_MARGIN_RIGHT
+  const plotTop = SVG_MARGIN_TOP
+  const plotBottom = CHART_HEIGHT - SVG_MARGIN_BOTTOM
+  const plotHeight = plotBottom - plotTop
 
-  // Y-axis bounds from ALL points so the axis stays stable during scroll
-  const amounts = chartPoints.map((p) => p.amount)
-  const Y_FLOOR = 10_000_000   // $10M floor — never show higher than this
-  const rawMin = amounts.length > 0 ? Math.min(...amounts) : Y_FLOOR
-  const yMin = Math.min(rawMin / 3, Y_FLOOR)
-  const yMax = amounts.length > 0 ? Math.max(...amounts) : 1_000_000_000
+  // Y-axis bounds from ALL points (loop avoids call-stack overflow with spread)
+  const {yMin, yMax} = useMemo(() => {
+    const Y_FLOOR = 10_000_000
+    let min = Infinity
+    let max = -Infinity
+    for (const p of chartPoints) {
+      if (p.amount < min) min = p.amount
+      if (p.amount > max) max = p.amount
+    }
+    if (!isFinite(min)) min = Y_FLOOR
+    if (!isFinite(max)) max = 1_000_000_000
+    return {yMin: Math.min(min / 3, Y_FLOOR), yMax: max}
+  }, [chartPoints])
+
+  const logYMin = Math.log10(yMin)
+  const logYRange = Math.log10(yMax) - logYMin
+  const xRange = rangeEndTs - rangeStartTs
+
+  function toX(ts: number) {
+    return xRange > 0 ? ((ts - rangeStartTs) / xRange) * plotWidth : 0
+  }
+  function toY(amount: number) {
+    if (logYRange <= 0) return plotTop + plotHeight / 2
+    return plotBottom - ((Math.log10(amount) - logYMin) / logYRange) * plotHeight
+  }
 
   // --- Viewport culling ---
   useEffect(() => {
@@ -430,111 +464,176 @@ function AwardMatrixChartContent({
     }
   }, [chartWidth, rangeStartTs, rangeEndTs, hasMoreLeft])
 
-  const visiblePoints = viewportTs
-    ? chartPoints.filter((p) => p.actionTimestamp >= viewportTs[0] && p.actionTimestamp <= viewportTs[1])
-    : chartPoints
+  const visiblePoints = useMemo(
+    () => viewportTs
+      ? chartPoints.filter((p) => p.actionTimestamp >= viewportTs[0] && p.actionTimestamp <= viewportTs[1])
+      : chartPoints,
+    [chartPoints, viewportTs],
+  )
 
-  // All points are new awards (purple) — modifications are filtered server-side
+  const yTicks = useMemo(() => generateLogTicks(yMin, yMax), [yMin, yMax])
+  const xTicks = useMemo(() => generateMonthTicks(rangeStartTs, rangeEndTs), [rangeStartTs, rangeEndTs])
 
-  function handleClick(point: ChartPoint) {
-    onSelectAward(point)
+  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+    const svg = e.currentTarget
+    const rect = svg.getBoundingClientRect()
+    const mx = e.clientX - rect.left
+    const my = e.clientY - rect.top
+
+    let closest: ChartPoint | null = null
+    let bestDist = HIT_RADIUS_SQ
+
+    for (const p of visiblePoints) {
+      const cx = toX(p.actionTimestamp)
+      const cy = toY(p.amount)
+      const dx = mx - cx
+      const dy = my - cy
+      const dist = dx * dx + dy * dy
+      if (dist < bestDist) {
+        bestDist = dist
+        closest = p
+      }
+    }
+
+    if (closest) {
+      setHover({point: closest, clientX: e.clientX, clientY: e.clientY})
+    } else {
+      setHover(null)
+    }
   }
 
-  const scatterClickHandler = (entry: unknown) => {
-    const point = (entry as {payload?: ChartPoint})?.payload
-      ?? (entry as ChartPoint)
-    if (point?.id) handleClick(point)
+  function handleMouseLeave() {
+    setHover(null)
+  }
+
+  function handleClick() {
+    if (hover) onSelectAward(hover.point)
   }
 
   return (
-    <div
-      className="relative overflow-hidden [&_svg]:!outline-none [&_svg]:!ring-0 [&_*]:!outline-none [&_*]:!ring-0 [&_*]:!border-none"
-      role="img"
-      aria-label="Award matrix scatter chart"
-    >
-      {/* Pinned Y-axis overlay */}
+    <>
       <div
-        className="pointer-events-none absolute left-0 top-0 z-10 bg-card"
-        style={{width: Y_AXIS_WIDTH, height: CHART_HEIGHT}}
+        className="relative overflow-hidden"
+        role="img"
+        aria-label="Award matrix scatter chart"
       >
-        <ScatterChart
-          width={Y_AXIS_WIDTH + 40}
-          height={CHART_HEIGHT}
-          margin={{top: 8, right: 0, left: 0, bottom: 24}}
+        {/* Pinned Y-axis overlay */}
+        <div
+          className="pointer-events-none absolute left-0 top-0 z-10 bg-card"
+          style={{width: Y_AXIS_WIDTH, height: CHART_HEIGHT}}
         >
-          <XAxis dataKey="x" type="number" hide />
-          <YAxis
-            dataKey="y"
-            tick={{fill: 'var(--muted-foreground)', fontSize: 11}}
-            tickFormatter={formatAxisDollars}
-            width={Y_AXIS_WIDTH}
-            scale="log"
-            domain={[yMin, yMax]}
-          />
-          <Scatter data={[{x: 0, y: yMin}, {x: 0, y: yMax}]} fill="transparent" />
-        </ScatterChart>
-      </div>
+          <svg width={Y_AXIS_WIDTH} height={CHART_HEIGHT}>
+            {yTicks.map((tick) => {
+              const y = toY(tick)
+              return (
+                <g key={tick}>
+                  <line x1={Y_AXIS_WIDTH - 4} y1={y} x2={Y_AXIS_WIDTH} y2={y} stroke="var(--muted-foreground)" strokeWidth={1} />
+                  <text x={Y_AXIS_WIDTH - 8} y={y} textAnchor="end" dominantBaseline="central" fill="var(--muted-foreground)" fontSize={11}>
+                    {formatAxisDollars(tick)}
+                  </text>
+                </g>
+              )
+            })}
+          </svg>
+        </div>
 
-      {/* Scrollable chart area */}
-      <div
-        ref={setScrollEl}
-        className="overflow-x-auto"
-        style={{paddingLeft: Y_AXIS_WIDTH}}
-      >
-        {loadingLeft && (
-          <div className="absolute left-0 top-0 z-20 h-full w-1 animate-pulse bg-primary/40" style={{marginLeft: Y_AXIS_WIDTH}} />
-        )}
-
-        <div className="flex" style={{height: CHART_HEIGHT}}>
-          {hasMoreLeft && (
-            <div className="flex-none flex items-center justify-center" style={{width: SENTINEL_WIDTH}}>
-              {loadingLeft && <p className="text-xs text-muted-foreground animate-pulse">Loading&hellip;</p>}
-            </div>
+        {/* Scrollable chart area */}
+        <div
+          ref={setScrollEl}
+          className="overflow-x-auto"
+          style={{paddingLeft: Y_AXIS_WIDTH}}
+        >
+          {loadingLeft && (
+            <div className="absolute left-0 top-0 z-20 h-full w-1 animate-pulse bg-primary/40" style={{marginLeft: Y_AXIS_WIDTH}} />
           )}
 
-          <div className="flex-none" style={{width: chartWidth, height: CHART_HEIGHT}}>
-            <ScatterChart width={chartWidth} height={CHART_HEIGHT} margin={{top: 8, right: 16, left: 0, bottom: 24}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis
-                dataKey="actionTimestamp"
-                name="Date"
-                type="number"
-                domain={[rangeStartTs, rangeEndTs]}
-                tick={{fill: 'var(--muted-foreground)', fontSize: 11}}
-                tickFormatter={formatDateTick}
-                label={{value: 'Award date', position: 'insideBottom', offset: -8, fill: 'var(--muted-foreground)', fontSize: 11}}
-              />
-              <YAxis
-                dataKey="amount"
-                name="Award value"
-                tick={false}
-                tickLine={false}
-                axisLine={false}
-                width={0}
-                scale="log"
-                domain={[yMin, yMax]}
-              />
-              <ZAxis range={[40, 120]} />
-              <Tooltip content={<CustomTooltip />} isAnimationActive={false} />
-              <Scatter
-                name="Awards"
-                data={visiblePoints}
-                fill={DOT_COLOR_AWARD}
-                isAnimationActive={false}
-                cursor="pointer"
-                onClick={scatterClickHandler}
-              />
-            </ScatterChart>
+          <div className="flex" style={{height: CHART_HEIGHT}}>
+            {hasMoreLeft && (
+              <div className="flex-none flex items-center justify-center" style={{width: SENTINEL_WIDTH}}>
+                {loadingLeft && <p className="text-xs text-muted-foreground animate-pulse">Loading&hellip;</p>}
+              </div>
+            )}
+
+            <div className="flex-none" style={{width: chartWidth, height: CHART_HEIGHT}}>
+              <svg
+                width={chartWidth}
+                height={CHART_HEIGHT}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleClick}
+                style={{cursor: hover ? 'pointer' : undefined}}
+              >
+                {/* Horizontal grid lines */}
+                {yTicks.map((tick) => {
+                  const y = toY(tick)
+                  return <line key={`yg${tick}`} x1={0} y1={y} x2={plotWidth} y2={y} stroke="var(--border)" strokeDasharray="3 3" />
+                })}
+                {/* Vertical grid lines + X tick labels */}
+                {xTicks.map((ts) => {
+                  const x = toX(ts)
+                  return (
+                    <g key={`xg${ts}`}>
+                      <line x1={x} y1={plotTop} x2={x} y2={plotBottom} stroke="var(--border)" strokeDasharray="3 3" />
+                      <text x={x} y={plotBottom + 16} textAnchor="middle" fill="var(--muted-foreground)" fontSize={11}>
+                        {formatDateTick(ts)}
+                      </text>
+                    </g>
+                  )
+                })}
+                {/* Data points */}
+                {visiblePoints.map((p) => (
+                  <circle
+                    key={p.id}
+                    cx={toX(p.actionTimestamp)}
+                    cy={toY(p.amount)}
+                    r={DOT_RADIUS}
+                    fill={DOT_COLOR_AWARD}
+                    opacity={0.7}
+                  />
+                ))}
+                {/* Hover highlight ring */}
+                {hover && (
+                  <circle
+                    cx={toX(hover.point.actionTimestamp)}
+                    cy={toY(hover.point.amount)}
+                    r={DOT_RADIUS + 2}
+                    fill="none"
+                    stroke={DOT_COLOR_AWARD}
+                    strokeWidth={2}
+                  />
+                )}
+              </svg>
+            </div>
+
+            {hasMoreRight && (
+              <div className="flex-none flex items-center justify-center" style={{width: SENTINEL_WIDTH}}>
+                {loadingRight && <p className="text-xs text-muted-foreground animate-pulse">Loading&hellip;</p>}
+              </div>
+            )}
           </div>
-
-          {hasMoreRight && (
-            <div className="flex-none flex items-center justify-center" style={{width: SENTINEL_WIDTH}}>
-              {loadingRight && <p className="text-xs text-muted-foreground animate-pulse">Loading&hellip;</p>}
-            </div>
-          )}
         </div>
       </div>
-    </div>
+
+      {/* Tooltip (fixed position, outside overflow context) */}
+      {hover && (
+        <div
+          className="fixed z-50 pointer-events-none w-64 rounded-lg border border-border bg-card px-3 py-2 text-sm shadow-md"
+          style={{left: hover.clientX + 12, top: hover.clientY + 12}}
+        >
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="inline-block h-2 w-2 rounded-full" style={{backgroundColor: DOT_COLOR_AWARD}} />
+            <span className="text-xs font-medium text-muted-foreground">New award</span>
+          </div>
+          <p className="font-medium">{truncate(hover.point.title, 80)}</p>
+          <p className="text-xs text-muted-foreground">{hover.point.recipient}</p>
+          {hover.point.subAgency && <p className="text-xs text-muted-foreground">{hover.point.subAgency}</p>}
+          <div className="mt-1 space-y-0.5 text-xs">
+            <p>{formatCurrency(hover.point.amount)} total obligation</p>
+            <p>{hover.point.bucketLabel} &middot; {formatFullDate(hover.point.actionDate)}</p>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -970,7 +1069,7 @@ export function AwardMatrixChart() {
     scrollElRef.current = el
   }, [])
 
-  const allPoints = [...state.points.values()]
+  const allPoints = useMemo(() => [...state.points.values()], [state.points])
 
   return (
     <Card className="rounded-lg border border-border bg-card">

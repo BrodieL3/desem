@@ -66,26 +66,32 @@ export function SignInForm({nextPath, errorMessage}: SignInFormProps) {
           autoComplete="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="min-h-11 w-full border-b border-input bg-transparent px-0 py-2 text-sm"
+          className="no-focus-ring min-h-11 w-full border-b border-input bg-transparent px-0 py-2 text-sm"
           placeholder="you@company.com"
           required
         />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Sending link...' : 'Send magic link'}
+          {isSubmitting ? "Sending link..." : "Send magic link"}
         </Button>
       </form>
 
       {errorMessage ? (
-        <p className="border-t border-border pt-3 text-sm text-destructive" role="alert">
+        <p
+          className="border-t border-border pt-3 text-sm text-destructive"
+          role="alert"
+        >
           {errorMessage}
         </p>
       ) : null}
       {statusMessage ? (
-        <p className="border-t border-border pt-3 text-sm text-muted-foreground" aria-live="polite">
+        <p
+          className="border-t border-border pt-3 text-sm text-muted-foreground"
+          aria-live="polite"
+        >
           {statusMessage}
         </p>
       ) : null}
     </div>
-  )
+  );
 }

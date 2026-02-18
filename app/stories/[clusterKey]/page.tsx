@@ -2,8 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BackToFrontPageButton } from "@/components/back-to-front-page-button";
-import { RightRailTopics } from "@/components/editorial/right-rail-topics";
-import { SectionLabel } from "@/components/editorial/section-label";
 import { StoryCommentThread } from "@/components/editorial/story-comment-thread";
 import {
   StoryAudioPlayer,
@@ -11,12 +9,10 @@ import {
 } from "@/components/editorial/story-audio-player";
 import { StoryBriefingHeader } from "@/components/editorial/story-briefing-header";
 import { StoryNewsFeed } from "@/components/editorial/story-news-feed";
-import { PrimeSparklinesChart } from "@/components/money/charts/prime-sparklines-chart";
-import { getDefenseMoneyChartsData } from "@/lib/data/signals/charts-server";
+import { StandardRightRail } from "@/components/standard-right-rail";
 import { resolveInternalStoryHref } from "@/lib/editorial/linking";
 import type {
   CuratedStoryDetail,
-  CuratedHomeForYouRail,
   CuratedStoryCard,
 } from "@/lib/editorial/ui-types";
 import {
@@ -72,7 +68,7 @@ function StoryDetailSection({ detail }: { detail: CuratedStoryDetail }) {
                   {i > 0 ? " · " : ""}
                   <Link
                     href={`/topics/${topic.slug}`}
-                    className="hover:text-foreground transition-colors"
+                    className="text-muted-foreground transition-colors hover:text-purple-500"
                   >
                     {topic.label}
                   </Link>
@@ -121,64 +117,39 @@ function countSharedTopics(
   return sharedCount;
 }
 
-function ForYouSideRail({
-  rail,
-  isAuthenticated,
+function SemaforSideRail({
   stories,
 }: {
-  rail: CuratedHomeForYouRail;
-  isAuthenticated: boolean;
   stories: CuratedStoryCard[];
 }) {
+  if (stories.length === 0) {
+    return null;
+  }
+
   return (
-    <>
-      <section className="space-y-4" aria-labelledby="story-for-you-heading">
-        <SectionLabel id="story-for-you-heading">{rail.title}</SectionLabel>
-
-        {rail.notice ? (
-          <p className="text-muted-foreground text-sm">{rail.notice}</p>
-        ) : null}
-
-        <RightRailTopics
-          topics={rail.topics}
-          title="Topic actions"
-          headingId="story-for-you-topic-actions-heading"
-          collapsedMax={3}
-          showFollowActions
-          isAuthenticated={isAuthenticated}
-        />
-      </section>
-
-      {stories.length > 0 ? (
-        <div className="news-divider-list news-divider-list-no-top">
-          {stories.map((story) => (
-            <article
-              key={story.clusterKey}
-              className="news-divider-item news-divider-item-compact px-1"
-            >
-              <Link
-                href={resolveInternalStoryHref({
-                  articleId: story.sourceLinks[0]?.articleId,
-                  clusterKey: story.clusterKey,
-                })}
-                className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
-                  {story.sourceName}
-                </p>
-                <h3 className="font-display text-[1.45rem] leading-tight text-foreground transition-colors group-hover:text-primary">
-                  {story.headline}
-                </h3>
-              </Link>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          Personalized stories will appear here as you follow topics.
-        </p>
-      )}
-    </>
+    <div className="news-divider-list news-divider-list-no-top">
+      {stories.map((story) => (
+        <article
+          key={story.clusterKey}
+          className="news-divider-item news-divider-item-compact px-1"
+        >
+          <Link
+            href={resolveInternalStoryHref({
+              articleId: story.sourceLinks[0]?.articleId,
+              clusterKey: story.clusterKey,
+            })}
+            className="group block rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <p className="text-muted-foreground mb-1 text-xs tracking-[0.12em] uppercase">
+              {story.sourceName}
+            </p>
+            <h3 className="font-display text-[1.45rem] leading-tight text-foreground transition-colors group-hover:text-primary">
+              {story.headline}
+            </h3>
+          </Link>
+        </article>
+      ))}
+    </div>
   );
 }
 
@@ -186,7 +157,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
   const { clusterKey } = await params;
   const session = await getUserSession();
 
-  const [detail, briefing, moneyCharts, comments] = await Promise.all([
+  const [detail, briefing, comments] = await Promise.all([
     getCuratedStoryDetail(clusterKey, {
       offset: 0,
       limit: 12,
@@ -196,7 +167,6 @@ export default async function StoryPage({ params }: StoryPageProps) {
       limit: 24,
       userId: session.userId,
     }),
-    getDefenseMoneyChartsData(),
     getCommentsForStory(clusterKey, session.userId),
   ]);
 
@@ -319,20 +289,9 @@ export default async function StoryPage({ params }: StoryPageProps) {
             ) : null}
           </div>
 
-          <aside className="news-column-rule right-rail-scroll space-y-4">
-            {briefing.forYou ? (
-              <ForYouSideRail
-                rail={briefing.forYou}
-                isAuthenticated={session.isAuthenticated}
-                stories={briefing.forYou.stories}
-              />
-            ) : null}
-
-            <PrimeSparklinesChart
-              module={moneyCharts.primeSparklines}
-              stale={moneyCharts.staleData.market}
-            />
-          </aside>
+          <StandardRightRail>
+            <SemaforSideRail stories={briefing.semaforRail} />
+          </StandardRightRail>
         </div>
       </div>
     </main>

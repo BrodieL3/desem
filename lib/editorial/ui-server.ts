@@ -1,4 +1,4 @@
-import {getArticleListForApi, getHomeFeedData} from '@/lib/articles/server'
+import {fetchFollowedTopics, getArticleListForApi} from '@/lib/articles/server'
 import {classifyEditorialFocus, editorialFocusScoreBoost, type EditorialFocusBucket} from '@/lib/editorial/focus'
 import {fetchSemaphorSecurityStories} from '@/lib/editorial/semaphor-security'
 import {getImageDisplayAssessment, type ImageDisplayAssessment} from '@/lib/editorial/sightengine'
@@ -10,7 +10,6 @@ import {sanitizeHeadlineText, sanitizePlainText} from '@/lib/utils'
 
 import type {
   EditorialSource,
-  CuratedHomeForYouRail,
   CuratedHomePayload,
   CuratedReviewStatus,
   CuratedRiskLevel,
@@ -166,7 +165,6 @@ const STORY_FEED_MIN_WORDS = 150
 const STORY_FEED_MAX_WORDS = 400
 const IMAGE_ASSESSMENT_BATCH_SIZE = 6
 const TOP_HOME_IMAGES = 5
-const FOR_YOU_STORY_LIMIT = 10
 const SEMAPHOR_SOURCE_ID = 'semafor-security'
 const STORY_TOPIC_LIMIT = 8
 const taxonomyStoryTopicSlugs = new Set(curatedTopicTaxonomy.map((topic) => topic.slug))
@@ -216,6 +214,7 @@ const SANITY_SEMAPHOR_NEWS_ITEM_PROJECTION = `{
 type HomeCardCandidate = CuratedStoryCard & {
   topicLabel?: string
   focusBucket: EditorialFocusBucket
+  topicIds?: string[]
 }
 
 function asBoolean(value: string | null | undefined, fallback = false) {
@@ -409,6 +408,24 @@ function computeCardScore(input: {
   const opinionPenalty = Math.max(0, input.opinionCount ?? 0) * 1_100
 
   return recencyComponent + citationComponent + congestionComponent + congestedBoost + roleAdjustment + officialBonus + reportingBonus - opinionPenalty
+}
+
+const FOLLOWED_TOPIC_BOOST = 50_000
+
+function computeFollowedTopicBoost(card: HomeCardCandidate, followedTopicIds: Set<string>): number {
+  if (followedTopicIds.size === 0 || !card.topicIds || card.topicIds.length === 0) return 0
+  const matchCount = card.topicIds.reduce((count, id) => count + (followedTopicIds.has(id) ? 1 : 0), 0)
+  if (matchCount === 0) return 0
+  return FOLLOWED_TOPIC_BOOST + (matchCount - 1) * 15_000
+}
+
+function applyTopicBoost(cards: HomeCardCandidate[], followedTopicIds: Set<string>): HomeCardCandidate[] {
+  if (followedTopicIds.size === 0) return cards
+  return cards.map(card => {
+    const boost = computeFollowedTopicBoost(card, followedTopicIds)
+    if (boost === 0) return card
+    return { ...card, score: card.score + boost }
+  })
 }
 
 function normalizeTopicLabel(value: string | null | undefined) {
@@ -1242,6 +1259,7 @@ function mapRawArticleToCard(article: Awaited<ReturnType<typeof getArticleListFo
     clusterKey: `raw-${article.id}`,
     headline: sanitizeHeadlineText(article.title),
     dek: shortText(article.summary ?? article.fullTextExcerpt ?? '', 220),
+    expandedDek: sanitizePlainText(article.summary ?? article.fullTextExcerpt ?? ''),
     whyItMatters: firstSentence(article.summary ?? article.fullTextExcerpt ?? `${topicLabel} update from ${article.sourceName}.`, 140),
     riskLevel: deriveRiskFromText(`${article.title} ${article.summary ?? ''}`),
     citationCount: 1,
@@ -1252,6 +1270,7 @@ function mapRawArticleToCard(article: Awaited<ReturnType<typeof getArticleListFo
     sourceName: article.sourceName,
     imageUrl: resolveArticleCardImageUrl(article),
     sourceLinks,
+    topics: article.topics.map((t) => ({slug: t.slug, label: t.label})),
     hasOfficialSource: curation.hasOfficialSource,
     reportingCount: curation.reportingCount,
     analysisCount: curation.analysisCount,
@@ -1430,6 +1449,7 @@ async function fetchRawFallbackCards(limit: number) {
       ...card,
       topicLabel,
       focusBucket,
+      topicIds: article.topics.map(t => t.id),
       score: card.score + editorialFocusScoreBoost(focusBucket),
     } satisfies HomeCardCandidate
   })
@@ -1447,6 +1467,7 @@ function mapSemaphorSecurityCard(story: Awaited<ReturnType<typeof fetchSemaphorS
     },
   ]
 
+  const topicLabel = 'Security'
   const card: CuratedStoryCard = {
     clusterKey: story.id,
     headline: sanitizeHeadlineText(story.headline),
@@ -1461,6 +1482,7 @@ function mapSemaphorSecurityCard(story: Awaited<ReturnType<typeof fetchSemaphorS
     sourceName,
     imageUrl: story.imageUrl,
     sourceLinks,
+    topics: [{slug: 'security', label: topicLabel}],
     hasOfficialSource: false,
     reportingCount: 1,
     analysisCount: 0,
@@ -1479,7 +1501,6 @@ function mapSemaphorSecurityCard(story: Awaited<ReturnType<typeof fetchSemaphorS
     }),
   }
 
-  const topicLabel = 'Security'
   const inferredFocus = classifyEditorialFocus({
     title: card.headline,
     summary: `${card.dek} ${card.whyItMatters}`,
@@ -1534,6 +1555,9 @@ function mapSemaphorNewsItemCard(newsItem: SemaphorNewsItemDoc): HomeCardCandida
     sourceName,
     imageUrl: newsItem.leadImageUrl ?? newsItem.canonicalImageUrl,
     sourceLinks,
+    topics: (newsItem.topics ?? [])
+      .filter((t): t is typeof t & {slug: string} => Boolean(t.slug))
+      .map((t) => ({slug: t.slug, label: t.label})),
     hasOfficialSource: false,
     reportingCount: 1,
     analysisCount: 0,
@@ -1565,6 +1589,7 @@ function mapSemaphorNewsItemCard(newsItem: SemaphorNewsItemDoc): HomeCardCandida
     ...card,
     topicLabel,
     focusBucket,
+    topicIds: (newsItem.topics ?? []).map(t => t.topicId).filter((id): id is string => Boolean(id)),
     score: card.score + editorialFocusScoreBoost(focusBucket),
   } satisfies HomeCardCandidate
 }
@@ -1756,133 +1781,23 @@ function buildSemaphorHomeStoryStream(cards: HomeCardCandidate[], limit: number)
     .slice(0, limit)
 }
 
-type HomeFeedData = Awaited<ReturnType<typeof getHomeFeedData>>
-
-function mapTopicToForYouTopic(topic: HomeFeedData['trendingTopics'][number]) {
-  return {
-    id: topic.id,
-    slug: topic.slug,
-    label: topic.label,
-    articleCount: topic.articleCount,
-    followed: topic.followed,
-  }
-}
-
-async function filterForYouRailImages(stories: CuratedStoryCard[]) {
-  if (stories.length === 0) {
-    return stories
-  }
-
-  const [firstStory, ...rest] = stories
-
-  if (!firstStory) {
-    return stories
-  }
-
-  const relevanceScore = scoreDefenseImageRelevance(
-    `${firstStory.headline} ${firstStory.dek} ${firstStory.whyItMatters} ${firstStory.sourceName}`
-  )
-  const assessment = await getImageDisplayAssessment({
-    imageUrl: firstStory.imageUrl,
-    relevanceScore,
-  })
-
-  const normalizedFirstImage = firstStory.imageUrl?.trim() ?? null
-  const firstWithMedia: CuratedStoryCard = {
-    ...firstStory,
-    imageUrl: assessment.shouldDisplay ? normalizedFirstImage : null,
-  }
-
-  return [
-    firstWithMedia,
-    ...rest.map((story) => ({
-      ...story,
-      imageUrl: null,
-    })),
-  ]
-}
-
-async function buildForYouRail(input: {
-  userId?: string | null
-  editionStories: CuratedStoryCard[]
-}): Promise<CuratedHomeForYouRail | null> {
-  const homeFeed = await getHomeFeedData(input.userId)
-  const followedTopicIds = new Set(homeFeed.followedTopics.map((topic) => topic.id))
-  const isPersonalized = followedTopicIds.size > 0
-  const topicSource = isPersonalized ? homeFeed.followedTopics : homeFeed.trendingTopics
-  const topicSet = new Set(topicSource.map((topic) => topic.id))
-  const editionArticleIds = new Set(input.editionStories.flatMap((story) => story.sourceLinks.map((link) => link.articleId)))
-  const editionClusterKeys = new Set(input.editionStories.map((story) => story.clusterKey))
-  const candidateArticles = homeFeed.articles.filter((article) => {
-    if (editionArticleIds.has(article.id)) {
-      return false
-    }
-
-    if (editionClusterKeys.has(`raw-${article.id}`)) {
-      return false
-    }
-
-    if (topicSet.size === 0) {
-      return true
-    }
-
-    return article.topics.some((topic) => topicSet.has(topic.id))
-  })
-  const candidateStories = candidateArticles.map(mapRawArticleToCard)
-  const dedupedStories: CuratedStoryCard[] = []
-  const seenClusterKeys = new Set<string>()
-
-  for (const story of candidateStories) {
-    if (seenClusterKeys.has(story.clusterKey)) {
-      continue
-    }
-
-    seenClusterKeys.add(story.clusterKey)
-    dedupedStories.push(story)
-
-    if (dedupedStories.length >= FOR_YOU_STORY_LIMIT) {
-      break
-    }
-  }
-
-  const storiesWithMedia = await filterForYouRailImages(dedupedStories)
-
-  return {
-    title: 'For You',
-    stories: storiesWithMedia,
-    topics: topicSource.slice(0, 8).map(mapTopicToForYouTopic),
-    isPersonalized,
-    notice: isPersonalized
-      ? 'From topics you follow.'
-      : input.userId
-        ? 'Follow topics to personalize this rail.'
-        : 'Sign in and follow topics to personalize this rail.',
-  }
-}
-
-async function buildHomePayload(input: {
+function buildHomePayload(input: {
   stories: CuratedStoryCard[]
+  semaphorCards: HomeCardCandidate[]
   source: EditorialSource
   generatedAt: string
   notice: string | null
-  userId?: string | null
 }) {
-  let forYou: CuratedHomeForYouRail | null = null
+  const mainFeedUrls = new Set(input.stories.flatMap((s) => s.sourceLinks.map((l) => l.url)))
+  const mainFeedKeys = new Set(input.stories.map((s) => s.clusterKey))
 
-  try {
-    forYou = await buildForYouRail({
-      userId: input.userId,
-      editionStories: input.stories,
-    })
-  } catch (error) {
-    logEditorialUiEvent('warn', 'home_for_you_failed', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-    })
-  }
+  const semaforRail = input.semaphorCards
+    .filter((c) => !mainFeedUrls.has(c.sourceLinks[0]?.url) && !mainFeedKeys.has(c.clusterKey))
+    .slice(0, 10)
 
   return {
     stories: input.stories,
-    forYou,
+    semaforRail,
     source: input.source,
     generatedAt: input.generatedAt,
     notice: input.notice,
@@ -1894,14 +1809,25 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
   const fallbackRaw = options.fallbackRaw ?? true
   const preview = resolvePreviewMode(options.preview)
   const generatedAt = new Date().toISOString()
-  const semaphorCards = await fetchSemaphorSecurityCards(Math.max(90, limit * 3), {
-    preview,
-  })
-  const stories = buildSemaphorHomeStoryStream(semaphorCards, limit)
+
+  // Fetch Semafor cards, RSS cards, and followed topics in parallel
+  const [semaphorCards, rssCards, {followedTopicIds}] = await Promise.all([
+    fetchSemaphorSecurityCards(Math.max(90, limit * 3), {preview}),
+    fetchRawFallbackCards(limit * 3),
+    fetchFollowedTopics(options.userId),
+  ])
+
+  // Merge both pools — Semafor first for dedup priority (richer metadata)
+  const mergedCards = [...semaphorCards, ...rssCards]
+  const boostedCards = applyTopicBoost(mergedCards, followedTopicIds)
+  const stories = buildSemaphorHomeStoryStream(boostedCards, limit)
 
   logEditorialUiEvent('info', 'home_semaphor_security_only', {
     requestedLimit: limit,
     fetchedCards: semaphorCards.length,
+    rssCards: rssCards.length,
+    mergedCards: mergedCards.length,
+    boostedTopics: followedTopicIds.size,
     deliveredStories: stories.length,
     fallbackRawOption: fallbackRaw,
     previewOption: preview,
@@ -1910,18 +1836,19 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
   if (stories.length > 0) {
     return buildHomePayload({
       stories,
+      semaphorCards,
       source: 'raw-fallback',
       generatedAt,
       notice: `${stories.length} stories in today's briefing.`,
-      userId: options.userId,
     })
   }
 
   const publishedCards = await fetchSanityDigestCards({preview})
 
   if (publishedCards.length > 0) {
+    const boostedPublishedCards = applyTopicBoost(publishedCards, followedTopicIds)
     const stream = await buildHomeStreamWithSupplementalStories({
-      cards: publishedCards,
+      cards: boostedPublishedCards,
       limit,
       source: 'sanity',
       preview,
@@ -1932,10 +1859,10 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
 
       return buildHomePayload({
         stories: filteredStories,
+        semaphorCards: [],
         source: 'sanity',
         generatedAt,
         notice: 'Showing published editorial coverage.',
-        userId: options.userId,
       })
     }
   }
@@ -1943,16 +1870,17 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
   if (!fallbackRaw) {
     return buildHomePayload({
       stories: [],
+      semaphorCards: [],
       source: 'raw-fallback',
       generatedAt,
       notice: 'No stories are available right now. Check back soon.',
-      userId: options.userId,
     })
   }
 
   const fallbackCards = await fetchRawFallbackCards(limit * 3)
+  const boostedFallbackCards = applyTopicBoost(fallbackCards, followedTopicIds)
   const fallbackStream = await buildHomeStreamWithSupplementalStories({
-    cards: fallbackCards,
+    cards: boostedFallbackCards,
     limit,
     source: 'raw-fallback',
     preview,
@@ -1961,13 +1889,13 @@ export async function getCuratedHomeData(options: HomeOptions = {}): Promise<Cur
 
   return buildHomePayload({
     stories: filteredFallbackStories,
+    semaphorCards: [],
     source: 'raw-fallback',
     generatedAt,
     notice:
       filteredFallbackStories.length > 0
         ? 'Showing fallback coverage while the primary feed recovers.'
         : 'No stories are available right now. Check back soon.',
-    userId: options.userId,
   })
 }
 
@@ -2721,7 +2649,10 @@ export async function getCuratedStoryDetail(
     return null
   }
 
-  const rawClusterArticleId = safeClusterKey.startsWith('raw-') ? safeClusterKey.slice(4) : null
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const rawClusterArticleId = safeClusterKey.startsWith('raw-')
+    ? safeClusterKey.slice(4)
+    : uuidPattern.test(safeClusterKey) ? safeClusterKey : null
 
   if (rawClusterArticleId) {
     const rows = await fetchArticlesByIds([rawClusterArticleId])

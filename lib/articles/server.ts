@@ -220,7 +220,7 @@ async function fetchCommentCountsByArticleId(articleIds: string[]) {
   return counts
 }
 
-async function fetchFollowedTopics(userId?: string | null) {
+export async function fetchFollowedTopics(userId?: string | null) {
   const supabase = await createOptionalSupabaseServerClient()
 
   if (!supabase || !userId) {

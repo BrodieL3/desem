@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [
+        '**/node_modules/**',
+        '**/*.csv',
+        '**/FY2025_All_Contracts_Full_20260206/**',
+        '**/data/**',
+      ],
+    }
+    return config
+  },
 };
 
 export default nextConfig;
