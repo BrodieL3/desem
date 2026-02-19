@@ -15,7 +15,7 @@ type PrimeSparklinesChartProps = {
 }
 
 function filterPoints(points: DefenseMoneyPrimeSparkline['points'], timeframe: Timeframe) {
-  if (timeframe === '1D') return points.slice(-1)
+  if (timeframe === '1D') return points.slice(-2)
   if (timeframe === '1W') return points.slice(-5)
   return points
 }
@@ -34,34 +34,6 @@ const timeframeLabel: Record<Timeframe, string> = {
   '1M': '30-day',
 }
 
-function TickerQuote({price, changePercent}: {price: number; changePercent: number | null}) {
-  const dollarChange =
-    changePercent !== null && changePercent !== 0
-      ? price * changePercent / (100 + changePercent)
-      : null
-
-  const positive = changePercent !== null && changePercent >= 0
-  const colorClass =
-    changePercent === null
-      ? 'text-muted-foreground'
-      : positive
-        ? 'text-success-foreground'
-        : 'text-warning-foreground'
-
-  return (
-    <p className="tabular-nums text-sm">
-      <span className="text-foreground font-medium">${price.toFixed(2)}</span>
-      {dollarChange !== null ? (
-        <span className={`ml-2 ${colorClass}`}>
-          {positive ? '\u25B2' : '\u25BC'}
-          {' '}
-          {positive ? '+' : ''}{dollarChange.toFixed(2)}
-        </span>
-      ) : null}
-    </p>
-  )
-}
-
 function SparklineRow({
   ticker,
   points,
@@ -73,19 +45,11 @@ function SparklineRow({
   changePercent: number | null
   timeframe: Timeframe
 }) {
-  const showChart = timeframe !== '1D'
-
   return (
     <div className="grid grid-cols-[48px_minmax(0,1fr)_84px] items-center gap-3 border-b border-border/70 pb-2 last:border-b-0">
       <p className="text-sm font-medium text-foreground">{ticker}</p>
 
-      {!showChart ? (
-        points.length > 0 ? (
-          <TickerQuote price={points[points.length - 1].price} changePercent={changePercent} />
-        ) : (
-          <p className="text-xs text-muted-foreground">Awaiting data</p>
-        )
-      ) : points.length < 2 ? (
+      {points.length < 2 ? (
         <p className="text-xs text-muted-foreground">Awaiting data</p>
       ) : (
         <div className="h-[58px] w-full">
