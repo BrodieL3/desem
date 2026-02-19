@@ -1,11 +1,5 @@
 import {NextResponse} from 'next/server'
 
-import {
-  enrichArticleContentBatch,
-  enrichArticleTopicsBatch,
-  getArticlesNeedingContent,
-  getArticlesMissingTopics,
-} from '@/lib/ingest/enrich-articles'
 import {pullDefenseArticles} from '@/lib/ingest/pull-defense-articles'
 import {createSupabaseAdminClientFromEnv, upsertPullResultToSupabase} from '@/lib/ingest/persist'
 
@@ -78,7 +72,15 @@ async function run(request: Request) {
     console.error('[ingest:rss]', result.rss.error)
   }
 
-  // Step 2: Enrich content for pending articles (cap 50, concurrency 5)
+  // Dynamic import to avoid jsdom ESM crash at module load time
+  const {
+    enrichArticleContentBatch,
+    enrichArticleTopicsBatch,
+    getArticlesNeedingContent,
+    getArticlesMissingTopics,
+  } = await import('@/lib/ingest/enrich-articles')
+
+  // Step 2: Enrich content for pending articles
   try {
     const pending = await getArticlesNeedingContent(supabase, 15)
 
@@ -98,7 +100,7 @@ async function run(request: Request) {
     console.error('[ingest:content]', result.content.error)
   }
 
-  // Step 3: Extract topics for articles missing them (cap 30, concurrency 2)
+  // Step 3: Extract topics for articles missing them
   try {
     const missing = await getArticlesMissingTopics(supabase, 10)
 
