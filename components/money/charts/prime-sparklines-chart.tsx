@@ -1,30 +1,91 @@
 'use client'
 
+import {useState} from 'react'
 import Link from 'next/link'
 import {Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts'
 
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
-import type {DefenseMoneyChartData} from '@/lib/data/signals/types'
+import type {DefenseMoneyChartData, DefenseMoneyPrimeSparkline} from '@/lib/data/signals/types'
+
+type Timeframe = '1D' | '1W' | '1M'
 
 type PrimeSparklinesChartProps = {
   module: DefenseMoneyChartData['primeSparklines']
   stale: boolean
 }
 
+function filterPoints(points: DefenseMoneyPrimeSparkline['points'], timeframe: Timeframe) {
+  if (timeframe === '1D') return points.slice(-1)
+  if (timeframe === '1W') return points.slice(-5)
+  return points
+}
+
+function periodChangePercent(points: DefenseMoneyPrimeSparkline['points']) {
+  if (points.length < 2) return null
+  const first = points[0].price
+  const last = points[points.length - 1].price
+  if (first === 0) return null
+  return ((last - first) / first) * 100
+}
+
+const timeframeLabel: Record<Timeframe, string> = {
+  '1D': 'Today',
+  '1W': '7-day',
+  '1M': '30-day',
+}
+
+function TickerQuote({price, changePercent}: {price: number; changePercent: number | null}) {
+  const dollarChange =
+    changePercent !== null && changePercent !== 0
+      ? price * changePercent / (100 + changePercent)
+      : null
+
+  const positive = changePercent !== null && changePercent >= 0
+  const colorClass =
+    changePercent === null
+      ? 'text-muted-foreground'
+      : positive
+        ? 'text-success-foreground'
+        : 'text-warning-foreground'
+
+  return (
+    <p className="tabular-nums text-sm">
+      <span className="text-foreground font-medium">${price.toFixed(2)}</span>
+      {dollarChange !== null ? (
+        <span className={`ml-2 ${colorClass}`}>
+          {positive ? '\u25B2' : '\u25BC'}
+          {' '}
+          {positive ? '+' : ''}{dollarChange.toFixed(2)}
+        </span>
+      ) : null}
+    </p>
+  )
+}
+
 function SparklineRow({
   ticker,
   points,
-  latestChangePercent,
+  changePercent,
+  timeframe,
 }: {
   ticker: string
   points: Array<{tradeDate: string; price: number}>
-  latestChangePercent: number | null
+  changePercent: number | null
+  timeframe: Timeframe
 }) {
+  const showChart = timeframe !== '1D'
+
   return (
     <div className="grid grid-cols-[48px_minmax(0,1fr)_84px] items-center gap-3 border-b border-border/70 pb-2 last:border-b-0">
       <p className="text-sm font-medium text-foreground">{ticker}</p>
 
-      {points.length < 2 ? (
+      {!showChart ? (
+        points.length > 0 ? (
+          <TickerQuote price={points[points.length - 1].price} changePercent={changePercent} />
+        ) : (
+          <p className="text-xs text-muted-foreground">Awaiting data</p>
+        )
+      ) : points.length < 2 ? (
         <p className="text-xs text-muted-foreground">Awaiting data</p>
       ) : (
         <div className="h-[58px] w-full">
@@ -56,27 +117,47 @@ function SparklineRow({
       )}
 
       <p
-        className={`text-right text-sm ${
-          latestChangePercent === null
+        className={`text-right text-sm tabular-nums ${
+          changePercent === null
             ? 'text-muted-foreground'
-            : latestChangePercent >= 0
+            : changePercent >= 0
               ? 'text-success-foreground'
               : 'text-warning-foreground'
         }`}
       >
-        {latestChangePercent === null ? 'N/D' : `${latestChangePercent >= 0 ? '+' : ''}${latestChangePercent.toFixed(2)}%`}
+        {changePercent === null ? 'N/D' : `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`}
       </p>
     </div>
   )
 }
 
 export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps) {
+  const [timeframe, setTimeframe] = useState<Timeframe>('1M')
+
   return (
     <Card className="rounded-lg border border-border bg-card">
       <CardHeader className="space-y-1">
-        <CardTitle className="font-display text-[1.45rem] leading-tight">Prime sparklines</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-display text-[1.45rem] leading-tight">Prime sparklines</CardTitle>
+          <div className="flex gap-1">
+            {(['1D', '1W', '1M'] as const).map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => setTimeframe(tf)}
+                className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
+                  timeframe === tf
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
+          </div>
+        </div>
         <p className="text-muted-foreground text-sm">
-          30-day defense prime quotes{stale ? ' · Refresh at 11 AM UTC' : ''}
+          {timeframeLabel[timeframe]} defense prime quotes{stale ? ' · Refresh at 11 AM UTC' : ''}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -84,14 +165,22 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
           <p className="text-muted-foreground text-sm">No market quotes available.</p>
         ) : (
           <div className="space-y-2">
-            {module.tickers.map((ticker) => (
-              <SparklineRow
-                key={ticker.ticker}
-                ticker={ticker.ticker}
-                points={ticker.points}
-                latestChangePercent={ticker.latestChangePercent}
-              />
-            ))}
+            {module.tickers.map((ticker) => {
+              const filtered = filterPoints(ticker.points, timeframe)
+              const change = timeframe === '1D'
+                ? ticker.latestChangePercent
+                : periodChangePercent(filtered)
+
+              return (
+                <SparklineRow
+                  key={ticker.ticker}
+                  ticker={ticker.ticker}
+                  points={filtered}
+                  changePercent={change}
+                  timeframe={timeframe}
+                />
+              )
+            })}
           </div>
         )}
 

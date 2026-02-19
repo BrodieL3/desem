@@ -80,7 +80,7 @@ export async function getArticlesNeedingContent(
   const {data, error} = await supabase
     .from('ingested_articles')
     .select(ENRICHMENT_ARTICLE_SELECT)
-    .or('content_fetch_status.is.null,content_fetch_status.neq.fetched')
+    .is('content_fetch_status', null)
     .order('published_at', {ascending: false, nullsFirst: false})
     .limit(limit)
     .returns<EnrichmentArticleRow[]>()

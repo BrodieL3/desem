@@ -46,6 +46,12 @@ async function run(request: Request) {
       failed: 0,
       error: null as string | null,
     },
+    market: {
+      status: 'succeeded' as 'succeeded' | 'failed',
+      quotesUpserted: 0,
+      warnings: [] as string[],
+      error: null as string | null,
+    },
   }
 
   const supabase = createSupabaseAdminClientFromEnv()
@@ -119,7 +125,22 @@ async function run(request: Request) {
     console.error('[ingest:topics]', result.topics.error)
   }
 
-  const hasFailed = result.rss.status === 'failed' || result.content.status === 'failed' || result.topics.status === 'failed'
+  // Step 4: Refresh market quotes for sparklines
+  try {
+    const {syncMarketQuotesOnly} = await import('@/lib/data/signals/sync')
+    const marketResult = await syncMarketQuotesOnly()
+
+    result.market.status = marketResult.status
+    result.market.quotesUpserted = marketResult.quotesUpserted
+    result.market.warnings = marketResult.warnings
+    result.market.error = marketResult.error
+  } catch (error) {
+    result.market.status = 'failed'
+    result.market.error = error instanceof Error ? error.message : 'Unknown market quote sync failure.'
+    console.error('[ingest:market]', result.market.error)
+  }
+
+  const hasFailed = result.rss.status === 'failed' || result.content.status === 'failed' || result.topics.status === 'failed' || result.market.status === 'failed'
   result.ok = !hasFailed
 
   const statusCode = hasFailed ? 207 : 200

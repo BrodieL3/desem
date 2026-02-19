@@ -9,6 +9,7 @@ import {generateGuardrailedImplication} from './implications'
 import {loadMacroContextFromYaml, resolveActiveMacroContext, upsertMacroContextEntries} from './macro'
 import {fetchDefenseGovDailyContracts} from './providers/defense-gov'
 import {fetchFinnhubDailyQuotes, fetchFinnhubHistoricalCandles} from './providers/finnhub'
+import {fetchTiingoHistoricalEod} from './providers/tiingo'
 import {fetchAllSamGovOpportunities} from './providers/sam-gov'
 import {fetchUsaspendingTransactions} from './providers/usaspending'
 import {buildDefenseMoneyRollups, upsertDefenseMoneyRollups} from './rollups'
@@ -620,6 +621,37 @@ async function buildCards(input: {
   )
 }
 
+export async function syncMarketQuotesOnly(): Promise<{
+  status: 'succeeded' | 'failed'
+  quotesUpserted: number
+  warnings: string[]
+  error: string | null
+}> {
+  const config = getDefenseMoneySignalsConfig()
+  const warnings: string[] = []
+
+  try {
+    const {quotes, warnings: fetchWarnings} = await fetchFinnhubDailyQuotes({
+      tickers: config.marketTickers,
+      apiKey: config.finnhubApiKey,
+    })
+
+    warnings.push(...fetchWarnings)
+
+    if (quotes.length === 0) {
+      return {status: warnings.length > 0 ? 'failed' : 'succeeded', quotesUpserted: 0, warnings, error: null}
+    }
+
+    const supabase = createSupabaseAdminClientFromEnv()
+    const count = await upsertQuotes({supabase, runId: null, rows: quotes})
+
+    return {status: 'succeeded', quotesUpserted: count, warnings, error: null}
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown market quote sync failure.'
+    return {status: 'failed', quotesUpserted: 0, warnings, error: message}
+  }
+}
+
 export async function syncDefenseMoneySignals(options: DefenseMoneySyncOptions = {}): Promise<DefenseMoneyRunStatus> {
   const config = getDefenseMoneySignalsConfig()
   const targetDate = compact(options.targetDate) || priorBusinessDayEt()
@@ -811,11 +843,27 @@ export async function backfillDefenseMoneyMarketSignals(options?: {
         toDate,
       })
 
-      storedRows += await upsertQuotes({
-        supabase,
-        runId: null,
-        rows: candles,
+      if (candles.length > 0) {
+        storedRows += await upsertQuotes({supabase, runId: null, rows: candles})
+        continue
+      }
+    } catch {
+      // Finnhub candles failed (403 on free tier) — fall through to Tiingo
+    }
+
+    try {
+      const {quotes: tiingoQuotes, warnings: tiingoWarnings} = await fetchTiingoHistoricalEod({
+        ticker,
+        apiKey: config.tiingoApiKey,
+        startDate: fromDate,
+        endDate: toDate,
       })
+
+      warnings.push(...tiingoWarnings)
+
+      if (tiingoQuotes.length > 0) {
+        storedRows += await upsertQuotes({supabase, runId: null, rows: tiingoQuotes})
+      }
     } catch (error) {
       warnings.push(`${ticker}: ${error instanceof Error ? error.message : 'unknown market backfill failure'}`)
     }
