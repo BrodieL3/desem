@@ -848,7 +848,8 @@ function mapPrimeSparklines(input: {
   tickers: string[]
   targetDate: string
 }) {
-  const marketStart = shiftIsoDate(input.targetDate, -31)
+  const ytdStart = `${input.targetDate.slice(0, 4)}-01-01`
+  const marketStart = ytdStart < shiftIsoDate(input.targetDate, -31) ? ytdStart : shiftIsoDate(input.targetDate, -31)
   const quotesInWindow = input.marketQuotes.filter(
     (quote) => quote.tradeDate >= marketStart && quote.tradeDate <= input.targetDate
   )
@@ -1518,7 +1519,8 @@ export async function getDefenseMoneyChartsData(options?: {date?: string}): Prom
   }
 
   const awardsStart = shiftIsoDate(targetDate, -45)
-  const marketStart = shiftIsoDate(targetDate, -31)
+  const ytdStart = `${targetDate.slice(0, 4)}-01-01`
+  const marketStart = ytdStart < shiftIsoDate(targetDate, -31) ? ytdStart : shiftIsoDate(targetDate, -31)
 
   const [awardsResult, weeklyRollupsResult, monthlyRollupsResult, marketResult, macroResult, latestAwardsResult, latestRollupsResult, latestMarketResult] =
     await Promise.all([
@@ -1552,7 +1554,7 @@ export async function getDefenseMoneyChartsData(options?: {date?: string}): Prom
         .gte('trade_date', marketStart)
         .lte('trade_date', targetDate)
         .order('trade_date', {ascending: true})
-        .limit(1000)
+        .limit(2000)
         .returns<MarketQuoteRow[]>(),
       supabase
         .from('defense_money_macro_context')

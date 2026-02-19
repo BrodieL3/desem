@@ -7,7 +7,7 @@ import {Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recha
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card'
 import type {DefenseMoneyChartData, DefenseMoneyPrimeSparkline} from '@/lib/data/signals/types'
 
-type Timeframe = '1D' | '1W' | '1M'
+type Timeframe = '1W' | '1M' | 'YTD'
 
 type PrimeSparklinesChartProps = {
   module: DefenseMoneyChartData['primeSparklines']
@@ -15,8 +15,8 @@ type PrimeSparklinesChartProps = {
 }
 
 function filterPoints(points: DefenseMoneyPrimeSparkline['points'], timeframe: Timeframe) {
-  if (timeframe === '1D') return points.slice(-2)
   if (timeframe === '1W') return points.slice(-5)
+  if (timeframe === '1M') return points.slice(-22)
   return points
 }
 
@@ -29,21 +29,19 @@ function periodChangePercent(points: DefenseMoneyPrimeSparkline['points']) {
 }
 
 const timeframeLabel: Record<Timeframe, string> = {
-  '1D': 'Today',
   '1W': '7-day',
   '1M': '30-day',
+  'YTD': 'Year-to-date',
 }
 
 function SparklineRow({
   ticker,
   points,
   changePercent,
-  timeframe,
 }: {
   ticker: string
   points: Array<{tradeDate: string; price: number}>
   changePercent: number | null
-  timeframe: Timeframe
 }) {
   return (
     <div className="grid grid-cols-[48px_minmax(0,1fr)_84px] items-center gap-3 border-b border-border/70 pb-2 last:border-b-0">
@@ -104,7 +102,7 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
         <div className="flex items-center justify-between">
           <CardTitle className="font-display text-[1.45rem] leading-tight">Prime sparklines</CardTitle>
           <div className="flex gap-1">
-            {(['1D', '1W', '1M'] as const).map((tf) => (
+            {(['1W', '1M', 'YTD'] as const).map((tf) => (
               <button
                 key={tf}
                 type="button"
@@ -131,9 +129,7 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
           <div className="space-y-2">
             {module.tickers.map((ticker) => {
               const filtered = filterPoints(ticker.points, timeframe)
-              const change = timeframe === '1D'
-                ? ticker.latestChangePercent
-                : periodChangePercent(filtered)
+              const change = periodChangePercent(filtered)
 
               return (
                 <SparklineRow
@@ -141,7 +137,6 @@ export function PrimeSparklinesChart({module, stale}: PrimeSparklinesChartProps)
                   ticker={ticker.ticker}
                   points={filtered}
                   changePercent={change}
-                  timeframe={timeframe}
                 />
               )
             })}
