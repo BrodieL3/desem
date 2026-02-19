@@ -1,240 +1,140 @@
-# Field Brief V2
+# Field Brief
 
-Field Brief is a defense-focused news aggregator built with Next.js and Supabase.
+**Live:** [desem.vercel.app](https://desem.vercel.app)
 
-Core behavior:
-- Pulls defense articles from RSS/Atom feeds.
-- Stores and displays full article text in Field Brief.
-- Extracts and links topics/entities for exploration and personalization.
-- Supports signed-in comments and comment reporting.
-- Ranks feed by followed topics when authenticated.
-- Runs an editorial pipeline where Supabase is raw ingest and Sanity is canonical curated output.
+Field Brief is a personalized defense-tech and government news feed. It aggregates articles from 15 curated sources, clusters them into stories, and surfaces defense spending signals — all tailored to what the user follows.
+
+## What it does
+
+**Curated news feed** — Pulls from Breaking Defense, Defense News, C4ISRNET, Defense One, The War Zone, USNI News, and 9 more defense/security outlets. Articles are ingested via RSS, enriched with full-text extraction, and grouped into story clusters using hybrid lexical + embedding similarity.
+
+**Topic-based personalization** — An LLM-powered pipeline extracts entities and topics from every article. Users sign in, follow topics they care about, and the feed re-ranks around their interests using a weighted scoring model (topic match strength + source quality + recency decay).
+
+**Story clustering and digests** — Related articles are automatically grouped into narrative clusters. Each cluster gets a generated digest with citations grounded in the underlying reporting, so users can scan a story quickly and drill into source material.
+
+**Defense money signals** — A `/data` dashboard tracks DoD contract awards (USAspending), SAM.gov opportunities, and defense-sector market data (Finnhub). Weekly rollups surface spending trends, prime contractor moves, and structural shifts in procurement.
+
+**Comments and discussion** — Authenticated users can comment on articles and report abuse. Moderation uses a flag-and-review model.
+
+## How personalization works
+
+| User state | Ranking behavior |
+|---|---|
+| Anonymous | Newest-first, tie-break by source quality weight |
+| Signed in with follows | `score = (primary_topic_matches * 5) + (secondary_topic_matches * 2) + source_weight + recency_decay` with a 36-hour half-life |
+
+Users set their interests by following topics. The topic graph is built automatically from article content via LLM entity extraction — no manual tagging required.
+
+## Architecture
+
+```
+RSS/Atom feeds (15 sources)
+    |
+    v
+Ingest pipeline (pull + normalize + dedup)
+    |
+    v
+Supabase (raw articles, topics, comments, signals)
+    |
+    v
+Editorial pipeline (clustering + digest generation + curation)
+    |
+    v
+Sanity CMS (curated newsItem + storyDigest documents)
+    |
+    v
+Next.js App Router (SSR pages + personalized ranking)
+```
+
+**Two-layer data model:**
+- **Supabase** — operational layer for raw ingestion, topic graphs, user follows, comments, financial data, and pipeline metadata.
+- **Sanity** — editorial layer for curated story digests and reviewed news items. Supports a Studio-based editorial workflow with review queues and verification views.
+
+**Automated daily pipeline** — A single Vercel cron triggers the full cycle: feed pull, content enrichment, topic extraction, story clustering, digest generation, Sanity sync, and financial data updates.
 
 ## Stack
 
-- Next.js App Router
-- Bun
-- shadcn/ui
-- Supabase (SSR auth + storage + RLS)
-- RSS/Atom ingestion + HTML full-text extraction (`jsdom` + `@mozilla/readability`)
+- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript (strict)
+- **Database:** Supabase (SSR auth + Postgres + RLS)
+- **CMS:** Sanity (editorial pipeline output + Studio admin)
+- **UI:** Tailwind CSS v4 + shadcn/ui + Radix UI + Recharts
+- **Ingestion:** RSS/Atom parsing + jsdom + @mozilla/readability for full-text extraction
+- **Clustering:** Union-find with hybrid lexical + OpenAI embedding similarity
+- **Financial data:** USAspending API, SAM.gov API, Finnhub market data, SEC EDGAR filings
+- **Runtime:** Bun + Vercel
 
-## Routes
+## Pages
 
-- `/` - newspaper-style front page with lead story, headline river, trending topics, followed topics, and most discussed
-- `/stories/article/[id]` - full-source reading view + topic chips + comments
-- `/topics/[slug]` - topic explorer with related coverage and co-occurring topics
-- `/data` - defense-tech money signals (spend pulse, prime moves, awards, structural shifts, macro context) plus prime backlog/book-to-bill module
-- `/auth/sign-in` - magic-link sign-in
-- `/auth/callback` - auth callback handler
-- `/auth/sign-out` - sign-out redirect route
+| Route | Description |
+|---|---|
+| `/` | Newspaper-style front page with lead story, headline river, trending topics, followed topics |
+| `/stories/[clusterKey]` | Story detail with digest narrative + paged evidence blocks from source articles |
+| `/stories/article/[id]` | Full-source reading view + topic chips + comments |
+| `/topics/[slug]` | Topic explorer with related coverage and co-occurring topics |
+| `/topics` | Topic directory |
+| `/search` | Article search |
+| `/awards` | Defense contract awards dashboard |
+| `/data` | Defense money signals (spend pulse, prime moves, awards, macro context) |
 
-## API routes
-
-- `/api/articles` - list/search/filter articles (`q`, `topic`, `limit`, `offset`)
-- `/api/articles/[id]` - article detail payload
-- `/api/articles/[id]/comments` - list/create comments
-- `/api/comments/[id]/report` - report comment abuse
-- `/api/comments/[id]/moderate` - moderator-only hide/restore action
-- `/api/me/topics` - read/update followed topics
-- `/api/cron/pull-articles` - pull + persist + content enrichment + topic extraction + clustering + editorial sync
-- `/api/editorial/feed` - curated Sanity-backed editorial feed
-- `/api/editorial/clusters` - curated story-cluster digests from Sanity
-- `/api/data/primes` - prime backlog/book-to-bill dashboard payload
-- `/api/data/signals` - defense-tech money signals payload for home/data surfaces
-
-## Database migrations
-
-Apply these in Supabase SQL editor:
-
-1. `db/migrations/202602120001_interest_first_personalization.sql`
-2. `db/migrations/202602120002_article_ingestion.sql`
-3. `db/migrations/202602120004_article_content.sql`
-4. `db/migrations/202602120005_topics.sql`
-5. `db/migrations/202602120006_comments.sql`
-6. `db/migrations/202602130007_editorial_pipeline.sql`
-7. `db/migrations/202602130008_source_curation_metadata.sql`
-8. `db/migrations/202602130009_prime_metrics.sql`
-9. `db/migrations/202602160001_defense_money_signals.sql`
-
-Notes:
-- Migration `202602120003_article_tagging.sql` is legacy and no longer required for V2 behavior.
-- Existing ingested articles are preserved; new columns are additive.
-
-## Environment
-
-Create `.env.local`:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL="https://...supabase.co"
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="..."
-SUPABASE_SERVICE_ROLE_KEY="..." # required for cron/backfill enrichment
-NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-CRON_SECRET="..." # optional, used to authorize cron route
-
-# Sanity editorial pipeline (canonical output)
-SANITY_PROJECT_ID="..."
-SANITY_DATASET="..."
-SANITY_AGENT_TOKEN="..." # read/write token for agent actions
-SANITY_SCHEMA_ID="..."
-SANITY_API_VERSION="vX" # required for Transform API calls
-
-# Optional controls
-EDITORIAL_PIPELINE_ENABLED="true"
-EDITORIAL_SANITY_READS_ENABLED="true"
-EDITORIAL_SANITY_PREVIEW_DRAFTS="false" # dev preview: include Sanity drafts in home/story reads
-EDITORIAL_TRANSFORM_ENABLED="true"
-EDITORIAL_EMBEDDINGS_ENABLED="true"
-EDITORIAL_CLUSTER_THRESHOLD="0.72"
-EDITORIAL_MAX_EMBEDDING_ARTICLES="120"
-EDITORIAL_EMBEDDING_MODEL="text-embedding-3-small"
-EDITORIAL_SEMAPHOR_SYNC_ENABLED="true"
-EDITORIAL_SEMAPHOR_LIMIT="200"
-EDITORIAL_SEMAPHOR_CONCURRENCY="4"
-EDITORIAL_SEMAPHOR_TIMEOUT_MS="20000"
-OPENAI_API_KEY="..." # optional for embedding similarity in clustering
-DATA_PRIMES_ENABLED="false" # enable /data and /api/data/primes
-SEC_USER_AGENT="FieldBrief/1.0 (email@example.com)" # recommended for SEC data endpoints
-
-# Defense-money signals
-DATA_MONEY_SIGNALS_ENABLED="true"
-USASPENDING_API_BASE_URL="https://api.usaspending.gov"
-DATA_MONEY_MIN_TRANSACTION_USD="10000000"
-DATA_MONEY_MAX_TRANSACTION_PAGES="25"
-DATA_MONEY_ALLOWED_AWARDING_AGENCIES="Department of Defense"
-DATA_MONEY_BUCKET_RULESET_VERSION="v1"
-FINNHUB_API_KEY="..."
-DATA_MONEY_MARKET_TICKERS="LMT,RTX,NOC,GD,BA,LHX"
-DATA_MONEY_MARKET_BACKFILL_DAYS="31"
-DATA_MONEY_LLM_ENABLED="true"
-DATA_MONEY_LLM_MODEL="gpt-4.1-mini"
-DATA_MONEY_MACRO_SNAPSHOT_PATH="/Users/brodielee/desem/scripts/data/macro-budget-context.yaml"
-
-# Optional incident escalation
-GITHUB_TOKEN="..."
-GITHUB_REPO="owner/repo"
-GITHUB_ISSUE_LABEL="money-signals"
-```
-
-## Run locally
+## Local setup
 
 ```bash
 bun install
-bun run dev
+cp .env.example .env.local   # fill in your keys
+bun run dev                   # http://localhost:3000
 ```
 
-Lint and tests:
+See `.env.example` for all required and optional environment variables.
+
+### Database
+
+Apply migrations in order from `db/migrations/` in the Supabase SQL editor. The numbered prefix determines the order.
+
+### Ingestion scripts
+
+```bash
+bun run ingest:pull --since-hours=72 --limit=120 --to-supabase   # pull + persist articles
+bun run ingest:backfill                                           # enrich full text + topics
+bun run data:sync-money                                           # sync defense spending data
+bun run data:backfill-market --days=31                            # backfill market history
+```
+
+Or trigger the full pipeline locally:
+
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/pull-articles
+```
+
+### Quality
 
 ```bash
 bun run lint
 bun run test
 ```
 
-## Pull and persist articles
+## Project structure
 
-Pull feed metadata only:
-
-```bash
-bun run ingest:pull --since-hours=72 --limit=120
 ```
-
-Pull and upsert into Supabase:
-
-```bash
-bun run ingest:pull --since-hours=72 --limit=120 --to-supabase
+app/                    Next.js pages and API routes
+  api/cron/             Daily ingestion pipeline
+  api/editorial/        Sanity-backed editorial feed endpoints
+  api/data/             Financial data endpoints
+  api/articles/         Article list/detail/comments
+  api/me/               User personalization endpoints
+lib/                    Server-side business logic
+  ingest/               Feed pulling, enrichment, source metadata
+  editorial/            Clustering, curation, digest generation, home assembly
+  topics/               LLM topic extraction and persistence
+  data/signals/         Defense spending and market data pipelines
+  data/primes/          SEC filing scrape for defense contractor metrics
+  sanity/               Sanity client, sync, and Transform integration
+  articles/             Article queries with personalized ranking
+  comments/             Comment persistence and moderation
+components/             React presentation components
+  editorial/            Story cards, digests, home feed blocks
+  data/                 Financial visualizations
+  ui/                   shadcn/ui primitives
+sanity/                 Sanity Studio schema and configuration
+db/migrations/          Supabase DDL migrations (apply in order)
+scripts/                CLI tools for ingest, backfill, and data sync
 ```
-
-Then enrich full text + topics for existing rows:
-
-```bash
-bun run ingest:backfill
-```
-
-Scrape full article text from a Semafor article URL:
-
-```bash
-bun run ingest:scrape-semafor --url https://www.semafor.com/article/MM/DD/YYYY/slug
-```
-
-Backfill/sync Semafor Security stories into Sanity `newsItem` docs (with full text):
-
-```bash
-bun run editorial:sync-semafor --limit=200 --concurrency=4
-```
-
-Backfill prime metrics from curated official seed data:
-
-```bash
-bun run data:backfill-primes
-```
-
-Sync latest prime metrics from SEC filings:
-
-```bash
-bun run data:sync-primes --filings-per-company=1
-```
-
-Sync daily defense money signals (DoD spend + market + cards):
-
-```bash
-bun run data:sync-money
-```
-
-Backfill 24 months of business-day money signals with resume checkpoint:
-
-```bash
-bun run data:backfill-money
-```
-
-Rebuild weekly/monthly structural rollups:
-
-```bash
-bun run data:rebuild-money-rollups
-```
-
-Backfill one month of market history:
-
-```bash
-bun run data:backfill-market --days=31
-```
-
-Sync curated macro context YAML into Supabase:
-
-```bash
-bun run data:sync-macro
-```
-
-## Cron ingestion
-
-`/api/cron/pull-articles` runs:
-- feed pull
-- upsert sources/articles
-- full-text enrichment (concurrency 5, 15s timeout each)
-- topic extraction/persistence
-- hybrid story clustering (lexical + optional embeddings)
-- congestion scoring (Transform fallback only when cluster has >=10 stories and >=6 sources in 24h)
-- deterministic digest fallback if Transform fails/unavailable
-- draft-first Sanity sync for `newsItem` and `storyDigest`
-- Semafor Security sync into Sanity `newsItem` docs with full body text for continuous-scroll reads
-- prime metrics sync (including LHX) from SEC submissions
-- defense money signals sync (DoD spend pulse, prime moves, awards cards, structural rollups, macro context)
-- Supabase ops persistence in `editorial_generation_runs`, `story_clusters`, and `cluster_members`
-
-Example local invocation:
-
-```bash
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/pull-articles
-```
-
-## Personalization and ranking
-
-- Anonymous: newest-first (`published_at desc`, tie-break by source weight)
-- Authenticated with follows:
-  - `score = (primary_topic_matches * 5) + (secondary_topic_matches * 2) + source_weight + recency_decay`
-  - `recency_decay` uses a 36-hour half-life
-
-## Moderation model (V1)
-
-- Any authenticated user can comment.
-- Any authenticated user can report comments.
-- Hidden comments are rendered as collapsed moderation placeholders (body removed).
-- Flat comment threads only (no nesting in V1).

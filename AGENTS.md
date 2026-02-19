@@ -1,6 +1,6 @@
 # Field Brief Agent Guide
 
-This document is for coding agents working in this repository. It is intentionally more implementation-specific than `/Users/brodielee/desem/README.md`.
+This document is for coding agents working in this repository. It is intentionally more implementation-specific than `README.md`.
 
 ## Project goals
 
@@ -17,12 +17,12 @@ This document is for coding agents working in this repository. It is intentional
 
 ## Design guidance
 
-- Detailed design system guidance lives in `/Users/brodielee/desem/docs/design-best-practices.md`.
+- Detailed design system guidance lives in `docs/design-best-practices.md`.
 - Use that document for Next.js + Tailwind v4 + shadcn/ui implementation patterns, accessibility details, and UI copy conventions.
 - Keep `AGENTS.md` as the concise project-specific operating policy; avoid duplicating the full design guide here.
 
 Design non-negotiables for this project:
-- Use semantic theme tokens in `/Users/brodielee/desem/app/globals.css` (avoid hardcoded colors in components).
+- Use semantic theme tokens in `app/globals.css` (avoid hardcoded colors in components).
 - Keep interactive touch targets at or above 44x44px.
 - Preserve keyboard accessibility, visible focus states, and reduced-motion support.
 - Keep loading, empty, and error states explicit for all user-facing surfaces.
@@ -52,7 +52,7 @@ Use these rules when making tradeoffs:
 
 ## Current product state (goal-aligned)
 
-- Home (`/`) is editorial-first and assembled by `/Users/brodielee/desem/lib/editorial/ui-server.ts`.
+- Home (`/`) is editorial-first and assembled by `lib/editorial/ui-server.ts`.
 - Home currently prefers live Semafor Security stream coverage, then falls back to Sanity digests/raw fallback synthesis.
 - Story pages (`/stories/[clusterKey]`) are verification-focused: digest narrative plus paged evidence blocks.
 - Source-detail pages (`/stories/article/[id]`) preserve full-text reading + topic actions + discussion.
@@ -63,9 +63,9 @@ Use these rules when making tradeoffs:
 ## Sanity Studio CMS structure (non-negotiable)
 
 - Sanity Studio navigation is intentionally custom and must be maintained via:
-  - `/Users/brodielee/desem/sanity.config.ts`
-  - `/Users/brodielee/desem/sanity/lib/structure.ts`
-  - `/Users/brodielee/desem/sanity/lib/document-views.tsx`
+  - `sanity.config.ts`
+  - `sanity/lib/structure.ts`
+  - `sanity/lib/document-views.tsx`
 - Root Studio panes must remain:
   - `Digest Workflow`
   - `Evidence Library`
@@ -90,27 +90,27 @@ Use these rules when making tradeoffs:
 ## Architecture and data flow
 
 1. Source ingest (coverage breadth)
-   - Pull + normalize RSS/Atom feeds: `/Users/brodielee/desem/lib/ingest/pull-defense-articles.ts`.
-   - Source curation metadata and role taxonomy: `/Users/brodielee/desem/lib/ingest/sources.ts`.
+   - Pull + normalize RSS/Atom feeds: `lib/ingest/pull-defense-articles.ts`.
+   - Source curation metadata and role taxonomy: `lib/ingest/sources.ts`.
 2. Raw persistence (operational layer)
-   - Upsert sources/articles in Supabase: `/Users/brodielee/desem/lib/ingest/persist.ts`.
+   - Upsert sources/articles in Supabase: `lib/ingest/persist.ts`.
 3. Content enrichment (verification depth)
-   - Extract full text, excerpts, images, reading metadata: `/Users/brodielee/desem/lib/ingest/enrich-articles.ts`.
+   - Extract full text, excerpts, images, reading metadata: `lib/ingest/enrich-articles.ts`.
 4. Topic graph (reader utility + ranking)
-   - Extract and classify topics: `/Users/brodielee/desem/lib/topics/extract-topics.ts`.
-   - Persist topics and article links: `/Users/brodielee/desem/lib/topics/persist-topics.ts`.
+   - Extract and classify topics: `lib/topics/extract-topics.ts`.
+   - Persist topics and article links: `lib/topics/persist-topics.ts`.
 5. Editorial modeling (curated layer)
-   - Focus filtering: `/Users/brodielee/desem/lib/editorial/focus.ts`.
-   - Clustering: `/Users/brodielee/desem/lib/editorial/clustering.ts`.
-   - Congestion evaluation: `/Users/brodielee/desem/lib/editorial/congestion.ts`.
-   - Deterministic digest generation + curated citation balance: `/Users/brodielee/desem/lib/editorial/deterministic-digest.ts` and `/Users/brodielee/desem/lib/editorial/curation.ts`.
-   - Optional transform refinement: `/Users/brodielee/desem/lib/sanity/transform.ts`.
+   - Focus filtering: `lib/editorial/focus.ts`.
+   - Clustering: `lib/editorial/clustering.ts`.
+   - Congestion evaluation: `lib/editorial/congestion.ts`.
+   - Deterministic digest generation + curated citation balance: `lib/editorial/deterministic-digest.ts` and `lib/editorial/curation.ts`.
+   - Optional transform refinement: `lib/sanity/transform.ts`.
 6. Curated sync
-   - Draft sync to Sanity docs: `/Users/brodielee/desem/lib/sanity/sync.ts`.
+   - Draft sync to Sanity docs: `lib/sanity/sync.ts`.
    - Cluster/run persistence in Supabase via cron route.
 7. Read-model assembly
-   - Home/story API and UI models: `/Users/brodielee/desem/lib/editorial/ui-server.ts`.
-   - Route handlers: `/Users/brodielee/desem/app/api/**`.
+   - Home/story API and UI models: `lib/editorial/ui-server.ts`.
+   - Route handlers: `app/api/**`.
 
 ## Canonical boundaries
 
@@ -119,34 +119,34 @@ Use these rules when making tradeoffs:
 - Sanity boundary (curated + editorial):
   - `newsItem` and `storyDigest` documents used for editorial presentation.
 - UI assembly boundary:
-  - `/Users/brodielee/desem/lib/editorial/ui-server.ts` owns composition and fallback behavior.
+  - `lib/editorial/ui-server.ts` owns composition and fallback behavior.
   - React components should render passed models, not re-implement ranking/curation logic.
 
 ## Project structure map
 
-- `/Users/brodielee/desem/app`
+- `app`
   - App Router pages and API handlers.
   - Goal-critical pages:
-    - `/Users/brodielee/desem/app/page.tsx` (scan-first home)
-    - `/Users/brodielee/desem/app/stories/[clusterKey]/page.tsx` (verification-focused story view)
-    - `/Users/brodielee/desem/app/stories/article/[id]/page.tsx` (source article + discussion)
-    - `/Users/brodielee/desem/app/topics/[slug]/page.tsx` (topic discovery + follows)
+    - `app/page.tsx` (scan-first home)
+    - `app/stories/[clusterKey]/page.tsx` (verification-focused story view)
+    - `app/stories/article/[id]/page.tsx` (source article + discussion)
+    - `app/topics/[slug]/page.tsx` (topic discovery + follows)
   - Goal-critical APIs:
-    - `/Users/brodielee/desem/app/api/cron/pull-articles/route.ts`
-    - `/Users/brodielee/desem/app/api/editorial/*`
-    - `/Users/brodielee/desem/app/api/articles/*`
-    - `/Users/brodielee/desem/app/api/comments/*`
-    - `/Users/brodielee/desem/app/api/me/topics/route.ts`
-- `/Users/brodielee/desem/components`
+    - `app/api/cron/pull-articles/route.ts`
+    - `app/api/editorial/*`
+    - `app/api/articles/*`
+    - `app/api/comments/*`
+    - `app/api/me/topics/route.ts`
+- `components`
   - Presentation components. Keep business logic in `lib/**`.
-- `/Users/brodielee/desem/lib`
+- `lib`
   - Product behavior and integration boundaries:
     - `ingest/`, `editorial/`, `topics/`, `articles/`, `comments/`, `sanity/`, `supabase/`, `user/`.
-- `/Users/brodielee/desem/db/migrations`
+- `db/migrations`
   - Supabase schema contracts; app code must match migrated schema.
-- `/Users/brodielee/desem/sanity/schemaTypes`
+- `sanity/schemaTypes`
   - Curated content schema contracts; sync and read projections must match.
-- `/Users/brodielee/desem/scripts`
+- `scripts`
   - Operational CLI entrypoints for ingest/backfill/scrape workflows.
 
 ## Key runtime invariants (must hold)
@@ -253,9 +253,9 @@ Recommended defaults to align with goals:
 - Keep source attribution intact when changing digest/citation or feed composition logic.
 - Prefer reversible, incremental changes over schema-wide refactors when a focused change can satisfy the goal.
 - When touching ranking/curation logic, update or add tests in:
-  - `/Users/brodielee/desem/lib/editorial/*.test.ts`
-  - `/Users/brodielee/desem/lib/sanity/sync.test.ts`
-  - `/Users/brodielee/desem/lib/topics/extract-topics.test.ts`
+  - `lib/editorial/*.test.ts`
+  - `lib/sanity/sync.test.ts`
+  - `lib/topics/extract-topics.test.ts`
 
 ## Change acceptance checklist
 
@@ -269,11 +269,11 @@ Before finalizing a behavior change, verify:
 
 ## Where to change what (quick lookup)
 
-- Add/modify feed sources: `/Users/brodielee/desem/lib/ingest/sources.ts`
-- Change ingestion normalization/dedup: `/Users/brodielee/desem/lib/ingest/pull-defense-articles.ts`
-- Change clustering behavior: `/Users/brodielee/desem/lib/editorial/clustering.ts`
-- Change editorial focus criteria: `/Users/brodielee/desem/lib/editorial/focus.ts`
-- Change citation mix/role handling: `/Users/brodielee/desem/lib/editorial/curation.ts`
-- Change home/story feed composition and fallbacks: `/Users/brodielee/desem/lib/editorial/ui-server.ts`
-- Change comments/reporting/moderation: `/Users/brodielee/desem/lib/comments/server.ts` and `/Users/brodielee/desem/app/api/comments/*`
-- Change Sanity sync payloads: `/Users/brodielee/desem/lib/sanity/sync.ts` and `/Users/brodielee/desem/sanity/schemaTypes/*`
+- Add/modify feed sources: `lib/ingest/sources.ts`
+- Change ingestion normalization/dedup: `lib/ingest/pull-defense-articles.ts`
+- Change clustering behavior: `lib/editorial/clustering.ts`
+- Change editorial focus criteria: `lib/editorial/focus.ts`
+- Change citation mix/role handling: `lib/editorial/curation.ts`
+- Change home/story feed composition and fallbacks: `lib/editorial/ui-server.ts`
+- Change comments/reporting/moderation: `lib/comments/server.ts` and `app/api/comments/*`
+- Change Sanity sync payloads: `lib/sanity/sync.ts` and `sanity/schemaTypes/*`
