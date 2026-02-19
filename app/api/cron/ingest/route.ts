@@ -10,7 +10,7 @@ import {pullDefenseArticles} from '@/lib/ingest/pull-defense-articles'
 import {createSupabaseAdminClientFromEnv, upsertPullResultToSupabase} from '@/lib/ingest/persist'
 
 export const dynamic = 'force-dynamic'
-export const maxDuration = 300
+export const maxDuration = 60
 
 function authorizeCronRequest(request: Request) {
   const cronSecret = process.env.CRON_SECRET
@@ -80,7 +80,7 @@ async function run(request: Request) {
 
   // Step 2: Enrich content for pending articles (cap 50, concurrency 5)
   try {
-    const pending = await getArticlesNeedingContent(supabase, 50)
+    const pending = await getArticlesNeedingContent(supabase, 15)
 
     if (pending.length > 0) {
       const contentResult = await enrichArticleContentBatch(supabase, pending, {
@@ -100,7 +100,7 @@ async function run(request: Request) {
 
   // Step 3: Extract topics for articles missing them (cap 30, concurrency 2)
   try {
-    const missing = await getArticlesMissingTopics(supabase, 30)
+    const missing = await getArticlesMissingTopics(supabase, 10)
 
     if (missing.length > 0) {
       const topicResult = await enrichArticleTopicsBatch(supabase, missing, {
