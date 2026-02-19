@@ -58,9 +58,9 @@ function makeSemaforHtml() {
 }
 
 describe('extractArticleContentFromHtml', () => {
-  it('extracts Semafor article text from embedded Next flight payload', () => {
+  it('extracts Semafor article text from embedded Next flight payload', async () => {
     const html = makeSemaforHtml()
-    const result = extractArticleContentFromHtml(
+    const result = await extractArticleContentFromHtml(
       'https://www.semafor.com/article/02/13/2026/test-semafor-extraction',
       html
     )

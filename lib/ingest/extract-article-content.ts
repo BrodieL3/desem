@@ -1,5 +1,4 @@
 import {Readability} from '@mozilla/readability'
-import {JSDOM, VirtualConsole} from 'jsdom'
 
 type ExtractStatus = 'fetched' | 'failed'
 
@@ -378,14 +377,15 @@ function failWith(message: string): ExtractedArticleContent {
   }
 }
 
-export function extractArticleContentFromHtml(articleUrl: string, html: string): ExtractedArticleContent {
-  let dom: JSDOM
+export async function extractArticleContentFromHtml(articleUrl: string, html: string): Promise<ExtractedArticleContent> {
+  const {JSDOM, VirtualConsole} = await import('jsdom')
+  let dom: InstanceType<typeof JSDOM>
 
   try {
     const virtualConsole = new VirtualConsole()
 
     // Ignore noisy stylesheet parse warnings from malformed publisher CSS.
-    virtualConsole.on('jsdomError', (error) => {
+    virtualConsole.on('jsdomError', (error: unknown) => {
       const message = error instanceof Error ? error.message : String(error)
 
       if (message.includes('Could not parse CSS stylesheet')) {
